@@ -1,0 +1,113 @@
+{
+    "name": "chonky2",
+    "version": "6.5.2",
+    "type": "commonjs",
+    "description": "A File Browser component for React",
+    "license": "MIT",
+    "files": [
+        "dist",
+        "src"
+    ],
+    "engines": {
+        "node": ">=18"
+    },
+    "scripts": {
+        "dev": "vite",
+        "build": "vite build",
+        "watch": "vite build --watch",
+        "preview": "vite preview"
+    },
+    "husky": {
+        "hooks": {
+            "pre-commit": "tsup lint"
+        }
+    },
+    "main": "dist/chonky2.cjs.js",
+    "module": "dist/chonky2.es.js",
+    "types": "dist/index.d.ts",
+    "size-limit": [
+        {
+            "path": "dist/chonky2.cjs.production.min.js",
+            "limit": "10 KB"
+        },
+        {
+            "path": "dist/chonky2.esm.js",
+            "limit": "10 KB"
+        }
+    ],
+    "dependencies": {
+        "@reduxjs/toolkit": ">=1.9.0",
+        "classnames": "^2.5.1",
+        "deepmerge": "^4.3.1",
+        "exact-trie": "^1.0.13",
+        "fast-sort": "^3.4.0",
+        "filesize": "^10.1.6",
+        "fuzzy-search": "^3.2.1",
+        "hotkeys-js": "^3.13.4",
+        "react-dnd": "^16.0.1",
+        "react-dnd-html5-backend": "^16.0.1",
+        "react-intl": "^7.1.14",
+        "react-jss": "^10.10.0",
+        "react-redux": "^9.1.2",
+        "react-virtualized-auto-sizer": "^1.0.9",
+        "react-window": "^1.8.11",
+        "redux-watch": "^1.2.0",
+        "shortid": "^2.2.17",
+        "tsdef": "^0.0.14"
+    },
+    "devDependencies": {
+        "@babel/core": "^7.26.0",
+        "@size-limit/preset-small-lib": "^11.2.0",
+        "@testing-library/react": "^16.0.1",
+        "@types/classnames": "^2.3.0",
+        "@types/fuzzy-search": "^2.1.1",
+        "@types/memoizee": "^0.4.8",
+        "@types/node": "^24.7.2",
+        "@types/react": "^19.0.0",
+        "@types/react-dom": "^19.0.0",
+        "@types/react-redux": "^7.1.34",
+        "@types/react-virtualized-auto-sizer": "^1.0.3",
+        "@types/react-window": "^1.8.8",
+        "@types/redux-watch": "^1.1.2",
+        "@types/shortid": "^2.2.0",
+        "@vitejs/plugin-react": "^5.0.4",
+        "babel-loader": "^9.2.1",
+        "husky": "^9.1.0",
+        "size-limit": "^9.0.0",
+        "tslib": "^2.8.1",
+        "tsup": "^8.1.0",
+        "typescript": "^5.9.3",
+        "vite": "^6.3.6",
+        "vitest": "^3.2.4"
+    },
+    "peerDependencies": {
+        "react": "^19.2.0",
+        "react-dom": "^19.2.0",
+        "@emotion/react": "^11.14.0",
+        "@emotion/styled": "^11.14.1",
+        "@mui/icons-material": "^6.5.0",
+        "@mui/material": "^6.5.0",
+        "styled-components": "^6.1.14",
+        "@mui/styled-engine-sc": "^7.3.3"
+    },
+    "homepage": "https://chonky.io/",
+    "author": {
+        "name": "Timur Kuzhagaliyev",
+        "email": "tim.kuzh@gmail.com",
+        "url": "https://foxypanda.me/"
+    },
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/TimboKZ/Chonky.git"
+    },
+    "bugs": {
+        "url": "https://github.com/TimboKZ/Chonky/issues"
+    },
+    "keywords": [
+        "file",
+        "chonky2",
+        "file-dialog",
+        "file-browser",
+        "react-component"
+    ]
+}
