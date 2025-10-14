@@ -1,5 +1,5 @@
+import { ChonkyIconFA } from '../components/internal/ChonkyIconsFA';
 import { ChonkyActions } from '../action-definitions/index';
-import { ChonkyIconPlaceholder } from '../components/internal/ChonkyIconPlaceholder';
 import { FileBrowserProps } from '../types/file-browser.types';
 
 export type ChonkyConfig = Pick<
@@ -32,7 +32,7 @@ export const defaultConfig: ChonkyConfig = {
     defaultSortActionId: ChonkyActions.SortFilesByName.id,
     defaultFileViewActionId: ChonkyActions.EnableGridView.id,
     clearSelectionOnOutsideClick: true,
-    iconComponent: ChonkyIconPlaceholder,
+    iconComponent: ChonkyIconFA,
     darkMode: false,
     i18n: {},
 };

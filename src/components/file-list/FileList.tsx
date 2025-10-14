@@ -1,4 +1,4 @@
-import React, { UIEvent, useCallback, useContext, useMemo } from 'react';
+import React, { UIEvent, useCallback, useContext, useMemo, useRef } from 'react';
 import { useSelector } from 'react-redux';
 import AutoSizer from 'react-virtualized-auto-sizer';
 
@@ -10,7 +10,7 @@ import { useFileDrop } from '../../util/dnd';
 import { ChonkyIconContext } from '../../util/icon-helper';
 import {
     c, getStripeGradient, makeGlobalChonkyStyles, makeLocalChonkyStyles
-} from '../../util/styles.ts';
+} from '../../util/styles';
 import { FileListEmpty } from './FileListEmpty';
 import { GridContainer } from './GridContainer';
 import { ListContainer } from './ListContainer';
@@ -29,9 +29,8 @@ export const FileList: React.FC<FileListProps> = React.memo((props: FileListProp
     const viewConfig = useSelector(selectFileViewConfig);
 
     const currentFolder = useSelector(selectCurrentFolder);
-    const { drop, dndCanDrop, dndIsOverCurrent } = useFileDrop({ file: currentFolder });
+    const { drop, dndCanDrop, dndIsOverCurrent } = useFileDrop({ file: currentFolder! });
     const styleState = useMemo<StyleState>(() => ({ dndCanDrop, dndIsOverCurrent }), [dndCanDrop, dndIsOverCurrent]);
-
     const localClasses = useLocalStyles(styleState);
     const classes = useStyles(viewConfig);
     const { onScroll } = props;
@@ -55,8 +54,10 @@ export const FileList: React.FC<FileListProps> = React.memo((props: FileListProp
     );
 
     const ChonkyIcon = useContext(ChonkyIconContext);
+    const dropRef = useRef<HTMLDivElement | null>(null);
+    drop(dropRef);
     return (
-        <div onScroll={onScroll} ref={drop} className={c([classes.fileListWrapper, localClasses.fileListWrapper])} role="list">
+        <div onScroll={onScroll} ref={dropRef} className={c([classes.fileListWrapper, localClasses.fileListWrapper])} role="list">
             <div className={localClasses.dndDropZone}>
                 <div className={localClasses.dndDropZoneIcon}>
                     <ChonkyIcon icon={dndCanDrop ? ChonkyIconName.dndCanDrop : ChonkyIconName.dndCannotDrop} />

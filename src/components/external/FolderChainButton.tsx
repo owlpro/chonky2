@@ -4,13 +4,13 @@
  * @license MIT
  */
 
-import React, { useContext, useMemo } from 'react';
+import React, { useContext, useMemo, useRef } from 'react';
 
 import { DndEntryState } from '../../types/file-list.types';
 import { ChonkyIconName } from '../../types/icons.types';
 import { useDndHoverOpen, useFileDrop } from '../../util/dnd';
 import { ChonkyIconContext } from '../../util/icon-helper';
-import { c, important, makeLocalChonkyStyles } from '../../util/styles.ts';
+import { c, important, makeLocalChonkyStyles } from '../../util/styles';
 import { useDndIcon } from '../file-list/FileEntry-hooks';
 import { FolderChainItem } from './FileNavbar-hooks';
 import { ToolbarButton } from './ToolbarButton';
@@ -52,8 +52,11 @@ export const FolderChainButton: React.FC<FolderChainButtonProps> = React.memo(
                 ? ChonkyIconName.folder
                 : file?.folderChainIcon;
 
+        const dropRef = useRef<HTMLDivElement | null>(null);
+        drop(dropRef);
+
         return (
-            <div className={classes.buttonContainer} ref={file ? drop : null}>
+            <div className={classes.buttonContainer} ref={file ? dropRef : null}>
                 {file && dndIconName && (
                     <div className={classes.dndIndicator}>
                         <ChonkyIcon icon={dndIconName} fixedWidth={true} />

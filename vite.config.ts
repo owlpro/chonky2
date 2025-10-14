@@ -1,24 +1,19 @@
-import { defineConfig } from 'vite';
-import react from '@vitejs/plugin-react';
 import path from 'path';
-import packageJson from './package.json' assert { type: 'json' };
+import { defineConfig } from 'vite';
+import dts from 'vite-plugin-dts';
 
 export default defineConfig({
-    plugins: [react()],
+    plugins: [dts({ include: ['src'] })],
 
     resolve: {
-        dedupe: ['react', 'react-dom'],
+        dedupe: [
+            'react',
+            'react-dom',
+            '@mui/material',
+            '@emotion/react',
+            '@emotion/styled',
+        ],
         alias: {
-            // react: path.resolve(__dirname, '../develop-package/node_modules/react'),
-            // 'react-dom': path.resolve(
-            //     __dirname,
-            //     '../develop-package/node_modules/react-dom'
-            // ),
-            // '@mui/material': path.resolve(__dirname, 'node_modules/@mui/material'),
-            // '@mui/icons-material': path.resolve(
-            //     __dirname,
-            //     'node_modules/@mui/icons-material'
-            // ),
             '@mui/styled-engine': '@mui/styled-engine-sc',
         },
         preserveSymlinks: true,
@@ -27,7 +22,7 @@ export default defineConfig({
         lib: {
             entry: path.resolve(__dirname, 'src/index.ts'),
             name: 'chonky2',
-            fileName: (format) => `chonky2.${format}.js`,
+            fileName: (format) => `index.${format}.js`,
             formats: ['es', 'cjs'],
         },
         rollupOptions: {
@@ -36,13 +31,19 @@ export default defineConfig({
                 'react-dom',
                 'react/jsx-runtime',
                 'react-dom/client',
-                ...Object.keys(packageJson.peerDependencies),
+                '@emotion/react',
+                '@emotion/styled',
+                '@mui/icons-material',
+                '@mui/material',
+                '@mui/styled-engine-sc',
+                'styled-components',
             ],
             output: {
                 globals: {
                     react: 'React',
                     'react-dom': 'ReactDOM',
                 },
+                exports: 'named',
             },
         },
         sourcemap: true,

@@ -11,7 +11,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { reduxActions } from '../../redux/reducers';
 import { selectContextMenuConfig, selectContextMenuItems } from '../../redux/selectors';
 import { getI18nId, I18nNamespace } from '../../util/i18n';
-import { important, makeGlobalChonkyStyles } from '../../util/styles.ts';
+import { important, makeGlobalChonkyStyles } from '../../util/styles';
 import { useContextMenuDismisser } from './FileContextMenu-hooks';
 import { SmartToolbarDropdownButton } from './ToolbarDropdownButton';
 import { ListSubheader, Menu } from '@mui/material';
@@ -19,7 +19,7 @@ import { ListSubheader, Menu } from '@mui/material';
 export interface FileContextMenuProps {}
 
 export const FileContextMenu: React.FC<FileContextMenuProps> = React.memo(() => {
-    const dispatch = useDispatch();
+    const dispatch = useDispatch<any>();
     useEffect(() => {
         dispatch(reduxActions.setContextMenuMounted(true));
         return () => {
@@ -54,7 +54,7 @@ export const FileContextMenu: React.FC<FileContextMenuProps> = React.memo(() => 
                     />
                 );
             } else {
-                item.fileActionIds.map(id =>
+                item?.fileActionIds.map(id =>
                     components.push(
                         <SmartToolbarDropdownButton
                             key={`context-menu-item-${item.name}-${id}`}

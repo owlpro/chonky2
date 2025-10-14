@@ -3,7 +3,7 @@ import React, { useContext } from 'react';
 import { FileEntryProps } from '../../types/file-list.types';
 import { useLocalizedFileEntryStrings } from '../../util/i18n';
 import { ChonkyIconContext } from '../../util/icon-helper';
-import { makeLocalChonkyStyles } from '../../util/styles.ts';
+import { makeLocalChonkyStyles } from '../../util/styles';
 import { TextPlaceholder } from '../external/TextPlaceholder';
 import { useFileEntryHtmlProps, useFileEntryState } from './FileEntry-hooks';
 import { FileEntryName } from './FileEntryName';

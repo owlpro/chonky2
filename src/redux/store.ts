@@ -50,7 +50,7 @@ export const useParamSelector = <Args extends Array<any>, Value>(
  * main Chonky method.
  */
 export const useDTE = <Args extends Array<any>>(actionCreator: (...args: Args) => any, ...selectorParams: Args) => {
-    const dispatch = useDispatch();
+    const dispatch = useDispatch<any>();
     useEffect(
         () => {
             dispatch(actionCreator(...selectorParams));
@@ -61,7 +61,7 @@ export const useDTE = <Args extends Array<any>>(actionCreator: (...args: Args) =
 };
 
 export const usePropReduxUpdate = <Payload extends any>(actionCreator: (payload: Payload) => any, payload: Payload) => {
-    const dispatch = useDispatch();
+    const dispatch = useDispatch<any>();
     useEffect(() => {
         dispatch(actionCreator(payload));
     }, [dispatch, actionCreator, payload]);

@@ -24,7 +24,7 @@ export const findClosestChonkyFileId = (
 };
 
 export const useContextMenuTrigger = () => {
-    const dispatch = useDispatch();
+    const dispatch = useDispatch<any>();
     const contextMenuMountedRef = useInstanceVariable(
         useSelector(selectContextMenuMounted)
     );
@@ -53,6 +53,6 @@ export const useContextMenuTrigger = () => {
 };
 
 export const useContextMenuDismisser = () => {
-    const dispatch = useDispatch();
+    const dispatch = useDispatch<any>();
     return useCallback(() => dispatch(reduxActions.hideContextMenu()), [dispatch]);
 };

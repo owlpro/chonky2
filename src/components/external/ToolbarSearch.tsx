@@ -15,7 +15,7 @@ import { ChonkyIconName } from '../../types/icons.types';
 import { useDebounce } from '../../util/hooks-helpers';
 import { getI18nId, I18nNamespace } from '../../util/i18n';
 import { ChonkyIconContext } from '../../util/icon-helper';
-import { important, makeGlobalChonkyStyles } from '../../util/styles.ts';
+import { important, makeGlobalChonkyStyles } from '../../util/styles';
 import { InputAdornment, TextField } from '@mui/material';
 
 export interface ToolbarSearchProps { }
@@ -32,7 +32,7 @@ export const ToolbarSearch: React.FC<ToolbarSearchProps> = React.memo(() => {
 
     const searchInputRef = useRef<HTMLInputElement>(null);
 
-    const dispatch = useDispatch();
+    const dispatch = useDispatch<any>();
     const reduxSearchString = useSelector(selectSearchString);
 
     const [localSearchString, setLocalSearchString] = useState(reduxSearchString);

@@ -14,7 +14,7 @@ import {
 } from '../../redux/selectors';
 import { useDndContextAvailable } from '../../util/dnd-fallback';
 import { elementIsInsideButton } from '../../util/helpers';
-import { makeGlobalChonkyStyles } from '../../util/styles.ts';
+import { makeGlobalChonkyStyles } from '../../util/styles';
 import { useContextMenuTrigger } from '../external/FileContextMenu-hooks';
 import { DnDFileListDragLayer } from '../file-list/DnDFileListDragLayer';
 import { HotkeyListener } from './HotkeyListener';
@@ -27,7 +27,7 @@ export interface ChonkyPresentationLayerProps {
 export const ChonkyPresentationLayer: React.FC<ChonkyPresentationLayerProps> = ({
     children,
 }) => {
-    const dispatch = useDispatch();
+    const dispatch = useDispatch<any>();
     const fileActionIds = useSelector(selectFileActionIds);
     const dndDisabled = useSelector(selectIsDnDDisabled);
     const clearSelectionOnOutsideClick = useSelector(

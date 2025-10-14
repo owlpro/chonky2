@@ -13,7 +13,7 @@ import { selectFileViewConfig, selectors } from '../../redux/selectors';
 import { FileViewConfigGrid } from '../../types/file-view.types';
 import { RootState } from '../../types/redux.types';
 import { useInstanceVariable } from '../../util/hooks-helpers';
-import { makeGlobalChonkyStyles, useIsMobileBreakpoint } from '../../util/styles.ts';
+import { makeGlobalChonkyStyles, useIsMobileBreakpoint } from '../../util/styles';
 import { SmartFileEntry } from './FileEntry';
 
 export interface FileListGridProps {

@@ -14,7 +14,7 @@ import { CustomVisibilityState } from '../../types/action.types';
 import { useFileActionProps, useFileActionTrigger } from '../../util/file-actions';
 import { useLocalizedFileActionStrings } from '../../util/i18n';
 import { ChonkyIconContext } from '../../util/icon-helper';
-import { c, important, makeGlobalChonkyStyles } from '../../util/styles.ts';
+import { c, important, makeGlobalChonkyStyles } from '../../util/styles';
 import { ListItemIcon, ListItemText, MenuItem } from '@mui/material';
 
 export interface ToolbarDropdownButtonProps {

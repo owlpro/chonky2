@@ -6,7 +6,7 @@
 
 import React from 'react';
 
-import { makeLocalChonkyStyles } from '../../util/styles.ts';
+import { makeLocalChonkyStyles } from '../../util/styles';
 
 export interface TextPlaceholderProps {
     minLength: number;

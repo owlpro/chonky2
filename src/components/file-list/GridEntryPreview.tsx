@@ -10,7 +10,7 @@ import { Nullable } from 'tsdef';
 import { DndEntryState } from '../../types/file-list.types';
 import { ChonkyIconName } from '../../types/icons.types';
 import { ChonkyIconContext } from '../../util/icon-helper';
-import { c, important, makeLocalChonkyStyles } from '../../util/styles.ts';
+import { c, important, makeLocalChonkyStyles } from '../../util/styles';
 import { FileThumbnail } from './FileThumbnail';
 import { GridEntryDndIndicator } from './GridEntryDndIndicator';
 

@@ -2,7 +2,7 @@ import React, { ReactElement, useMemo } from 'react';
 import { useSelector } from 'react-redux';
 
 import { selectToolbarItems } from '../../redux/selectors';
-import { makeGlobalChonkyStyles } from '../../util/styles.ts';
+import { makeGlobalChonkyStyles } from '../../util/styles';
 import { SmartToolbarButton } from './ToolbarButton';
 import { ToolbarDropdown } from './ToolbarDropdown';
 import { ToolbarInfo } from './ToolbarInfo';

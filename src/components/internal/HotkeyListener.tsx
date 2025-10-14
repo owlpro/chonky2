@@ -19,7 +19,7 @@ export interface HotkeyListenerProps {
 export const HotkeyListener: React.FC<HotkeyListenerProps> = React.memo(props => {
     const { fileActionId } = props;
 
-    const dispatch = useDispatch();
+    const dispatch = useDispatch<any>();
     const fileAction = useParamSelector(selectFileActionData, fileActionId);
 
     useEffect(() => {

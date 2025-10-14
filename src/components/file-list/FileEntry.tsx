@@ -7,7 +7,7 @@ import { useParamSelector } from '../../redux/store';
 import { DndEntryState, FileEntryProps } from '../../types/file-list.types';
 import { FileViewMode } from '../../types/file-view.types';
 import { FileHelper } from '../../util/file-helper';
-import { makeGlobalChonkyStyles } from '../../util/styles.ts';
+import { makeGlobalChonkyStyles } from '../../util/styles';
 import { ClickableWrapper, ClickableWrapperProps } from '../internal/ClickableWrapper';
 import { CompactEntry } from './CompactEntry';
 import { DnDFileEntry } from './DnDFileEntry';

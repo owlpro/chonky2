@@ -158,7 +158,7 @@ export const useThumbnailUrl = (file: Nullable<FileData>) => {
 };
 
 export const useFileClickHandlers = (file: Nullable<FileData>, displayIndex: number) => {
-    const dispatch = useDispatch();
+    const dispatch = useDispatch<any>();
 
     // Prepare base handlers
     const onMouseClick = useCallback(

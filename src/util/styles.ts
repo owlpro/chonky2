@@ -1,7 +1,7 @@
-import { Theme, useMediaQuery, useTheme } from '@mui/material';
+import { Theme, useMediaQuery } from '@mui/material';
 
-import * as classNames from 'classnames';
-import { useMemo } from 'react';
+import classNames from 'classnames';
+import { createUseStyles } from 'react-jss';
 import { DeepPartial } from 'tsdef';
 
 export const lightTheme = {
@@ -132,21 +132,48 @@ export const getStripeGradient = (colorOne: string, colorTwo: string) =>
  *   backgroundColor: theme.palette.background.paper,
  * }));
  */
-export function makeLocalChonkyStyles(styles: (theme: Theme) => Record<string, any>) {
-    return function useLocalChonkyStyles() {
-        const theme = useTheme();
-        return useMemo(() => styles(theme), [theme]);
-    };
-}
+export const makeLocalChonkyStyles = <C extends string = string>(
+    styles: (theme: ChonkyTheme & Theme) => any
+    // @ts-ignore
+): any => createUseStyles<ChonkyTheme, C>(styles);
 
-export const makeGlobalChonkyStyles = (
-    styles: (theme: Theme) => Record<string, any>
+// export function makeLocalChonkyStyles(styles: (theme: Theme) => Record<string, any>) {
+//     return function useLocalChonkyStyles() {
+//         const theme = useTheme();
+//         return useMemo(() => styles(theme), [theme]);
+//     };
+// }
+
+export const makeGlobalChonkyStyles = <C extends string = string>(
+    makeStyles: (theme: ChonkyTheme & Theme) => any
 ) => {
-    const useGlobalChonkyStyles = () => {
-        const theme = useTheme();
-        return useMemo(() => styles(theme), [theme]);
+    const selectorMapping = {};
+    const makeGlobalStyles = (theme: ChonkyTheme) => {
+        const localStyles = makeStyles(theme as any);
+        const globalStyles = {};
+        const localSelectors = Object.keys(localStyles);
+        localSelectors.map((localSelector) => {
+            const globalSelector = `chonky-${localSelector}`;
+            const jssSelector = `@global .${globalSelector}`;
+            // @ts-ignore
+            globalStyles[jssSelector] = localStyles[localSelector];
+            // @ts-ignore
+            selectorMapping[localSelector] = globalSelector;
+        });
+        return globalStyles;
     };
-    return useGlobalChonkyStyles;
+
+    // @ts-ignore
+    const useStyles = createUseStyles<ChonkyTheme, C>(makeGlobalStyles as any);
+    return (...args: any[]): any => {
+        const styles = useStyles(...args);
+        const classes = {};
+        Object.keys(selectorMapping).map((localSelector) => {
+            // @ts-ignore
+            classes[localSelector] = selectorMapping[localSelector];
+        });
+        return { ...classes, ...styles };
+    };
 };
 
 export function important<T>(value: T): string {

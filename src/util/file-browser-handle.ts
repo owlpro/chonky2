@@ -10,7 +10,7 @@ import { RootState } from '../types/redux.types';
 
 export const useFileBrowserHandle = (ref: React.Ref<FileBrowserHandle>) => {
     const store = useStore<RootState>();
-    const dispatch = useDispatch();
+    const dispatch = useDispatch<any>();
 
     useImperativeHandle(
         ref,

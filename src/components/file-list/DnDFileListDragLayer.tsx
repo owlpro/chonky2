@@ -9,7 +9,7 @@ import { useDragLayer } from 'react-dnd';
 import { Nullable } from 'tsdef';
 
 import { ChonkyDndFileEntryItem, ChonkyDndFileEntryType } from '../../types/dnd.types';
-import { makeGlobalChonkyStyles } from '../../util/styles.ts';
+import { makeGlobalChonkyStyles } from '../../util/styles';
 
 export interface DnDFileListDragLayerProps {}
 

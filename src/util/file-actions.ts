@@ -20,9 +20,9 @@ import { SortOrder } from '../types/sort.types';
 import { FileHelper } from './file-helper';
 
 export const useFileActionTrigger = (fileActionId: string) => {
-    const dispatch = useDispatch();
+    const dispatch = useDispatch<any>();
     const fileAction = useParamSelector(selectFileActionData, fileActionId);
-    return useCallback(() => dispatch(thunkRequestFileAction(fileAction, undefined)), [
+    return useCallback(() => dispatch(thunkRequestFileAction(fileAction!, undefined)), [
         dispatch,
         fileAction,
     ]);
@@ -91,7 +91,7 @@ export const useFileActionProps = (
         if (action.id === ChonkyActions.OpenParentFolder.id) {
             // We treat `open_parent_folder` file action as a special case as it
             // requires the parent folder to be present to work...
-            disabled = disabled || !FileHelper.isOpenable(parentFolder);
+            disabled = disabled || !FileHelper.isOpenable(parentFolder ?? null);
         }
 
         return { icon, active, disabled };

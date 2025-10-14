@@ -8,7 +8,7 @@ import React from 'react';
 import { Nullable } from 'tsdef';
 
 import { FileData } from '../../types/file.types';
-import { makeLocalChonkyStyles } from '../../util/styles.ts';
+import { makeLocalChonkyStyles } from '../../util/styles';
 import { useFileNameComponent, useModifierIconComponents } from './FileEntry-hooks';
 
 export interface FileEntryNameProps {

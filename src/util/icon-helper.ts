@@ -430,7 +430,7 @@ const getIconTrie = () => {
                 icon,
                 colorCode,
             };
-            exactTrie.put(extensions[i], iconData, true);
+            exactTrie.put(extensions[i]!, iconData, true);
         }
     }
 

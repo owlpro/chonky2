@@ -1,9 +1,3 @@
-/**
- * @author Timur Kuzhagaliyev <tim.kuzh@gmail.com>
- * @copyright 2020
- * @license MIT
- */
-
 import React from 'react';
 
 import { FileBrowserHandle, FileBrowserProps } from '../../types/file-browser.types';
@@ -12,17 +6,20 @@ import { FileBrowser } from './FileBrowser';
 import { FileContextMenu } from './FileContextMenu';
 import { FileNavbar } from './FileNavbar';
 import { FileToolbar } from './FileToolbar';
+import { NoSsr } from '@mui/material';
 
 export const FullFileBrowser = React.memo(
     React.forwardRef<FileBrowserHandle, FileBrowserProps>((props, ref) => {
         const { onScroll } = props
         return (
-            <FileBrowser ref={ref} {...props}>
-                <FileNavbar />
-                <FileToolbar />
-                <FileList onScroll={onScroll}/>
-                <FileContextMenu/>
-            </FileBrowser>
+            <NoSsr>
+                <FileBrowser ref={ref} {...props}>
+                    <FileNavbar />
+                    <FileToolbar />
+                    <FileList onScroll={onScroll} />
+                    <FileContextMenu />
+                </FileBrowser>
+            </NoSsr>
         );
     })
 );

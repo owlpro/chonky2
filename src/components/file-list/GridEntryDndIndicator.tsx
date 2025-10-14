@@ -8,7 +8,7 @@ import React, { useContext } from 'react';
 
 import { DndEntryState } from '../../types/file-list.types';
 import { ChonkyIconContext } from '../../util/icon-helper';
-import { c, makeLocalChonkyStyles } from '../../util/styles.ts';
+import { c, makeLocalChonkyStyles } from '../../util/styles';
 import { useDndIcon } from './FileEntry-hooks';
 
 export interface DnDIndicatorProps {

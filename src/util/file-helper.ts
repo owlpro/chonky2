@@ -68,7 +68,7 @@ export class FileHelper {
             // We allow users to provide string and numerical representations of dates.
             try {
                 return new Date(maybeDate);
-            } catch (error) {
+            } catch (error: any) {
                 Logger.error(
                     `Could not convert provided string/number into a date: ${error.message} `,
                     'Invalid value:',

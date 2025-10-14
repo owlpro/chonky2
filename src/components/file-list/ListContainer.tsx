@@ -11,7 +11,7 @@ import { FixedSizeList } from 'react-window';
 import { selectFileViewConfig, selectors } from '../../redux/selectors';
 import { FileViewMode } from '../../types/file-view.types';
 import { useInstanceVariable } from '../../util/hooks-helpers';
-import { makeLocalChonkyStyles } from '../../util/styles.ts';
+import { makeLocalChonkyStyles } from '../../util/styles';
 import { SmartFileEntry } from './FileEntry';
 
 export interface FileListListProps {

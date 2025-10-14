@@ -10,7 +10,7 @@ import { useSelector } from 'react-redux';
 
 import { selectHiddenFileCount, selectors, selectSelectionSize } from '../../redux/selectors';
 import { getI18nId, I18nNamespace } from '../../util/i18n';
-import { important, makeGlobalChonkyStyles } from '../../util/styles.ts';
+import { important, makeGlobalChonkyStyles } from '../../util/styles';
 import { Typography } from '@mui/material';
 
 export interface ToolbarInfoProps {}

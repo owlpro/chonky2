@@ -23,7 +23,7 @@ import {
     lightTheme,
     mobileThemeOverride,
     useIsMobileBreakpoint,
-} from '../../util/styles.ts';
+} from '../../util/styles';
 import { ChonkyBusinessLogic } from '../internal/ChonkyBusinessLogic';
 import { ChonkyIconPlaceholder } from '../internal/ChonkyIconPlaceholder';
 import { ChonkyPresentationLayer } from '../internal/ChonkyPresentationLayer';

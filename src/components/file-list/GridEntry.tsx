@@ -2,7 +2,7 @@ import React from 'react';
 
 import { FileEntryProps } from '../../types/file-list.types';
 import { FileHelper } from '../../util/file-helper';
-import { c, makeLocalChonkyStyles } from '../../util/styles.ts';
+import { c, makeLocalChonkyStyles } from '../../util/styles';
 import { useFileEntryHtmlProps, useFileEntryState } from './FileEntry-hooks';
 import { FileEntryName } from './FileEntryName';
 import { FileEntryState, GridEntryPreviewFile, GridEntryPreviewFolder } from './GridEntryPreview';
