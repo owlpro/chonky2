@@ -1,57 +1,172 @@
 <p align="center">
-    <img src="https://chonky.io/chonky-logo-v2.png" alt="Chonky v2 Logo" width="500" />
+    <img src="https://chonky.io/chonky-logo-v2.png" alt="Chonky2 Logo" width="500" />
     <br />
-    <a href="https://www.npmjs.com/package/chonky">
-        <img
-            alt="NPM package"
-            src="https://img.shields.io/npm/v/chonky.svg?style=flat&colorB=ffac5c"
-        />
+    <a href="https://www.npmjs.com/package/chonky2">
+        <img alt="NPM package" src="https://img.shields.io/npm/v/chonky2.svg?style=flat&colorB=ffac5c" />
     </a>
     <a href="https://tldrlegal.com/license/mit-license">
-        <img
-            alt="MIT license"
-            src="https://img.shields.io/npm/l/chonky?style=flat&colorB=dcd67a"
-        />
+        <img alt="MIT license" src="https://img.shields.io/npm/l/chonky2?style=flat&colorB=dcd67a" />
     </a>
-    <a href="https://www.npmjs.com/package/chonky">
-        <img
-            alt="NPM downloads"
-            src="https://img.shields.io/npm/dt/chonky?style=flat&colorB=aef498"
-        />
+    <a href="https://www.npmjs.com/package/chonky2">
+        <img alt="NPM downloads" src="https://img.shields.io/npm/dt/chonky2?style=flat&colorB=aef498" />
     </a>
-    <a href="https://github.com/TimboKZ/Chonky">
-        <img
-            alt="GitHub stars"
-            src="https://img.shields.io/github/stars/TimboKZ/Chonky?style=flat&colorB=50f4cc"
-        />
+    <a href="https://github.com/your-username/chonky2">
+        <img alt="GitHub stars" src="https://img.shields.io/github/stars/your-username/chonky2?style=flat&colorB=50f4cc" />
     </a>
-    <a href="https://discord.gg/4HJaFn9">
-        <img
-            alt="Chat on Discord"
-            src="https://img.shields.io/discord/696033621986770957?label=discord&style=flat&colorB=08acee"
-        />
-    </a>
-    <br />
-    <br />
-    <br />
+    <br /><br />
 </p>
 
-Chonky is a file browser component for React. It tries to recreate the native file
-browsing experience in your browser. This means your users can make selections, drag
-& drop files, toggle between _List_ and _Grid_ file views, use keyboard shortcuts, and
-much more!
+# Chonky2
 
-### [Click here for documentation and examples.](https://chonky.io/)
+**Chonky2** is a modernized and optimized fork of [Chonky](https://github.com/TimboKZ/Chonky) —
+a powerful React file browser component that recreates the native file explorer experience in the browser.
 
-> Please [create an issue](https://github.com/TimboKZ/Chonky/issues) if you have a
-> problem or want to request a feature.
+Users can **drag & drop**, **select multiple files**, **toggle between grid and list views**, and use **keyboard shortcuts** seamlessly.
 
-## Preview
+---
+
+## 🚀 What's New
+
+### ⚛️ React 19.2 Support
+- Fully compatible with **React 19.2** and the new JSX runtime.
+- Improved internal architecture for better performance and tree-shaking.
+
+### 🎨 Material UI 6.5
+- Updated to **@mui/material v6.5.0**.
+- Refactored styling system to align with MUI’s Styled Engine.
+
+### 🪶 Built-in Lucide Icon Pack
+- **FontAwesome removed completely.**
+- Icons are now powered by **[Lucide](https://lucide.dev/)** and bundled directly within the package.
+- No external icon imports or configuration required.
+
+### 📦 Package Modernization
+- New package name: **`chonky2`**
+- Fully compatible with **Vite** and **ESM**
+- Reduced dependency footprint and improved build times
+
+---
+
+## 📦 Installation
+
+Install Chonky2 and its compatible peer dependencies:
+
+```bash
+npm install chonky2
+
+npm install @emotion/react@^11.14.0 @emotion/styled@^11.14.1             @mui/icons-material@^6.5.0 @mui/material@^6.5.0             @mui/styled-engine-sc@^6.4.9 styled-components@^6.1.14
+```
+
+> **Note:** Ensure you match these versions for consistent styling and compatibility.
+
+---
+
+## ⚙️ Quick Start
+
+```tsx
+import { FileBrowser, FileList, FileToolbar } from 'chonky2';
+
+const files = [
+  { id: 'file1', name: 'Document.pdf' },
+  { id: 'file2', name: 'Photo.png' },
+];
+
+export default function Example() {
+  return (
+    <FileBrowser files={files}>
+      <FileToolbar />
+      <FileList />
+    </FileBrowser>
+  );
+}
+```
+
+- No need to import icons — they are included automatically.  
+- Works seamlessly with MUI v6.5 components and themes.
+
+---
+
+## 🔁 Migration from Original Chonky
+
+1️⃣ Uninstall the old package:
+```bash
+npm uninstall chonky
+```
+
+2️⃣ Install Chonky2:
+```bash
+npm install chonky2
+```
+
+3️⃣ Update your imports:
+```diff
+- import { FileBrowser } from 'chonky';
++ import { FileBrowser } from 'chonky2';
+```
+
+4️⃣ Remove all FontAwesome or external icon imports — they are now handled internally via Lucide.
+
+---
+
+## 🧩 Compatibility
+
+| Library | Version |
+|----------|----------|
+| React | 19.2 |
+| MUI | 6.5.x |
+| TypeScript | Supported (types included) |
+
+---
+
+## 📸 Preview
 
 <p align="center">
-  <img src="https://chonky.io/chonky-v2-preview.gif" alt="Chonky preview">
+  <img src="https://chonky.io/chonky-v2-preview.gif" alt="Chonky2 preview" />
 </p>
 
-## License
+---
 
-MIT © [Tim Kuzhagaliyev](https://github.com/TimboKZ) 2020
+## 📚 Documentation
+
+Documentation for Chonky2 is currently being updated.  
+Until then, refer to the original [Chonky documentation](https://chonky.io/).  
+Most APIs remain **backward-compatible**.
+
+---
+
+## 📝 Changelog
+
+### 6.5.2 (2025-10-15)
+- Upgraded to React 19.2
+- Migrated to MUI 6.5 with new styled engine
+- Removed FontAwesome and added built-in **Lucide Icon Pack**
+- Improved ESM and Vite compatibility
+- Reduced bundle size and dependencies
+
+---
+
+## 🧾 License
+
+MIT © [Tim Kuzhagaliyev](https://github.com/TimboKZ)  
+Maintained and upgraded by [Your Name](https://github.com/your-username)
+
+---
+
+## 🔗 Useful Links
+
+- NPM: https://www.npmjs.com/package/chonky2  
+- GitHub: https://github.com/your-username/chonky2  
+- Issues: https://github.com/your-username/chonky2/issues
+
+---
+
+## 💎 Sponsored by
+
+<p align="center">
+  <a href="https://vahdatoptic.com" target="_blank" style="text-decoration:none;">
+    <img style="background-color: #fff;border-radius: 8px;" src="./images/logo-vahdat.svg" alt="Vahdat Optic Logo" width="160" /><br/>
+    <b>Developed and enhanced with the support of</b><br/>
+    <span style="font-size:1.2em; font-weight:600; color:#0073e6;">Vahdat Optic</span><br/>
+    <a href="https://vahdatoptic.com" target="_blank" style="color:#ffac5c; font-weight:500;">https://vahdatoptic.com</a>
+  </a>
+</p>
