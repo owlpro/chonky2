@@ -110,14 +110,14 @@
     "author": {
         "name": "Mahdi Amiri",
         "email": "mdpro.smm@gmail.com",
-        "url": ""
+        "url": "https://github.com/owlpro"
     },
     "repository": {
         "type": "git",
-        "url": "git+https://github.com/TimboKZ/Chonky.git"
+        "url": "git+https://github.com/owlpro/chonky2.git"
     },
     "bugs": {
-        "url": "https://github.com/TimboKZ/Chonky/issues"
+        "url": "https://github.com/owlpro/chonky2/issues"
     },
     "keywords": [
         "file",
