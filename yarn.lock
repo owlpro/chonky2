@@ -753,22 +753,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@mui/icons-material@npm:^6.5.0":
-  version: 6.5.0
-  resolution: "@mui/icons-material@npm:6.5.0"
-  dependencies:
-    "@babel/runtime": "npm:^7.26.0"
-  peerDependencies:
-    "@mui/material": ^6.5.0
-    "@types/react": ^17.0.0 || ^18.0.0 || ^19.0.0
-    react: ^17.0.0 || ^18.0.0 || ^19.0.0
-  peerDependenciesMeta:
-    "@types/react":
-      optional: true
-  checksum: 10c0/0afec2280e8dde4ff34686481497c4b3ced8193f0038bf8984fd502808c053ba8464c35409def0380424cade1d282f647fac1db7c55046b2b232b0d2c52a589d
-  languageName: node
-  linkType: hard
-
 "@mui/material@npm:^6.5.0":
   version: 6.5.0
   resolution: "@mui/material@npm:6.5.0"
@@ -2153,7 +2137,6 @@ __metadata:
     "@babel/core": "npm:^7.26.0"
     "@emotion/react": "npm:^11.14.0"
     "@emotion/styled": "npm:^11.14.1"
-    "@mui/icons-material": "npm:^6.5.0"
     "@mui/material": "npm:^6.5.0"
     "@mui/styled-engine-sc": "npm:^6.4.9"
     "@reduxjs/toolkit": "npm:>=1.9.0"
@@ -2208,7 +2191,6 @@ __metadata:
   peerDependencies:
     "@emotion/react": ">=11"
     "@emotion/styled": ">=11"
-    "@mui/icons-material": ">=6"
     "@mui/material": ">=6"
     "@mui/styled-engine-sc": ">=6"
     react: ">=19"

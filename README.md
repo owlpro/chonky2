@@ -54,7 +54,12 @@ Install Chonky2 and its compatible peer dependencies:
 ```bash
 npm install chonky2
 
-npm install @emotion/react@^11.14.0 @emotion/styled@^11.14.1             @mui/icons-material@^6.5.0 @mui/material@^6.5.0             @mui/styled-engine-sc@^6.4.9 styled-components@^6.1.14
+npm install \
+    @emotion/react@^11.14.0 \
+    @emotion/styled@^11.14.1 \
+    @mui/material@^6.5.0 \
+    @mui/styled-engine-sc@^6.4.9 \
+    styled-components@^6.1.14
 ```
 
 > **Note:** Ensure you match these versions for consistent styling and compatibility.

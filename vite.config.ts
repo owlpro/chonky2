@@ -33,7 +33,6 @@ export default defineConfig({
                 'react-dom/client',
                 '@emotion/react',
                 '@emotion/styled',
-                '@mui/icons-material',
                 '@mui/material',
                 '@mui/styled-engine-sc',
                 'styled-components',

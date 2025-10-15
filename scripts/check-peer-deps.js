@@ -8,7 +8,6 @@ const peers = [
   'react',
   'react-dom',
   '@mui/material',
-  '@mui/icons-material',
   '@mui/styled-engine-sc',
   'styled-components',
   '@emotion/react',
