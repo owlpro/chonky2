@@ -46,12 +46,22 @@ export const ToolbarButton: React.FC<ToolbarButtonProps> = React.memo(props => {
 
     const iconComponent =
         icon || iconOnly ? (
-            <div className={iconOnly ? '' : classes.iconWithText}>
+            iconOnly ? (
                 <ChonkyIcon
                     icon={icon ? icon : ChonkyIconName.fallbackIcon}
+                    size={18}
+                    style={{ minWidth: 18, minHeight: 18 }}
                     fixedWidth={true}
                 />
-            </div>
+            ) : (
+                <div className={classes.iconWithText}>
+                    <ChonkyIcon
+                        icon={icon ? icon : ChonkyIconName.fallbackIcon}
+                        fixedWidth={true}
+                    />
+                </div>
+            )
+
         ) : null;
 
     const className = c({
@@ -93,6 +103,8 @@ const useStyles = makeGlobalChonkyStyles(theme => ({
         paddingTop: important(0),
     },
     iconWithText: {
+        display: 'flex',
+        alignItems: 'center',
         marginRight: 8,
     },
     iconOnlyButton: {
@@ -100,6 +112,8 @@ const useStyles = makeGlobalChonkyStyles(theme => ({
         textAlign: 'center',
     },
     iconDropdown: {
+        display: 'flex',
+        alignItems: 'center',
         fontSize: '0.7em',
         marginLeft: 2,
         marginTop: 1,
