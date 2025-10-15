@@ -136,7 +136,7 @@ Most APIs remain **backward-compatible**.
 
 ## 📝 Changelog
 
-### 6.5.2 (2025-10-15)
+### 6.5.5 (2025-10-15)
 - Upgraded to React 19.2
 - Migrated to MUI 6.5 with new styled engine
 - Removed FontAwesome and added built-in **Lucide Icon Pack**
