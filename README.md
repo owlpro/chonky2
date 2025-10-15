@@ -10,8 +10,8 @@
     <a href="https://www.npmjs.com/package/chonky2">
         <img alt="NPM downloads" src="https://img.shields.io/npm/dt/chonky2?style=flat&colorB=aef498" />
     </a>
-    <a href="https://github.com/your-username/chonky2">
-        <img alt="GitHub stars" src="https://img.shields.io/github/stars/your-username/chonky2?style=flat&colorB=50f4cc" />
+    <a href="https://github.com/owlpro/chonky2">
+        <img alt="GitHub stars" src="https://img.shields.io/github/stars/owlpro/chonky2?style=flat&colorB=50f4cc" />
     </a>
     <br /><br />
 </p>
@@ -148,15 +148,15 @@ Most APIs remain **backward-compatible**.
 ## 🧾 License
 
 MIT © [Tim Kuzhagaliyev](https://github.com/TimboKZ)  
-Maintained and upgraded by [Your Name](https://github.com/your-username)
+Maintained and upgraded by [Mahdi Amiri](https://github.com/owlpro)
 
 ---
 
 ## 🔗 Useful Links
 
 - NPM: https://www.npmjs.com/package/chonky2  
-- GitHub: https://github.com/your-username/chonky2  
-- Issues: https://github.com/your-username/chonky2/issues
+- GitHub: https://github.com/owlpro/chonky2  
+- Issues: https://github.com/owlpro/chonky2/issues
 
 ---
 
