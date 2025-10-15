@@ -239,7 +239,7 @@ export const EssentialActions = {
             },
         } as const,
         ({ reduxDispatch, getReduxState }) => {
-            const parentFolder = selectParentFolder(getReduxState());
+            const parentFolder = selectParentFolder(getReduxState()) ?? null;
             if (FileHelper.isOpenable(parentFolder)) {
                 reduxDispatch(
                     thunkRequestFileAction(ChonkyActions.OpenFiles, {

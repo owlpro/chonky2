@@ -31,7 +31,7 @@ export const SmartFileEntry: React.FC<SmartFileEntryProps> = React.memo(({ fileI
     const classes = useStyles();
 
     // Basic properties
-    const file = useParamSelector(selectFileData, fileId);
+    const file = useParamSelector(selectFileData, fileId) ?? null;
     const selected = useParamSelector(selectIsFileSelected, fileId);
     const dndDisabled = useSelector(selectIsDnDDisabled);
 

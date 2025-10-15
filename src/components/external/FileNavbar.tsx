@@ -28,7 +28,7 @@ export const FileNavbar: React.FC<FileNavbarProps> = React.memo(() => {
                     key={key}
                     first={i === 0}
                     current={i === folderChainItems.length - 1}
-                    item={folderChainItems[i]}
+                    item={folderChainItems[i]!}
                 />
             );
             components.push(component);

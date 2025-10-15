@@ -92,14 +92,14 @@ const reducers = {
     },
     selectAllFiles(state: RootState) {
         state.fileIds
-            .filter(id => id && FileHelper.isSelectable(state.fileMap[id]))
+            .filter(id => id && FileHelper.isSelectable(state.fileMap[id] ?? null))
             .map(id => (id ? (state.selectionMap[id] = true) : null));
     },
     selectFiles(state: RootState, action: PayloadAction<{ fileIds: string[]; reset: boolean }>) {
         if (state.disableSelection) return;
         if (action.payload.reset) state.selectionMap = {};
         action.payload.fileIds
-            .filter(id => id && FileHelper.isSelectable(state.fileMap[id]))
+            .filter(id => id && FileHelper.isSelectable(state.fileMap[id] ?? null))
             .map(id => (state.selectionMap[id] = true));
     },
     toggleSelection(state: RootState, action: PayloadAction<{ fileId: string; exclusive: boolean }>) {
@@ -107,7 +107,7 @@ const reducers = {
         const oldValue = !!state.selectionMap[action.payload.fileId];
         if (action.payload.exclusive) state.selectionMap = {};
         if (oldValue) delete state.selectionMap[action.payload.fileId];
-        else if (FileHelper.isSelectable(state.fileMap[action.payload.fileId])) {
+        else if (FileHelper.isSelectable(state.fileMap[action.payload.fileId] ?? null)) {
             state.selectionMap[action.payload.fileId] = true;
         }
     },

@@ -38,10 +38,6 @@
         }
     ],
     "dependencies": {
-        "@fortawesome/fontawesome-svg-core": "^7.1.0",
-        "@fortawesome/free-brands-svg-icons": "^7.1.0",
-        "@fortawesome/free-solid-svg-icons": "^7.1.0",
-        "@fortawesome/react-fontawesome": "^3.1.0",
         "@reduxjs/toolkit": ">=1.9.0",
         "classnames": "^2.5.1",
         "deepmerge": "^4.3.1",
@@ -50,6 +46,7 @@
         "filesize": "^10.1.6",
         "fuzzy-search": "^3.2.1",
         "hotkeys-js": "^3.13.4",
+        "lucide-react": "^0.545.0",
         "react-dnd": "^16.0.1",
         "react-dnd-html5-backend": "^16.0.1",
         "react-intl": "^7.1.14",

@@ -67,7 +67,7 @@ export const ChonkyPresentationLayer: React.FC<ChonkyPresentationLayerProps> = (
     const classes = useStyles();
     return (
         <ClickAwayListener onClickAway={handleClickAway}>
-            <Box onContextMenu={showContextMenu}>
+            <Box className={classes.chonkyRoot} onContextMenu={showContextMenu}>
                 {!dndDisabled && dndContextAvailable && <DnDFileListDragLayer />}
                 {hotkeyListenerComponents}
                 {children ? children : null}

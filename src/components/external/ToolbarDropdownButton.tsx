@@ -61,7 +61,7 @@ const useStyles = makeGlobalChonkyStyles(theme => ({
         height: important(theme.toolbar.size),
         minHeight: important('auto'),
         minWidth: important('auto'),
-        padding: important(20),
+        padding: important([20, 12]),
     },
     icon: {
         fontSize: important(theme.toolbar.fontSize),
@@ -86,7 +86,7 @@ export const SmartToolbarDropdownButton = React.forwardRef(
     (props: SmartToolbarDropdownButtonProps, ref: React.Ref<HTMLLIElement>) => {
         const { fileActionId, onClickFollowUp } = props;
 
-        const action = useParamSelector(selectFileActionData, fileActionId);
+        const action = useParamSelector(selectFileActionData, fileActionId) ?? null;
         const triggerAction = useFileActionTrigger(fileActionId);
         const { icon, active, disabled } = useFileActionProps(fileActionId);
         const { buttonName } = useLocalizedFileActionStrings(action);

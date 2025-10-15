@@ -600,50 +600,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@fortawesome/fontawesome-common-types@npm:7.1.0":
-  version: 7.1.0
-  resolution: "@fortawesome/fontawesome-common-types@npm:7.1.0"
-  checksum: 10c0/8d10a6bfaa33f66fd042fe9f8159926a3e9b12d5cbf31698a88980b0e9b84ebc8c6b4b25e5c865c1d8542a67ed4fa1fadfaabfec250b991f018f2b45aa3b005d
-  languageName: node
-  linkType: hard
-
-"@fortawesome/fontawesome-svg-core@npm:^7.1.0":
-  version: 7.1.0
-  resolution: "@fortawesome/fontawesome-svg-core@npm:7.1.0"
-  dependencies:
-    "@fortawesome/fontawesome-common-types": "npm:7.1.0"
-  checksum: 10c0/6c32b78f1a7c269d4c14c457ed0f3d09269f700861524330e54b838693727827be810ded3322099995266d490235321a8f356a6f270dc5bd9ce651fc3c94be26
-  languageName: node
-  linkType: hard
-
-"@fortawesome/free-brands-svg-icons@npm:^7.1.0":
-  version: 7.1.0
-  resolution: "@fortawesome/free-brands-svg-icons@npm:7.1.0"
-  dependencies:
-    "@fortawesome/fontawesome-common-types": "npm:7.1.0"
-  checksum: 10c0/f12c17386f8e5d12b31936617fdb37f5bbd82617ea990197255be1d1818a0fc736b99c715591c6bb3e995851bcd72cc7cf6d76d49eb16486e0db84b4723fa4ad
-  languageName: node
-  linkType: hard
-
-"@fortawesome/free-solid-svg-icons@npm:^7.1.0":
-  version: 7.1.0
-  resolution: "@fortawesome/free-solid-svg-icons@npm:7.1.0"
-  dependencies:
-    "@fortawesome/fontawesome-common-types": "npm:7.1.0"
-  checksum: 10c0/0e3129fa9c972be9a897a17329958d7fe0a322fef794ace3589941fa97c41761222a071b50e47e1f3f81a0c398dfca7c5a1d9ed93576f76b91c514e372f6da30
-  languageName: node
-  linkType: hard
-
-"@fortawesome/react-fontawesome@npm:^3.1.0":
-  version: 3.1.0
-  resolution: "@fortawesome/react-fontawesome@npm:3.1.0"
-  peerDependencies:
-    "@fortawesome/fontawesome-svg-core": ~6 || ~7
-    react: ^18.0.0 || ^19.0.0
-  checksum: 10c0/ee1e005ee4c1dcff95627bb19d4548d16da679349f77cd3f8adf302fcd4944661f3e1d0d917bcccdd70b74d2e6e0f4b85849f72b156a8ffd7c5d7612157f72e8
-  languageName: node
-  linkType: hard
-
 "@isaacs/balanced-match@npm:^4.0.1":
   version: 4.0.1
   resolution: "@isaacs/balanced-match@npm:4.0.1"
@@ -2197,10 +2153,6 @@ __metadata:
     "@babel/core": "npm:^7.26.0"
     "@emotion/react": "npm:^11.14.0"
     "@emotion/styled": "npm:^11.14.1"
-    "@fortawesome/fontawesome-svg-core": "npm:^7.1.0"
-    "@fortawesome/free-brands-svg-icons": "npm:^7.1.0"
-    "@fortawesome/free-solid-svg-icons": "npm:^7.1.0"
-    "@fortawesome/react-fontawesome": "npm:^3.1.0"
     "@mui/icons-material": "npm:^6.5.0"
     "@mui/material": "npm:^6.5.0"
     "@mui/styled-engine-sc": "npm:^6.4.9"
@@ -2232,6 +2184,7 @@ __metadata:
     fuzzy-search: "npm:^3.2.1"
     hotkeys-js: "npm:^3.13.4"
     husky: "npm:^9.1.0"
+    lucide-react: "npm:^0.545.0"
     react-dnd: "npm:^16.0.1"
     react-dnd-html5-backend: "npm:^16.0.1"
     react-intl: "npm:^7.1.14"
@@ -3547,6 +3500,15 @@ __metadata:
   dependencies:
     yallist: "npm:^4.0.0"
   checksum: 10c0/cb53e582785c48187d7a188d3379c181b5ca2a9c78d2bce3e7dee36f32761d1c42983da3fe12b55cb74e1779fa94cdc2e5367c028a9b35317184ede0c07a30a9
+  languageName: node
+  linkType: hard
+
+"lucide-react@npm:^0.545.0":
+  version: 0.545.0
+  resolution: "lucide-react@npm:0.545.0"
+  peerDependencies:
+    react: ^16.5.1 || ^17.0.0 || ^18.0.0 || ^19.0.0
+  checksum: 10c0/942622c8e5d113e6fc6f66407703dc06474cf1a36ee9998b9f562f2e64737ea098c0db5a4e5ba2a8eb14abecb9da05be4584e9400c4a192ba5b2781f21928c21
   languageName: node
   linkType: hard
 

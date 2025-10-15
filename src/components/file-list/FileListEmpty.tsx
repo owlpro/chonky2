@@ -54,5 +54,7 @@ const useStyles = makeGlobalChonkyStyles(theme => ({
         position: 'absolute',
         left: '50%',
         top: '50%',
+        display: 'flex',
+        alignItems: 'center'
     },
 }));

@@ -1,4 +1,4 @@
-import React, {
+import {
     HTMLProps, useCallback, useContext, useEffect, useMemo, useRef, useState
 } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
@@ -36,7 +36,7 @@ export const useFileEntryState = (file: Nullable<FileData>, selected: boolean, f
     const { thumbnailUrl, thumbnailLoading } = useThumbnailUrl(file);
 
     return useMemo<FileEntryState>(() => {
-        const fileColor = thumbnailUrl ? ColorsDark[iconData.colorCode] : ColorsLight[iconData.colorCode];
+        const fileColor = (thumbnailUrl ? ColorsDark[iconData.colorCode] : ColorsLight[iconData.colorCode]) ?? "";
         const iconSpin = thumbnailLoading || !file;
         const icon = thumbnailLoading ? ChonkyIconName.loading : iconData.icon;
 
@@ -45,7 +45,9 @@ export const useFileEntryState = (file: Nullable<FileData>, selected: boolean, f
             icon: file && file.icon !== undefined ? file.icon : icon,
             iconSpin: iconSpin,
             thumbnailUrl: thumbnailUrl,
-            color: file && file.color !== undefined ? file.color : fileColor,
+            color: (file && file.color !== undefined
+                ? file.color
+                : fileColor) ?? fileColor,
             selected: selected,
             focused: !!focused,
         };
@@ -94,16 +96,14 @@ const _extname = (fileName: string) => {
 export const useFileNameComponent = (file: Nullable<FileData>) => {
     return useMemo(() => {
         if (!file) return <TextPlaceholder minLength={15} maxLength={20} />;
-
-        let name;
-        let extension = null;
-
         const isDir = FileHelper.isDirectory(file);
-        if (isDir) {
-            name = file.name;
-        } else {
-            extension = file.ext ?? _extname(file.name);
-            name = file.name.substr(0, file.name.length - extension.length);
+        const safeFile = file as FileData
+        let name = safeFile.name;
+        let extension: string | null = null;
+
+        if (!isDir) {
+            extension = (safeFile as any).ext ?? _extname(safeFile.name);
+            name = safeFile.name.substring(0, safeFile.name.length - (extension?.length ?? 0));
         }
 
         return (

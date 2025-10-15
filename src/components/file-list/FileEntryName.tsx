@@ -34,7 +34,7 @@ FileEntryName.displayName = 'FileEntryName';
 
 const useStyles = makeLocalChonkyStyles(theme => ({
     modifierIcons: {
-        color: theme.palette.text.hint,
+        color: theme.palette.text.secondary,
         position: 'relative',
         fontSize: '0.775em',
         paddingRight: 5,

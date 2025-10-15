@@ -273,9 +273,12 @@ export const getSelectedFiles = (
     const { fileMap, selectionMap } = state;
 
     const selectedFiles = Object.keys(selectionMap).map((id) => fileMap[id]);
-    const filteredSelectedFiles = filters.reduce(
-        (prevFiles, filter) => (filter ? prevFiles.filter(filter) : prevFiles),
-        selectedFiles
+    const filteredSelectedFiles = filters.reduce<FileData[]>(
+        (prevFiles, filter) =>
+            filter
+                ? prevFiles.filter((f): f is FileData => !!f).filter(filter)
+                : prevFiles.filter((f): f is FileData => !!f),
+        selectedFiles.filter((f): f is FileData => !!f)
     );
     return filteredSelectedFiles;
 };

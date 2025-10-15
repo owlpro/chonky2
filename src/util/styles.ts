@@ -177,7 +177,18 @@ export const makeGlobalChonkyStyles = <C extends string = string>(
 };
 
 export function important<T>(value: T): string {
-    return `${value} !important`;
+    let result: string | number | T = value;
+    if (typeof value === 'number') {
+        result = `${value}px`;
+    } else if (Array.isArray(value)) {
+        result = value
+            .map((item) => {
+                if (typeof item === 'number' && item > 0) return `${item}px`;
+                return item;
+            })
+            .join(' ');
+    }
+    return `${result} !important`;
 }
 /**
  * Alias for classnames
