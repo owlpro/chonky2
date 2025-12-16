@@ -19,8 +19,7 @@
     },
     "scripts": {
         "build": "vite build",
-        "watch": "vite build --watch",
-        "postinstall": "node scripts/check-peer-deps.js"
+        "watch": "vite build --watch"
     },
     "husky": {
         "hooks": {
