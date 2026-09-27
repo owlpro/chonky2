@@ -1,64 +1,38 @@
-import React, { useContext } from 'react';
+import React from 'react';
 
 import { FileEntryProps } from '../../types/file-list.types';
 import { useLocalizedFileEntryStrings } from '../../util/i18n';
-import { ChonkyIconContext } from '../../util/icon-helper';
-import { c, getDndOverClasses } from '../../util/styles';
+import { c } from '../../util/styles';
 import { TextPlaceholder } from '../external/TextPlaceholder';
-import {
-    useDndIcon,
-    useFileEntryHtmlProps,
-    useFileEntryState,
-} from './FileEntry-hooks';
+import { useFileEntryHtmlProps, useFileEntryState } from './FileEntry-hooks';
+import { FileIcon } from './FileEntryIcon';
 import { FileEntryName } from './FileEntryName';
-import { FileEntryState, getEntryColorStyle, getEntryStateClasses } from './GridEntryPreview';
+import { getEntryColorStyle, getEntryStateClasses } from './GridEntryPreview';
 
-export const ListEntry: React.FC<FileEntryProps> = React.memo(
-    ({ file, selected, focused, dndState }) => {
-        const entryState: FileEntryState = useFileEntryState(file, selected, focused);
-        const dndIconName = useDndIcon(dndState);
+const LIST_ICON_SIZE = 20;
 
-        const { fileModDateString, fileSizeString } = useLocalizedFileEntryStrings(
-            file
-        );
-        const ChonkyIcon = useContext(ChonkyIconContext);
-        const fileEntryHtmlProps = useFileEntryHtmlProps(file);
-        return (
-            <div
-                className={c('chonky-listFileEntry', getEntryStateClasses(entryState), getDndOverClasses(dndState))}
-                style={getEntryColorStyle(entryState)}
-                {...fileEntryHtmlProps}
-            >
-                <div className="chonky-focusIndicator"></div>
-                <div className="chonky-selectionIndicator"></div>
-                <div className="chonky-listFileEntryIcon">
-                    <ChonkyIcon
-                        icon={dndIconName ?? entryState.icon}
-                        spin={dndIconName ? false : entryState.iconSpin}
-                        fixedWidth={true}
-                    />
-                </div>
-                <div
-                    className="chonky-listFileEntryName"
-                    title={file ? file.name : undefined}
-                >
-                    <FileEntryName file={file} />
-                </div>
-                <div className="chonky-listFileEntryProperty">
-                    {file ? (
-                        fileModDateString ?? <span>—</span>
-                    ) : (
-                        <TextPlaceholder minLength={5} maxLength={15} />
-                    )}
-                </div>
-                <div className="chonky-listFileEntryProperty">
-                    {file ? (
-                        fileSizeString ?? <span>—</span>
-                    ) : (
-                        <TextPlaceholder minLength={10} maxLength={20} />
-                    )}
-                </div>
+export const ListEntry: React.FC<FileEntryProps> = React.memo(({ file, selected, focused, dndState }) => {
+    const entryState = useFileEntryState(file, selected, focused);
+    const { fileModDateString, fileSizeString, fileTypeString } = useLocalizedFileEntryStrings(file);
+    const fileEntryHtmlProps = useFileEntryHtmlProps(file);
+
+    const renderProperty = (value: string | null, placeholderLength: [number, number]) =>
+        file ? (value ?? '') : <TextPlaceholder minLength={placeholderLength[0]} maxLength={placeholderLength[1]} />;
+
+    return (
+        <div
+            className={c('chonky-listFileEntry', getEntryStateClasses(entryState, dndState))}
+            style={getEntryColorStyle(entryState)}
+            {...fileEntryHtmlProps}
+        >
+            <div className="chonky-listCell chonky-listCellName">
+                <FileIcon file={file} entryState={entryState} size={LIST_ICON_SIZE} />
+                <FileEntryName className="chonky-listFileEntryName" file={file} />
             </div>
-        );
-    }
-);
+            <div className="chonky-listCell chonky-listColumnType">{renderProperty(fileTypeString, [5, 10])}</div>
+            <div className="chonky-listCell chonky-listColumnSize">{renderProperty(fileSizeString, [4, 8])}</div>
+            <div className="chonky-listCell chonky-listColumnDate">{renderProperty(fileModDateString, [10, 18])}</div>
+        </div>
+    );
+});
+ListEntry.displayName = 'ListEntry';

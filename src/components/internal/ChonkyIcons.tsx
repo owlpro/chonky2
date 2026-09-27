@@ -2,22 +2,20 @@ import React from "react";
 import {
     Loader2,
     ChevronDown,
-    Minus,
     Hand,
     ArrowDown,
+    ArrowLeft,
+    ArrowRight,
+    ArrowUp,
+    Check,
     X,
     Box,
-    CornerUpLeft,
     Copy,
     ClipboardPaste,
     Share2,
     Search,
     SquareCheck,
     Eraser,
-    SortAsc,
-    SortDesc,
-    ToggleRight,
-    ToggleLeft,
     List,
     ListTree,
     Grid2x2,
@@ -59,11 +57,21 @@ import {
 import { ChonkyIconName, ChonkyIconProps } from "../../types/icons.types";
 import { c } from "../../util/styles";
 
+/**
+ * Keeps the layout of an icon slot without drawing anything, e.g. for menu items
+ * whose option is off.
+ */
+const BlankIcon: React.FC<{ className?: string; style?: React.CSSProperties; size?: string }> = ({
+    className,
+    style,
+    size,
+}) => <span className={className} style={{ display: 'inline-block', width: size, height: size, ...style }} />;
+
 export const IconMap: { [iconName in ChonkyIconName]: any } = {
     // Misc
     [ChonkyIconName.loading]: Loader2,
     [ChonkyIconName.dropdown]: ChevronDown,
-    [ChonkyIconName.placeholder]: Minus,
+    [ChonkyIconName.placeholder]: BlankIcon,
 
     // File Actions: Drag & drop
     [ChonkyIconName.dndDragging]: Hand,
@@ -72,7 +80,9 @@ export const IconMap: { [iconName in ChonkyIconName]: any } = {
 
     // File Actions: File operations
     [ChonkyIconName.openFiles]: Box,
-    [ChonkyIconName.openParentFolder]: CornerUpLeft,
+    [ChonkyIconName.openParentFolder]: ArrowUp,
+    [ChonkyIconName.goBack]: ArrowLeft,
+    [ChonkyIconName.goForward]: ArrowRight,
     [ChonkyIconName.copy]: Copy,
     [ChonkyIconName.paste]: ClipboardPaste,
     [ChonkyIconName.share]: Share2,
@@ -81,10 +91,10 @@ export const IconMap: { [iconName in ChonkyIconName]: any } = {
     [ChonkyIconName.clearSelection]: Eraser,
 
     // File Actions: Sorting & options
-    [ChonkyIconName.sortAsc]: SortAsc,
-    [ChonkyIconName.sortDesc]: SortDesc,
-    [ChonkyIconName.toggleOn]: ToggleRight,
-    [ChonkyIconName.toggleOff]: ToggleLeft,
+    [ChonkyIconName.sortAsc]: ArrowUp,
+    [ChonkyIconName.sortDesc]: ArrowDown,
+    [ChonkyIconName.toggleOn]: Check,
+    [ChonkyIconName.toggleOff]: BlankIcon,
 
     // File Actions: File Views
     [ChonkyIconName.list]: List,
@@ -156,7 +166,7 @@ export const ChonkyIconLucide: React.FC<ChonkyIconProps> = React.memo(
             <LucideIcon
                 className={c(className, { "chonky-spin": spin })}
                 style={style}
-                size={18}
+                size="1.15em"
                 strokeWidth={1.75}
             />
         );

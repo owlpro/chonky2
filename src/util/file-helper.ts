@@ -3,6 +3,16 @@ import { Nullable } from '../types/util.types';
 import { FileData } from '../types/file.types';
 import { Logger } from './logger';
 
+/**
+ * Returns the extension of a file including the dot, e.g. `.md`. Uses `file.ext`
+ * when set. Names without a dot, and dotfiles such as `.gitignore`, have no extension.
+ */
+export const getFileExtension = (file: FileData) => {
+    if (file.ext !== undefined) return file.ext;
+    const dotIndex = file.name.lastIndexOf('.');
+    return dotIndex > 0 ? file.name.slice(dotIndex) : '';
+};
+
 export class FileHelper {
     public static isDirectory(file: Nullable<FileData>): file is FileData {
         // Not a directory by default

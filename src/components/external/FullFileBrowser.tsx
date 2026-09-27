@@ -6,6 +6,7 @@ import { NoSsr } from '../internal/NoSsr';
 import { FileBrowser } from './FileBrowser';
 import { FileContextMenu } from './FileContextMenu';
 import { FileNavbar } from './FileNavbar';
+import { FileStatusBar } from './FileStatusBar';
 import { FileToolbar } from './FileToolbar';
 
 export const FullFileBrowser = React.memo(
@@ -14,9 +15,10 @@ export const FullFileBrowser = React.memo(
         return (
             <NoSsr>
                 <FileBrowser ref={ref} {...props}>
-                    <FileNavbar />
                     <FileToolbar />
+                    <FileNavbar />
                     <FileList onScroll={onScroll} />
+                    <FileStatusBar />
                     <FileContextMenu />
                 </FileBrowser>
             </NoSsr>

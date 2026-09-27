@@ -42,7 +42,12 @@ export const ToolbarDropdown: React.FC<ToolbarDropdownProps> = React.memo(props 
     const localizedName = useLocalizedFileActionGroup(name);
     return (
         <>
-            <ToolbarButton text={localizedName} onClick={handleClick} dropdown={true} />
+            <ToolbarButton
+                className="chonky-menuBarButton"
+                text={localizedName}
+                onClick={handleClick}
+                active={Boolean(anchor)}
+            />
             <ChonkyMenu anchorEl={anchor} onClose={handleClose} open={Boolean(anchor)}>
                 {menuItemComponents}
             </ChonkyMenu>

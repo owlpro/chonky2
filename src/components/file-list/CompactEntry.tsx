@@ -1,59 +1,36 @@
-import React, { useContext } from 'react';
+import React from 'react';
 
 import { FileEntryProps } from '../../types/file-list.types';
 import { useLocalizedFileEntryStrings } from '../../util/i18n';
-import { ChonkyIconContext } from '../../util/icon-helper';
+import { c } from '../../util/styles';
 import { TextPlaceholder } from '../external/TextPlaceholder';
 import { useFileEntryHtmlProps, useFileEntryState } from './FileEntry-hooks';
+import { FileIcon } from './FileEntryIcon';
 import { FileEntryName } from './FileEntryName';
-import { FileEntryState, getEntryColorStyle } from './GridEntryPreview';
+import { getEntryColorStyle, getEntryStateClasses } from './GridEntryPreview';
 
-export const CompactEntry: React.FC<FileEntryProps> = React.memo(
-    ({ file, selected, focused }) => {
-        const entryState: FileEntryState = useFileEntryState(file, selected, focused);
+const COMPACT_ICON_SIZE = 32;
 
-        const { fileModDateString, fileSizeString } = useLocalizedFileEntryStrings(
-            file
-        );
+export const CompactEntry: React.FC<FileEntryProps> = React.memo(({ file, selected, focused, dndState }) => {
+    const entryState = useFileEntryState(file, selected, focused);
+    const { fileModDateString, fileSizeString } = useLocalizedFileEntryStrings(file);
+    const fileEntryHtmlProps = useFileEntryHtmlProps(file);
+    const details = [fileSizeString, fileModDateString].filter(Boolean).join(' · ');
 
-        const ChonkyIcon = useContext(ChonkyIconContext);
-        const fileEntryHtmlProps = useFileEntryHtmlProps(file);
-        return (
-            <div className="chonky-compactFileEntry" style={getEntryColorStyle(entryState)} {...fileEntryHtmlProps}>
-                <div className="chonky-compactFileEntryIcon">
-                    <ChonkyIcon
-                        icon={entryState.icon}
-                        spin={entryState.iconSpin}
-                        fixedWidth={true}
-                    />
-                </div>
-                <div className="chonky-compactFileEntryDescription">
-                    <div
-                        className="chonky-compactFileEntryName"
-                        title={file ? file.name : undefined}
-                    >
-                        <FileEntryName file={file} />
-                    </div>
-                    <div className="chonky-compactFileEntryProperties">
-                        <div className="chonky-compactFileEntryProperty">
-                            {file ? (
-                                fileModDateString ?? <span>—</span>
-                            ) : (
-                                <TextPlaceholder minLength={5} maxLength={15} />
-                            )}
-                        </div>
-                        <div className="chonky-compactFileEntryProperty">
-                            {file ? (
-                                fileSizeString ?? <span>—</span>
-                            ) : (
-                                <TextPlaceholder minLength={10} maxLength={20} />
-                            )}
-                        </div>
-                    </div>
-                </div>
-                <div className="chonky-file-entry-outline"></div>
-                <div className="chonky-file-entry-selection"></div>
+    return (
+        <div
+            className={c('chonky-compactFileEntry', getEntryStateClasses(entryState, dndState))}
+            style={getEntryColorStyle(entryState)}
+            {...fileEntryHtmlProps}
+        >
+            <FileIcon file={file} entryState={entryState} size={COMPACT_ICON_SIZE} />
+            <div className="chonky-compactFileEntryText">
+                <FileEntryName className="chonky-compactFileEntryName" file={file} />
+                <span className="chonky-compactFileEntryDetails">
+                    {file ? details : <TextPlaceholder minLength={10} maxLength={20} />}
+                </span>
             </div>
-        );
-    }
-);
+        </div>
+    );
+});
+CompactEntry.displayName = 'CompactEntry';

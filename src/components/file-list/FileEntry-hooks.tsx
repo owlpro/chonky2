@@ -10,8 +10,8 @@ import { thunkRequestFileAction } from '../../redux/thunks/dispatchers.thunks';
 import { DndEntryState } from '../../types/file-list.types';
 import { FileData } from '../../types/file.types';
 import { ChonkyIconName } from '../../types/icons.types';
-import { FileHelper } from '../../util/file-helper';
-import { ChonkyIconContext, ColorsDark, ColorsLight, useIconData } from '../../util/icon-helper';
+import { FileHelper, getFileExtension } from '../../util/file-helper';
+import { ChonkyIconContext, getFileTypeColor, useIconData } from '../../util/icon-helper';
 import { Logger } from '../../util/logger';
 import { TextPlaceholder } from '../external/TextPlaceholder';
 import { KeyboardClickEvent, MouseClickEvent } from '../internal/ClickableWrapper';
@@ -36,7 +36,6 @@ export const useFileEntryState = (file: Nullable<FileData>, selected: boolean, f
     const { thumbnailUrl, thumbnailLoading } = useThumbnailUrl(file);
 
     return useMemo<FileEntryState>(() => {
-        const fileColor = (thumbnailUrl ? ColorsDark[iconData.colorCode] : ColorsLight[iconData.colorCode]) ?? "";
         const iconSpin = thumbnailLoading || !file;
         const icon = thumbnailLoading ? ChonkyIconName.loading : iconData.icon;
 
@@ -45,9 +44,7 @@ export const useFileEntryState = (file: Nullable<FileData>, selected: boolean, f
             icon: file && file.icon !== undefined ? file.icon : icon,
             iconSpin: iconSpin,
             thumbnailUrl: thumbnailUrl,
-            color: (file && file.color !== undefined
-                ? file.color
-                : fileColor) ?? fileColor,
+            color: file?.color ?? getFileTypeColor(iconData.icon),
             selected: selected,
             focused: !!focused,
         };
@@ -85,14 +82,6 @@ export const useModifierIconComponents = (file: Nullable<FileData>) => {
     return modifierIconComponents;
 };
 
-const _extname = (fileName: string) => {
-    const parts = fileName.split('.');
-    if (parts.length) {
-        return `.${parts[parts.length - 1]}`;
-    }
-    return '';
-};
-
 export const useFileNameComponent = (file: Nullable<FileData>) => {
     return useMemo(() => {
         if (!file) return <TextPlaceholder minLength={15} maxLength={20} />;
@@ -102,7 +91,7 @@ export const useFileNameComponent = (file: Nullable<FileData>) => {
         let extension: string | null = null;
 
         if (!isDir) {
-            extension = (safeFile as any).ext ?? _extname(safeFile.name);
+            extension = getFileExtension(safeFile);
             name = safeFile.name.substring(0, safeFile.name.length - (extension?.length ?? 0));
         }
 

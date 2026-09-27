@@ -7,11 +7,21 @@ import { FileActionMenuItem } from './action-menus.types';
 import { FileAction, FileActionMap } from './action.types';
 import { ContextMenuConfig } from './context-menu.types';
 import { FileViewConfig } from './file-view.types';
-import { FileArray, FileIdTrueMap, FileMap } from './file.types';
+import { FileArray, FileData, FileIdTrueMap, FileMap } from './file.types';
 import { OptionMap } from './options.types';
 import { FileSelection } from './selection.types';
 import { SortOrder } from './sort.types';
 import { ThumbnailGenerator } from './thumbnails.types';
+
+/**
+ * Folders the user has visited, for the Back and Forward buttons. `pendingIndex` is
+ * set while a Back/Forward navigation waits for the app to update `folderChain`.
+ */
+export interface NavigationHistory {
+    entries: FileData[];
+    index: number;
+    pendingIndex: Nullable<number>;
+}
 
 export type RootState = {
     instanceId: string;
@@ -69,6 +79,8 @@ export type RootState = {
 
     // State to use inside effects
     lastClick: Nullable<{ index: number; fileId: string }>;
+
+    navigationHistory: NavigationHistory;
 
     // Context menu
     contextMenuMounted: boolean;

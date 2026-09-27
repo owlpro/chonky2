@@ -48,6 +48,8 @@ export const initialRootState: RootState = {
 
     lastClick: null,
 
+    navigationHistory: { entries: [], index: -1, pendingIndex: null },
+
     contextMenuMounted: false,
     contextMenuConfig: null,
 };

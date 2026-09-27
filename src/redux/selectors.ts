@@ -21,6 +21,10 @@ export const selectToolbarItems = (state: RootState) => state.toolbarItems;
 export const selectContextMenuItems = (state: RootState) => state.contextMenuItems;
 
 export const selectFolderChain = (state: RootState) => state.folderChain;
+export const selectNavigationHistory = (state: RootState) => state.navigationHistory;
+export const selectCanGoBack = (state: RootState) => state.navigationHistory.index > 0;
+export const selectCanGoForward = (state: RootState) =>
+    state.navigationHistory.index < state.navigationHistory.entries.length - 1;
 export const selectCurrentFolder = (state: RootState) => {
     const folderChain = selectFolderChain(state);
     const currentFolder =

@@ -4,6 +4,7 @@ import {
     selectSelectionSize
 } from '../redux/selectors';
 import { reduxThunks } from '../redux/thunks';
+import { thunkNavigateHistory } from '../redux/thunks/file-actions.thunks';
 import { thunkRequestFileAction } from '../redux/thunks/dispatchers.thunks';
 import {
     ChangeSelectionPayload, EndDragNDropPayload, KeyboardClickFilePayload, MouseClickFilePayload,
@@ -253,6 +254,44 @@ export const EssentialActions = {
                         ' is not openable. This indicates a bug in presentation components.'
                 );
             }
+        }
+    ),
+    /**
+     * Action that opens the previously visited folder.
+     */
+    GoBack: defineFileAction(
+        {
+            id: 'go_back',
+            hotkeys: ['alt+left'],
+            button: {
+                name: 'Back',
+                toolbar: true,
+                contextMenu: false,
+                icon: ChonkyIconName.goBack,
+                iconOnly: true,
+            },
+        } as const,
+        ({ reduxDispatch }) => {
+            reduxDispatch(thunkNavigateHistory(-1));
+        }
+    ),
+    /**
+     * Action that opens the folder the user went back from.
+     */
+    GoForward: defineFileAction(
+        {
+            id: 'go_forward',
+            hotkeys: ['alt+right'],
+            button: {
+                name: 'Forward',
+                toolbar: true,
+                contextMenu: false,
+                icon: ChonkyIconName.goForward,
+                iconOnly: true,
+            },
+        } as const,
+        ({ reduxDispatch }) => {
+            reduxDispatch(thunkNavigateHistory(1));
         }
     ),
     /**

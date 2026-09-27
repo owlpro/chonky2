@@ -4,6 +4,8 @@ import { Nullable } from '../types/util.types';
 
 import { ChonkyActions } from '../action-definitions/index';
 import {
+    selectCanGoBack,
+    selectCanGoForward,
     selectFileActionData,
     selectFileViewConfig,
     selectOptionValue,
@@ -32,6 +34,8 @@ export const useFileActionProps = (
     fileActionId: string
 ): { icon: Nullable<ChonkyIconName | string>; active: boolean; disabled: boolean } => {
     const parentFolder = useSelector(selectParentFolder);
+    const canGoBack = useSelector(selectCanGoBack);
+    const canGoForward = useSelector(selectCanGoForward);
     const fileViewConfig = useSelector(selectFileViewConfig);
 
     const sortActionId = useSelector(selectSortActionId);
@@ -92,11 +96,17 @@ export const useFileActionProps = (
             // We treat `open_parent_folder` file action as a special case as it
             // requires the parent folder to be present to work...
             disabled = disabled || !FileHelper.isOpenable(parentFolder ?? null);
+        } else if (action.id === ChonkyActions.GoBack.id) {
+            disabled = disabled || !canGoBack;
+        } else if (action.id === ChonkyActions.GoForward.id) {
+            disabled = disabled || !canGoForward;
         }
 
         return { icon, active, disabled };
     }, [
         parentFolder,
+        canGoBack,
+        canGoForward,
         fileViewConfig,
         sortActionId,
         sortOrder,

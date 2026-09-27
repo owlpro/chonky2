@@ -4,7 +4,7 @@ import { Nullable, Undefinable } from '../types/util.types';
 import { FileAction } from '../types/action.types';
 import { FileData } from '../types/file.types';
 import { ChonkyFormatters } from '../types/i18n.types';
-import { FileHelper } from './file-helper';
+import { FileHelper, getFileExtension } from './file-helper';
 import { ChonkyIntl, createChonkyIntl } from './intl';
 
 export const ChonkyIntlContext = createContext<ChonkyIntl>(createChonkyIntl());
@@ -72,14 +72,46 @@ export const useLocalizedFileEntryStrings = (file: Nullable<FileData>) => {
     const intl = useIntl();
     const formatters = useContext(ChonkyFormattersContext);
     return useMemo(() => {
+        let fileSizeString = formatters.formatFileSize(intl, file);
+        const childrenCount = FileHelper.getChildrenCount(file);
+        if (fileSizeString === null && FileHelper.isDirectory(file) && typeof childrenCount === 'number') {
+            fileSizeString = intl.formatMessage(
+                {
+                    id: getI18nId(I18nNamespace.FileEntry, 'folderItemCount'),
+                    defaultMessage: '{count, plural, one {# item} other {# items}}',
+                },
+                { count: childrenCount }
+            );
+        }
         return {
             fileModDateString: formatters.formatFileModDate(intl, file),
-            fileSizeString: formatters.formatFileSize(intl, file),
+            fileSizeString,
+            fileTypeString: formatters.formatFileType(intl, file),
         };
     }, [file, formatters, intl]);
 };
 
 export const defaultFormatters: ChonkyFormatters = {
+    formatFileType: (intl: ChonkyIntl, file: Nullable<FileData>): Nullable<string> => {
+        if (!file) return null;
+        if (FileHelper.isDirectory(file)) {
+            return intl.formatMessage({
+                id: getI18nId(I18nNamespace.FileEntry, 'folderType'),
+                defaultMessage: 'Folder',
+            });
+        }
+        const extension = getFileExtension(file).slice(1).toUpperCase();
+        if (!extension) {
+            return intl.formatMessage({
+                id: getI18nId(I18nNamespace.FileEntry, 'genericFileType'),
+                defaultMessage: 'File',
+            });
+        }
+        return intl.formatMessage(
+            { id: getI18nId(I18nNamespace.FileEntry, 'fileType'), defaultMessage: '{extension} File' },
+            { extension }
+        );
+    },
     formatFileModDate: (
         intl: ChonkyIntl,
         file: Nullable<FileData>
@@ -105,7 +137,7 @@ export const defaultFormatters: ChonkyFormatters = {
     },
 };
 
-const FILE_SIZE_SYMBOLS = ['B', 'kB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'];
+const FILE_SIZE_SYMBOLS = ['B', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'];
 
 /**
  * Splits a byte count into a value (at most 2 decimals) and a decimal (SI) unit.

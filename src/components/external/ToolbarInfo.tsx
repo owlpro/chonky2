@@ -51,20 +51,10 @@ export const ToolbarInfo: React.FC<ToolbarInfoProps> = React.memo(() => {
     );
 
     return (
-        <div className="chonky-infoContainer">
-            <div className="chonky-infoText">
-                {fileCountString}
-                {(selectedString || hiddenString) && (
-                    <span className="chonky-extraInfoSpan">
-                        (
-                        <span className="chonky-selectionSizeText">
-                            {selectedString}
-                        </span>
-                        {selectedString && hiddenString && ', '}
-                        <span className="chonky-hiddenCountText">{hiddenString}</span>)
-                    </span>
-                )}
-            </div>
+        <div className="chonky-statusBarInfo">
+            <span>{fileCountString}</span>
+            {selectedString && <span className="chonky-statusBarSelection">{selectedString}</span>}
+            {hiddenString && <span>{hiddenString}</span>}
         </div>
     );
 });

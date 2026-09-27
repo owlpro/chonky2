@@ -31,6 +31,10 @@ Users can **drag & drop**, **select multiple files**, **toggle between grid and 
 - Fully compatible with **React 19.2** and the new JSX runtime.
 - Improved internal architecture for better performance and tree-shaking.
 
+### 🪟 Fluent Design
+- A new look modelled on the Windows 11 File Explorer: title and menu bar, an address bar with Back, Forward and Up, a list view with sortable columns, and a status bar.
+- Colour-coded file icons, image thumbnails in the grid view, and a built-in dark theme.
+
 ### 🎨 No UI Framework Required
 - Material UI, Emotion, styled-components and JSS are no longer needed.
 - Styles are plain CSS, injected automatically, and themed with CSS variables.
@@ -60,7 +64,7 @@ The only peer dependencies are `react` and `react-dom` (19 or newer).
 ## ⚙️ Quick Start
 
 ```tsx
-import { FileBrowser, FileList, FileToolbar } from 'chonky2';
+import { FullFileBrowser } from 'chonky2';
 
 const files = [
   { id: 'file1', name: 'Document.pdf' },
@@ -69,12 +73,24 @@ const files = [
 
 export default function Example() {
   return (
-    <FileBrowser files={files}>
-      <FileToolbar />
-      <FileList />
-    </FileBrowser>
+    <div style={{ height: 500 }}>
+      <FullFileBrowser files={files} folderChain={[{ id: 'root', name: 'Home', isDir: true }]} />
+    </div>
   );
 }
+```
+
+`FullFileBrowser` is a shortcut for the parts below. Use them directly to leave some
+out or add your own layout, such as a sidebar, around them:
+
+```tsx
+<FileBrowser files={files} folderChain={folderChain} onFileAction={handleFileAction}>
+  <FileToolbar />     {/* folder title, menus and action buttons */}
+  <FileNavbar />      {/* Back, Forward, Up, breadcrumbs and search */}
+  <FileList />
+  <FileStatusBar />   {/* item, selection and hidden counts */}
+  <FileContextMenu />
+</FileBrowser>
 ```
 
 - No need to import icons or stylesheets — they are included automatically.
@@ -88,9 +104,9 @@ CSS variables on `.chonky-theme` from your own stylesheet:
 
 ```css
 .chonky-theme {
-    --chonky-primary: #7b1fa2;
-    --chonky-text-active: #7b1fa2;
-    --chonky-toolbar-size: 34px;
+    --chonky-accent: #7b1fa2;
+    --chonky-font: 'Vazirmatn', sans-serif;
+    --chonky-control-height: 36px;
 }
 ```
 

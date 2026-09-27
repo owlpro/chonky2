@@ -1,44 +1,32 @@
 import React from 'react';
 
 import { FileEntryProps } from '../../types/file-list.types';
-import { FileHelper } from '../../util/file-helper';
 import { c } from '../../util/styles';
 import { useFileEntryHtmlProps, useFileEntryState } from './FileEntry-hooks';
+import { FileIcon } from './FileEntryIcon';
 import { FileEntryName } from './FileEntryName';
-import {
-    getEntryColorStyle,
-    getEntryStateClasses,
-    GridEntryPreviewFile,
-    GridEntryPreviewFolder,
-} from './GridEntryPreview';
+import { FileThumbnail } from './FileThumbnail';
+import { getEntryColorStyle, getEntryStateClasses } from './GridEntryPreview';
+
+const GRID_ICON_SIZE = 64;
 
 export const GridEntry: React.FC<FileEntryProps> = React.memo(({ file, selected, focused, dndState }) => {
-    const isDirectory = FileHelper.isDirectory(file);
     const entryState = useFileEntryState(file, selected, focused);
-
     const fileEntryHtmlProps = useFileEntryHtmlProps(file);
     return (
         <div
-            className={c('chonky-gridFileEntry', getEntryStateClasses(entryState))}
+            className={c('chonky-gridFileEntry', getEntryStateClasses(entryState, dndState))}
             style={getEntryColorStyle(entryState)}
             {...fileEntryHtmlProps}
         >
-            {isDirectory ? (
-                <GridEntryPreviewFolder
-                    className="chonky-gridFileEntryPreview"
-                    entryState={entryState}
-                    dndState={dndState}
-                />
-            ) : (
-                <GridEntryPreviewFile
-                    className="chonky-gridFileEntryPreview"
-                    entryState={entryState}
-                    dndState={dndState}
-                />
-            )}
-            <div className="chonky-gridFileEntryNameContainer">
-                <FileEntryName className="chonky-gridFileEntryName" file={file} />
+            <div className="chonky-gridFileEntryPreview">
+                {entryState.thumbnailUrl ? (
+                    <FileThumbnail className="chonky-gridThumbnail" thumbnailUrl={entryState.thumbnailUrl} />
+                ) : (
+                    <FileIcon file={file} entryState={entryState} size={GRID_ICON_SIZE} />
+                )}
             </div>
+            <FileEntryName className="chonky-gridFileEntryName" file={file} />
         </div>
     );
 });

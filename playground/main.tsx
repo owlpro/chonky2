@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useState } from 'react';
+import { useCallback, useMemo, useRef, useState } from 'react';
 import { createRoot } from 'react-dom/client';
 import { DndProvider, useDrop } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
@@ -6,25 +6,24 @@ import { HTML5Backend } from 'react-dnd-html5-backend';
 import {
     ChonkyActions,
     ChonkyDndFileEntryItem,
-    ChonkyFileActionData,
     ChonkyDndFileEntryType,
+    ChonkyFileActionData,
     FileActionHandler,
     FileData,
     FullFileBrowser,
 } from 'chonky2';
 
-type Mode = 'internal' | 'external';
-type PlaygroundFile = FileData & { parentId: string | null };
+import { HOME_ID, initialFiles, PlaygroundFile, sidebarSections } from './data';
+import './playground.css';
 
-const initialFiles: PlaygroundFile[] = [
-    { id: 'root', name: 'Root', isDir: true, parentId: null },
-    { id: 'docs', name: 'Documents', isDir: true, parentId: 'root' },
-    { id: 'photos', name: 'Photos', isDir: true, parentId: 'root' },
-    { id: 'readme', name: 'README.md', parentId: 'root', size: 2_480, modDate: new Date('2026-09-20T10:30:00') },
-    { id: 'report', name: 'Report.pdf', parentId: 'root', size: 1_845_000, modDate: new Date('2026-08-02T16:05:00') },
-    { id: 'notes', name: 'Notes.txt', parentId: 'root', size: 312 },
-    { id: 'invoice', name: 'Invoice.xlsx', parentId: 'docs' },
-    { id: 'beach', name: 'Beach.png', parentId: 'photos' },
+type Mode = 'internal' | 'external';
+
+const fileActions = [
+    ChonkyActions.CreateFolder,
+    ChonkyActions.UploadFiles,
+    ChonkyActions.DownloadFiles,
+    ChonkyActions.CopyFiles,
+    ChonkyActions.DeleteFiles,
 ];
 
 // One log line per Chonky event, e.g. `open_files: Documents` or `change_selection: 2 selected`.
@@ -37,20 +36,61 @@ const describeAction = (data: ChonkyFileActionData) => {
     else if (Array.isArray(payload.files)) details.push(payload.files.map((f: FileData) => f.name).join(', '));
     if (payload.selection instanceof Set) details.push(`${payload.selection.size} selected`);
     if (payload.destination) details.push(`→ ${payload.destination.name}`);
+    if (details.length === 0 && data.state.selectedFilesForAction.length > 0) {
+        details.push(data.state.selectedFilesForAction.map((f) => f.name).join(', '));
+    }
     return details.length > 0 ? `${data.id}: ${details.join(' ')}` : data.id;
 };
 
-const FileBrowserDemo = ({
-    mode,
-    darkMode,
-    onLog,
-}: {
-    mode: Mode;
-    darkMode: boolean;
-    onLog: (line: string) => void;
-}) => {
+const getUniqueName = (files: PlaygroundFile[], parentId: string, baseName: string) => {
+    const taken = new Set(files.filter((f) => f.parentId === parentId).map((f) => f.name));
+    let name = baseName;
+    for (let i = 2; taken.has(name); i++) name = `${baseName} (${i})`;
+    return name;
+};
+
+const getDescendantIds = (files: PlaygroundFile[], rootIds: Set<string>) => {
+    const ids = new Set(rootIds);
+    let grew = true;
+    while (grew) {
+        grew = false;
+        for (const f of files) {
+            if (f.parentId && ids.has(f.parentId) && !ids.has(f.id)) {
+                ids.add(f.id);
+                grew = true;
+            }
+        }
+    }
+    return ids;
+};
+
+let nextFileId = 1;
+
+const Sidebar = ({ folderId, onOpen }: { folderId: string; onOpen: (id: string) => void }) => (
+    <nav className="pg-sidebar">
+        <div className="pg-sidebarTitle">File Explorer</div>
+        {sidebarSections.map((section) => (
+            <div key={section.title} className="pg-sidebarSection">
+                <div className="pg-sidebarSectionTitle">{section.title}</div>
+                {section.items.map((item) => (
+                    <button
+                        key={item.folderId}
+                        type="button"
+                        className={`pg-sidebarItem${item.folderId === folderId ? ' pg-active' : ''}`}
+                        onClick={() => onOpen(item.folderId)}
+                    >
+                        {item.label}
+                    </button>
+                ))}
+            </div>
+        ))}
+    </nav>
+);
+
+const Explorer = ({ mode, darkMode, onLog }: { mode: Mode; darkMode: boolean; onLog: (line: string) => void }) => {
     const [files, setFiles] = useState(initialFiles);
-    const [folderId, setFolderId] = useState('root');
+    const [folderId, setFolderId] = useState(HOME_ID);
+    const uploadInputRef = useRef<HTMLInputElement>(null);
 
     const folderChain = useMemo(() => {
         const chain: PlaygroundFile[] = [];
@@ -80,20 +120,59 @@ const FileBrowserDemo = ({
                 const movedIds = new Set(data.payload.files.map((f) => f.id));
                 const destinationId = data.payload.destination.id;
                 setFiles((prev) => prev.map((f) => (movedIds.has(f.id) ? { ...f, parentId: destinationId } : f)));
+            } else if (data.id === ChonkyActions.CreateFolder.id) {
+                setFiles((prev) => [
+                    ...prev,
+                    {
+                        id: `new-${nextFileId++}`,
+                        name: getUniqueName(prev, folderId, 'New folder'),
+                        isDir: true,
+                        parentId: folderId,
+                        modDate: new Date(),
+                    },
+                ]);
+            } else if (data.id === ChonkyActions.DeleteFiles.id) {
+                const deletedIds = new Set(data.state.selectedFilesForAction.map((f) => f.id));
+                setFiles((prev) => {
+                    const allDeleted = getDescendantIds(prev, deletedIds);
+                    return prev.filter((f) => !allDeleted.has(f.id));
+                });
+            } else if (data.id === ChonkyActions.UploadFiles.id) {
+                uploadInputRef.current?.click();
             }
         },
-        [onLog]
+        [folderId, onLog]
     );
 
+    const handleUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+        const uploaded = Array.from(event.target.files ?? []).map<PlaygroundFile>((file) => ({
+            id: `upload-${nextFileId++}`,
+            name: file.name,
+            size: file.size,
+            modDate: new Date(file.lastModified),
+            parentId: folderId,
+            thumbnailUrl: file.type.startsWith('image/') ? URL.createObjectURL(file) : undefined,
+        }));
+        setFiles((prev) => [...prev, ...uploaded]);
+        onLog(`uploaded: ${uploaded.map((f) => f.name).join(', ')}`);
+        event.target.value = '';
+    };
+
     return (
-        <div style={{ height: 420 }}>
-            <FullFileBrowser
-                files={visibleFiles}
-                folderChain={folderChain}
-                onFileAction={handleFileAction}
-                disableDragAndDropProvider={mode === 'external'}
-                darkMode={darkMode}
-            />
+        <div className={`pg-window${darkMode ? ' pg-dark' : ''}`}>
+            <Sidebar folderId={folderId} onOpen={setFolderId} />
+            <div className="pg-browser">
+                <FullFileBrowser
+                    files={visibleFiles}
+                    folderChain={folderChain}
+                    fileActions={fileActions}
+                    onFileAction={handleFileAction}
+                    defaultFileViewActionId={ChonkyActions.EnableListView.id}
+                    disableDragAndDropProvider={mode === 'external'}
+                    darkMode={darkMode}
+                />
+            </div>
+            <input ref={uploadInputRef} type="file" multiple hidden onChange={handleUpload} />
         </div>
     );
 };
@@ -116,14 +195,7 @@ const ExternalDropZone = ({ onLog }: { onLog: (line: string) => void }) => {
             ref={(node) => {
                 drop(node);
             }}
-            style={{
-                marginTop: 12,
-                padding: 24,
-                border: '2px dashed #888',
-                borderRadius: 8,
-                textAlign: 'center',
-                background: isOver ? '#d8f5d8' : '#fff',
-            }}
+            className={`pg-dropZone${isOver ? ' pg-over' : ''}`}
         >
             External drop zone: drag a file from Chonky here
         </div>
@@ -137,39 +209,43 @@ const App = () => {
     const addLog = useCallback((line: string) => setLog((prev) => [line, ...prev].slice(0, 50)), []);
 
     return (
-        <div style={{ maxWidth: 1000, margin: '0 auto', padding: 16 }}>
-            <h2>Chonky2 Playground</h2>
-            <div style={{ display: 'flex', gap: 16, marginBottom: 12 }}>
-                <label>
-                    <input type="radio" checked={mode === 'internal'} onChange={() => setMode('internal')} /> Internal
-                    DndProvider (default)
-                </label>
-                <label>
-                    <input type="radio" checked={mode === 'external'} onChange={() => setMode('external')} /> External
-                    DndProvider + disableDragAndDropProvider
-                </label>
-                <label>
-                    <input type="checkbox" checked={darkMode} onChange={(e) => setDarkMode(e.target.checked)} /> Dark
-                    mode
-                </label>
-            </div>
+        <div className={`pg-page${darkMode ? ' pg-dark' : ''}`}>
+            <header className="pg-header">
+                <h2>Chonky2 Playground</h2>
+                <div className="pg-controls">
+                    <label>
+                        <input type="radio" checked={mode === 'internal'} onChange={() => setMode('internal')} />{' '}
+                        Internal DndProvider (default)
+                    </label>
+                    <label>
+                        <input type="radio" checked={mode === 'external'} onChange={() => setMode('external')} />{' '}
+                        External DndProvider + disableDragAndDropProvider
+                    </label>
+                    <label>
+                        <input type="checkbox" checked={darkMode} onChange={(e) => setDarkMode(e.target.checked)} />{' '}
+                        Dark mode
+                    </label>
+                </div>
+            </header>
 
             {mode === 'internal' ? (
-                <FileBrowserDemo key="internal" mode="internal" darkMode={darkMode} onLog={addLog} />
+                <Explorer key="internal" mode="internal" darkMode={darkMode} onLog={addLog} />
             ) : (
                 <DndProvider key="external" backend={HTML5Backend}>
-                    <FileBrowserDemo mode="external" darkMode={darkMode} onLog={addLog} />
+                    <Explorer mode="external" darkMode={darkMode} onLog={addLog} />
                     <ExternalDropZone onLog={addLog} />
                 </DndProvider>
             )}
 
-            <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-                <h4>Log</h4>
-                <button type="button" onClick={() => setLog([])} disabled={log.length === 0}>
-                    Clear
-                </button>
-            </div>
-            <pre style={{ background: '#fff', padding: 12, minHeight: 80, maxHeight: 240, overflow: 'auto' }}>{log.join('\n') || 'No events yet.'}</pre>
+            <section className="pg-log">
+                <div className="pg-logHeader">
+                    <h4>Log</h4>
+                    <button type="button" onClick={() => setLog([])} disabled={log.length === 0}>
+                        Clear
+                    </button>
+                </div>
+                <pre>{log.join('\n') || 'No events yet.'}</pre>
+            </section>
         </div>
     );
 };

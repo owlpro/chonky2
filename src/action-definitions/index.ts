@@ -19,6 +19,8 @@ export const EssentialFileActions = [
     ChonkyActions.ChangeSelection,
     ChonkyActions.OpenFiles,
     ChonkyActions.OpenParentFolder,
+    ChonkyActions.GoBack,
+    ChonkyActions.GoForward,
     ChonkyActions.OpenFileContextMenu,
 ];
 

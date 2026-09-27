@@ -9,6 +9,7 @@ import { useDragLayer } from 'react-dnd';
 import { Nullable } from '../../types/util.types';
 
 import { ChonkyDndFileEntryItem, ChonkyDndFileEntryType } from '../../types/dnd.types';
+import { FileIcon } from './FileEntryIcon';
 
 export interface DnDFileListDragLayerProps {}
 
@@ -71,16 +72,9 @@ export const DnDFileListDragLayer: React.FC<DnDFileListDragLayerProps> = () => {
                 )}
             >
                 <div className="chonky-fileDragPreview">
-                    <b>{item.payload.draggedFile.name}</b>
-                    {selectionSize > 1 && (
-                        <>
-                            {' and '}
-                            <strong>
-                                {selectionSize - 1} other file
-                                {selectionSize - 1 !== 1 ? 's' : ''}
-                            </strong>
-                        </>
-                    )}
+                    <FileIcon file={item.payload.draggedFile} size={20} />
+                    <span className="chonky-fileDragPreviewName">{item.payload.draggedFile.name}</span>
+                    {selectionSize > 1 && <span className="chonky-fileDragPreviewCount">{selectionSize}</span>}
                 </div>
             </div>
         </div>

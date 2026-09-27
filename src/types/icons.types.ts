@@ -14,6 +14,8 @@ export enum ChonkyIconName {
     // File Actions: File operations
     openFiles = 'openFiles',
     openParentFolder = 'openParentFolder',
+    goBack = 'goBack',
+    goForward = 'goForward',
     copy = 'copy',
     paste = 'paste',
     share = 'share',
@@ -91,7 +93,6 @@ export enum ChonkyIconName {
 
 export interface FileIconData {
     icon: ChonkyIconName | string;
-    colorCode: number;
 }
 
 export interface ChonkyIconProps {

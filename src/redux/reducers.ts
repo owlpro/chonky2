@@ -7,14 +7,36 @@ import { FileActionMenuItem } from '../types/action-menus.types';
 import { FileAction, FileActionMap } from '../types/action.types';
 import { ContextMenuConfig } from '../types/context-menu.types';
 import { FileViewConfig } from '../types/file-view.types';
-import { FileArray, FileIdTrueMap, FileMap } from '../types/file.types';
+import { FileArray, FileData, FileIdTrueMap, FileMap } from '../types/file.types';
 import { OptionMap } from '../types/options.types';
-import { RootState } from '../types/redux.types';
+import { NavigationHistory, RootState } from '../types/redux.types';
 import { SortOrder } from '../types/sort.types';
 import { ThumbnailGenerator } from '../types/thumbnails.types';
 import { FileHelper } from '../util/file-helper';
 import { sanitizeInputArray } from './files-transforms';
 import { initialRootState } from './state';
+
+const MAX_HISTORY_ENTRIES = 100;
+
+/**
+ * Records a visit to `folder`: moves through history on Back/Forward, otherwise
+ * drops the forward entries and appends the folder.
+ */
+const recordNavigation = (history: NavigationHistory, folder: FileData) => {
+    const { entries, index, pendingIndex } = history;
+    history.pendingIndex = null;
+
+    if (entries[index]?.id === folder.id) {
+        entries[index] = folder;
+    } else if (pendingIndex !== null && entries[pendingIndex]?.id === folder.id) {
+        entries[pendingIndex] = folder;
+        history.index = pendingIndex;
+    } else {
+        const kept = entries.slice(Math.max(0, index + 2 - MAX_HISTORY_ENTRIES), index + 1);
+        history.entries = [...kept, folder];
+        history.index = history.entries.length - 1;
+    }
+};
 
 const reducers = {
     setExternalFileActionHandler(
@@ -46,6 +68,12 @@ const reducers = {
         state.rawFolderChain = rawFolderChain;
         state.folderChain = folderChain;
         state.folderChainErrorMessages = errorMessages;
+
+        const currentFolder = folderChain.length > 0 ? folderChain[folderChain.length - 1] : null;
+        if (currentFolder) recordNavigation(state.navigationHistory, currentFolder);
+    },
+    setNavigationHistoryPendingIndex(state: RootState, action: PayloadAction<Nullable<number>>) {
+        state.navigationHistory.pendingIndex = action.payload;
     },
     setRawFiles(state: RootState, action: PayloadAction<FileArray | any>) {
         const rawFiles = action.payload;

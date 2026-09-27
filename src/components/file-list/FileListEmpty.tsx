@@ -4,24 +4,19 @@
  * @license MIT
  */
 
-import React, { CSSProperties, useContext } from 'react';
+import React, { CSSProperties } from 'react';
 
-import { ChonkyIconName } from '../../types/icons.types';
 import { getI18nId, I18nNamespace, useIntl } from '../../util/i18n';
-import { ChonkyIconContext } from '../../util/icon-helper';
+import { FolderIcon } from './FileEntryIcon';
 
 export interface FileListEmptyProps {
     width: number;
     height: number;
 }
 
-export const FileListEmpty: React.FC<FileListEmptyProps> = props => {
+export const FileListEmpty: React.FC<FileListEmptyProps> = (props) => {
     const { width, height } = props;
-    const ChonkyIcon = useContext(ChonkyIconContext);
-    const style: CSSProperties = {
-        width,
-        height,
-    };
+    const style: CSSProperties = { width, height };
 
     const intl = useIntl();
     const emptyString = intl.formatMessage({
@@ -31,10 +26,8 @@ export const FileListEmpty: React.FC<FileListEmptyProps> = props => {
 
     return (
         <div className="chonky-fileListEmpty" style={style}>
-            <div className="chonky-fileListEmptyContent">
-                <ChonkyIcon icon={ChonkyIconName.folderOpen} />
-                &nbsp; {emptyString}
-            </div>
+            <FolderIcon size={48} />
+            <span>{emptyString}</span>
         </div>
     );
 };

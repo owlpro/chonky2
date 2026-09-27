@@ -86,7 +86,7 @@ export const DefaultActions = {
         id: 'enable_list_view',
         fileViewConfig: {
             mode: FileViewMode.List,
-            entryHeight: 30,
+            entryHeight: 34,
         },
         button: {
             name: 'Switch to List view',
@@ -104,8 +104,8 @@ export const DefaultActions = {
         id: 'enable_compact_view',
         fileViewConfig: {
             mode: FileViewMode.Compact,
-            entryHeight: 40,
-            entryWidth: 220,
+            entryHeight: 52,
+            entryWidth: 240,
         },
         button: {
             name: 'Switch to Compact view',
@@ -119,7 +119,7 @@ export const DefaultActions = {
      */
     EnableGridView: defineFileAction({
         id: 'enable_grid_view',
-        fileViewConfig: { mode: FileViewMode.Grid, entryWidth: 165, entryHeight: 130 },
+        fileViewConfig: { mode: FileViewMode.Grid, entryWidth: 140, entryHeight: 140 },
         button: {
             name: 'Switch to Grid view',
             toolbar: true,

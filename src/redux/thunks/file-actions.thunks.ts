@@ -7,7 +7,14 @@ import { ChonkyThunk } from '../../types/redux.types';
 import { SortOrder } from '../../types/sort.types';
 import { sanitizeInputArray } from '../files-transforms';
 import { reduxActions } from '../reducers';
-import { selectCleanFileIds, selectFileMap, selectHiddenFileIdMap, selectSelectionMap } from '../selectors';
+import {
+    selectCleanFileIds,
+    selectFileMap,
+    selectHiddenFileIdMap,
+    selectNavigationHistory,
+    selectSelectionMap,
+} from '../selectors';
+import { thunkRequestFileAction } from './dispatchers.thunks';
 
 /**
  * Merges multiple file action arrays into one while removing duplicates
@@ -58,6 +65,8 @@ export const thunkUpdateToolbarNContextMenuItems = (fileActions: FileAction[]): 
         // TODO: Move decision to exclude actions somewhere else, as users' custom
         //  components might not give these actions special treatment like Chonky does.
         ChonkyActions.OpenParentFolder.id,
+        ChonkyActions.GoBack.id,
+        ChonkyActions.GoForward.id,
     ]);
 
     type SeenGroupMap = { [groupName: string]: FileActionGroup };
@@ -149,4 +158,18 @@ export const thunkApplySelectionTransform = (action: FileAction): ChonkyThunk =>
     } else {
         dispatch(reduxActions.selectFiles({ fileIds: Array.from(newSelection), reset: true }));
     }
+};
+
+/**
+ * Asks the app to open the folder `step` entries away in the navigation history
+ * (-1 for Back, 1 for Forward). The history moves once the app updates `folderChain`.
+ */
+export const thunkNavigateHistory = (step: number): ChonkyThunk => (dispatch, getState) => {
+    const { entries, index } = selectNavigationHistory(getState());
+    const targetIndex = index + step;
+    const target = entries[targetIndex];
+    if (!target) return;
+
+    dispatch(reduxActions.setNavigationHistoryPendingIndex(targetIndex));
+    dispatch(thunkRequestFileAction(ChonkyActions.OpenFiles, { targetFile: target, files: [target] }));
 };

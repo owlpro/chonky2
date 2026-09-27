@@ -71,7 +71,7 @@ export const ToolbarSearch: React.FC<ToolbarSearchProps> = React.memo(() => {
     );
 
     return (
-        <label className="chonky-searchFieldContainer">
+        <label className="chonky-search">
             <span className="chonky-searchIcon">
                 <ChonkyIcon
                     icon={showLoadingIndicator ? ChonkyIconName.loading : ChonkyIconName.search}
@@ -81,7 +81,7 @@ export const ToolbarSearch: React.FC<ToolbarSearchProps> = React.memo(() => {
             <input
                 ref={searchInputRef}
                 type="text"
-                className="chonky-searchFieldInputInner"
+                className="chonky-searchInput"
                 value={localSearchString}
                 placeholder={searchPlaceholderString}
                 aria-label={searchPlaceholderString}

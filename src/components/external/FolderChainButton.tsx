@@ -4,14 +4,12 @@
  * @license MIT
  */
 
-import React, { useContext, useMemo, useRef } from 'react';
+import React, { useMemo, useRef } from 'react';
 
 import { DndEntryState } from '../../types/file-list.types';
 import { ChonkyIconName } from '../../types/icons.types';
 import { useDndHoverOpen, useFileDrop } from '../../util/dnd';
-import { ChonkyIconContext } from '../../util/icon-helper';
 import { c, getDndOverClasses } from '../../util/styles';
-import { useDndIcon } from '../file-list/FileEntry-hooks';
 import { FolderChainItem } from './FileNavbar-hooks';
 import { ToolbarButton } from './ToolbarButton';
 
@@ -37,10 +35,7 @@ export const FolderChainButton: React.FC<FolderChainButtonProps> = React.memo(
             [dndCanDrop, dndIsOver]
         );
         useDndHoverOpen(file, dndState);
-        const dndIconName = useDndIcon(dndState);
-        const ChonkyIcon = useContext(ChonkyIconContext);
-
-        const className = c('chonky-baseBreadcrumb', getDndOverClasses(dndState), {
+        const className = c('chonky-breadcrumbButton', getDndOverClasses(dndState), {
             'chonky-disabledBreadcrumb': disabled,
             'chonky-currentBreadcrumb': current,
         });
@@ -54,12 +49,7 @@ export const FolderChainButton: React.FC<FolderChainButtonProps> = React.memo(
         drop(dropRef);
 
         return (
-            <div className="chonky-folderChainButton" ref={file ? dropRef : null}>
-                {file && dndIconName && (
-                    <div className={c('chonky-folderChainDndIndicator', { 'chonky-can-drop': dndCanDrop })}>
-                        <ChonkyIcon icon={dndIconName} fixedWidth={true} />
-                    </div>
-                )}
+            <div className="chonky-breadcrumb" ref={file ? dropRef : null}>
                 <ToolbarButton
                     icon={icon}
                     className={className}
