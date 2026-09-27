@@ -19,35 +19,42 @@
 # Chonky2
 
 **Chonky2** is a modernized and optimized fork of [Chonky](https://github.com/TimboKZ/Chonky) —
-a powerful React file browser component that recreates the native file explorer experience in the browser.
+a React file browser component that recreates the native file explorer experience in the browser.
 
-Users can **drag & drop**, **select multiple files**, **toggle between grid and list views**, and use **keyboard shortcuts** seamlessly.
+Users can **drag & drop**, **select multiple files**, **switch between list and grid views**,
+**navigate back and forward**, and use **keyboard shortcuts**. Chonky only renders the UI: your
+app supplies the files and decides what each action does, so it works with any backend or API.
+
+<p align="center">
+    <img src="./images/preview-light.png" alt="Chonky2 in light mode, list view" width="800" />
+</p>
+
+<p align="center">
+    <img src="./images/preview-dark.png" alt="Chonky2 in dark mode, grid view with thumbnails" width="800" />
+</p>
 
 ---
 
-## 🚀 What's New
-
-### ⚛️ React 19.2 Support
-- Fully compatible with **React 19.2** and the new JSX runtime.
-- Improved internal architecture for better performance and tree-shaking.
+## 🚀 What's New in v7
 
 ### 🪟 Fluent Design
-- A new look modelled on the Windows 11 File Explorer: title and menu bar, an address bar with Back, Forward and Up, a list view with sortable columns, and a status bar.
+- A new look modelled on the Windows 11 File Explorer: folder title and menu bar, an address bar with **Back**, **Forward** and **Up**, a list view with **sortable columns**, and a status bar.
 - Colour-coded file icons, image thumbnails in the grid view, and a built-in dark theme.
 
 ### 🎨 No UI Framework Required
 - Material UI, Emotion, styled-components and JSS are no longer needed.
 - Styles are plain CSS, injected automatically, and themed with CSS variables.
 
-### 🪶 Built-in Lucide Icon Pack
-- **FontAwesome removed completely.**
-- Icons are now powered by **[Lucide](https://lucide.dev/)** and bundled directly within the package.
-- No external icon imports or configuration required.
+### 🪶 Light Dependencies
+- The only peer dependencies are `react` and `react-dom`.
+- `react-intl` was replaced by a small formatter built on the browser's `Intl` APIs.
+- Chonky's cost in an app bundle dropped from about 139 KB to 55 KB (minified + brotli, all dependencies included).
 
 ### 📦 Package Modernization
-- New package name: **`chonky2`**
-- Fully compatible with **Vite** and **ESM**
-- Reduced dependency footprint and improved build times
+- Works with **Vite**, **ESM** and **CommonJS** (`require('chonky2')`).
+- Dependencies are not bundled into the package, so apps that use the same libraries share one copy.
+
+Upgrading from 6.x? See **Upgrading from 6.x** below and the [changelog](./CHANGELOG.md).
 
 ---
 
@@ -63,43 +70,147 @@ The only peer dependencies are `react` and `react-dom` (19 or newer).
 
 ## ⚙️ Quick Start
 
+Chonky is a controlled component: pass it the files of the current folder and the path
+to that folder, and handle `OpenFiles` to navigate.
+
 ```tsx
-import { FullFileBrowser } from 'chonky2';
+import { useState } from 'react';
+import { ChonkyActions, FileActionHandler, FileData, FullFileBrowser } from 'chonky2';
 
-const files = [
-  { id: 'file1', name: 'Document.pdf' },
-  { id: 'file2', name: 'Photo.png' },
-];
+const folders: Record<string, FileData[]> = {
+  root: [
+    { id: 'docs', name: 'Documents', isDir: true },
+    { id: 'photo', name: 'Photo.png', size: 2_100_000, modDate: new Date() },
+  ],
+  docs: [{ id: 'report', name: 'Report.pdf', size: 480_000 }],
+};
+const names: Record<string, string> = { root: 'Home', docs: 'Documents' };
 
-export default function Example() {
+export default function Explorer() {
+  const [path, setPath] = useState(['root']);
+
+  const handleFileAction: FileActionHandler = (data) => {
+    if (data.id === ChonkyActions.OpenFiles.id) {
+      const target = data.payload.targetFile ?? data.payload.files[0];
+      if (!target?.isDir) return;
+      // Opening a folder that is already in the path (breadcrumbs, Up, Back) goes back to it.
+      const index = path.indexOf(target.id);
+      setPath(index >= 0 ? path.slice(0, index + 1) : [...path, target.id]);
+    }
+  };
+
+  const currentId = path[path.length - 1] ?? 'root';
   return (
     <div style={{ height: 500 }}>
-      <FullFileBrowser files={files} folderChain={[{ id: 'root', name: 'Home', isDir: true }]} />
+      <FullFileBrowser
+        files={folders[currentId] ?? []}
+        folderChain={path.map((id) => ({ id, name: names[id] ?? id, isDir: true }))}
+        onFileAction={handleFileAction}
+      />
     </div>
   );
 }
 ```
 
-`FullFileBrowser` is a shortcut for the parts below. Use them directly to leave some
-out or add your own layout, such as a sidebar, around them:
+No need to import icons or stylesheets — they are included automatically. **Back** and
+**Forward** work without extra code: Chonky remembers the visited folders and reopens them
+through the same `OpenFiles` action.
+
+### Building your own layout
+
+`FullFileBrowser` is a shortcut for the parts below. Use them directly to leave some out
+or to place your own layout, such as a sidebar, around them:
 
 ```tsx
+import {
+  FileBrowser, FileContextMenu, FileList, FileNavbar, FileStatusBar, FileToolbar,
+} from 'chonky2';
+
 <FileBrowser files={files} folderChain={folderChain} onFileAction={handleFileAction}>
-  <FileToolbar />     {/* folder title, menus and action buttons */}
+  <FileToolbar />     {/* folder title, one menu per action group, action buttons */}
   <FileNavbar />      {/* Back, Forward, Up, breadcrumbs and search */}
-  <FileList />
-  <FileStatusBar />   {/* item, selection and hidden counts */}
-  <FileContextMenu />
+  <FileList />        {/* list, grid or compact view */}
+  <FileStatusBar />   {/* item, selection and hidden-file counts */}
+  <FileContextMenu /> {/* right-click menu */}
 </FileBrowser>
 ```
 
-- No need to import icons or stylesheets — they are included automatically.
+---
+
+## 🧰 Actions
+
+Everything the user does is an action, delivered to `onFileAction`. Built-in actions such
+as selection, sorting and view switching work on their own; the ones that change your data
+(open, move, delete, …) only tell you what the user wants.
+
+| Action | When it fires | Payload / state |
+|---|---|---|
+| `OpenFiles` | Double click, Enter, breadcrumbs, Up, Back, Forward | `payload.targetFile`, `payload.files` |
+| `MoveFiles` | Files dropped onto a folder | `payload.files`, `payload.destination` |
+| `ChangeSelection` | Selection changed | `payload.selection` (a `Set` of IDs) |
+| `CreateFolder`, `UploadFiles`, `DownloadFiles`, `CopyFiles`, `DeleteFiles` | Their button, menu item or hotkey | `state.selectedFilesForAction` |
+
+`CreateFolder`, `UploadFiles`, `DownloadFiles`, `CopyFiles` and `DeleteFiles` are opt-in.
+Add the ones you support, and they appear in the toolbar, menus and context menu:
+
+```tsx
+<FullFileBrowser
+  files={files}
+  folderChain={folderChain}
+  fileActions={[ChonkyActions.CreateFolder, ChonkyActions.UploadFiles, ChonkyActions.DeleteFiles]}
+  onFileAction={(data) => {
+    if (data.id === ChonkyActions.DeleteFiles.id) {
+      api.delete(data.state.selectedFilesForAction.map((file) => file.id));
+    }
+  }}
+/>
+```
+
+Custom actions are created with `defineFileAction`. Actions with a `button.group` appear
+in that group's menu in the toolbar (e.g. `Actions`, `Options`); actions without one get
+their own toolbar button.
+
+### Keyboard shortcuts
+
+| Keys | Action |
+|---|---|
+| Enter | Open the selection |
+| Ctrl+A | Select all files |
+| Esc | Clear the selection |
+| Backspace | Go up a folder |
+| Alt+← / Alt+→ | Back / Forward |
+| Ctrl+F | Focus the search field |
+| Ctrl+H | Show or hide hidden files |
+| Ctrl+C, Delete | `CopyFiles`, `DeleteFiles` (when added) |
+
+---
+
+## 🗂️ Files
+
+Each file is a plain object. Only `id` and `name` are required:
+
+```ts
+{
+  id: 'report',
+  name: 'Report.pdf',
+  isDir: false,
+  size: 480_000,              // bytes, shown in the Size column
+  modDate: new Date(),        // Date modified column
+  childrenCount: 3,           // folders: shown as "3 items"
+  thumbnailUrl: '/thumbs/report.png', // shown in the grid view
+  isHidden: false,            // hidden unless "Show hidden files" is on
+  color: '#e53935',           // overrides the icon colour
+}
+```
+
+For thumbnails that have to be fetched, pass `thumbnailGenerator`, a function that takes a
+file and returns a URL (or a promise of one).
 
 ---
 
 ## 🎨 Theming
 
-Pass `darkMode` for the built-in dark theme. To change colors or sizes, override the
+Pass `darkMode` for the built-in dark theme. To change colours, fonts or sizes, override the
 CSS variables on `.chonky-theme` from your own stylesheet:
 
 ```css
@@ -108,40 +219,87 @@ CSS variables on `.chonky-theme` from your own stylesheet:
     --chonky-font: 'Vazirmatn', sans-serif;
     --chonky-control-height: 36px;
 }
+
+/* Dark theme values */
+.chonky-theme.chonky-dark {
+    --chonky-accent: #ce93d8;
+}
 ```
 
-The full list of variables is at the top of
-[`src/styles/chonky.css`](./src/styles/chonky.css).
+| Variable | Controls |
+|---|---|
+| `--chonky-accent` | Selection, focus ring, active buttons |
+| `--chonky-font`, `--chonky-font-size` | Text |
+| `--chonky-bg`, `--chonky-chrome-bg` | File list and toolbar backgrounds |
+| `--chonky-text`, `--chonky-text-secondary` | Text colours |
+| `--chonky-selected-bg`, `--chonky-hover` | Row and tile states |
+| `--chonky-radius`, `--chonky-control-height` | Corners and button height |
+| `--chonky-list-type-width`, `--chonky-list-size-width`, `--chonky-list-date-width` | List column widths |
+
+The full list is at the top of [`src/styles/chonky.css`](./src/styles/chonky.css). The root
+element also has a border and rounded corners; remove them with
+`.chonky-chonkyRoot { border: 0; border-radius: 0; }` when Chonky fills a window of your own.
+
+### Custom icons
+
+File icons are drawn by Chonky: a folder, or a page labelled with the file's extension in
+a colour per file type. Toolbar and menu icons come from [Lucide](https://lucide.dev/).
+To use your own icon set everywhere, pass `iconComponent`, a component that receives
+`{ icon, spin, className, style }` where `icon` is a `ChonkyIconName`.
 
 ---
 
 ## 🌍 Translations
 
 Pass a locale and translated messages through `i18n`. Messages use ICU syntax
-(`{arg}`, `plural`, `select`, `selectordinal`, `#`); numbers, dates and plural rules
-come from the browser's `Intl` APIs.
+(`{arg}`, `plural`, `select`, `selectordinal`, `#`); numbers, dates and plural rules come
+from the browser's `Intl` APIs.
 
 ```tsx
 <FullFileBrowser
-    files={files}
-    i18n={{
-        locale: 'fa',
-        messages: {
-            'chonky.toolbar.searchPlaceholder': 'جست‌وجو',
-            'chonky.toolbar.visibleFileCount': '{fileCount, plural, other {# مورد}}',
-            'chonky.actions.open_files.button.name': 'باز کردن',
-        },
-    }}
+  files={files}
+  i18n={{
+    locale: 'fa',
+    messages: {
+      'chonky.toolbar.searchPlaceholder': 'جست‌وجو',
+      'chonky.toolbar.visibleFileCount': '{fileCount, plural, other {# مورد}}',
+      'chonky.fileList.nameColumn': 'نام',
+      'chonky.actions.open_files.button.name': 'باز کردن',
+    },
+  }}
 />
 ```
 
+Message IDs follow the pattern `chonky.<area>.<name>`:
+
+| Area | IDs |
+|---|---|
+| `toolbar` | `searchPlaceholder`, `visibleFileCount`, `selectedFileCount`, `hiddenFileCount` |
+| `fileList` | `nothingToShow`, `nameColumn`, `typeColumn`, `sizeColumn`, `dateColumn` |
+| `fileEntry` | `folderType`, `fileType`, `genericFileType`, `folderItemCount` |
+| `contextMenu` | `browserMenuShortcut` |
+| `actions` | `<actionId>.button.name`, `<actionId>.button.tooltip` |
+| `actionGroups` | `<group name>`, e.g. `Actions`, `Options` |
+
+To change how dates, sizes or file types are written, pass `i18n.formatters` with any of
+`formatFileModDate`, `formatFileSize` and `formatFileType`.
+
 ---
+
+## ⬆️ Upgrading from 6.x
+
+- Uninstall `@mui/material`, `@mui/styled-engine-sc`, `@emotion/react`, `@emotion/styled` and `styled-components` if your app doesn't use them itself.
+- Style overrides that target MUI classes or the old `chonky-*` class names need to move to the new CSS variables.
+- The search field is now part of `FileNavbar`, and the item count moved to `FileStatusBar`. If you compose the parts yourself, add them.
+- `react-intl` options other than `locale`, `defaultLocale`, `messages` and `timeZone` are ignored, and custom formatters receive a `ChonkyIntl` object instead of `IntlShape`.
+
+The full list is in the [changelog](./CHANGELOG.md).
 
 ## 🔁 Migration from Original Chonky
 
 1️⃣ Uninstall the old package:
 ```bash
-npm uninstall chonky
+npm uninstall chonky chonky-icon-fontawesome
 ```
 
 2️⃣ Install Chonky2:
@@ -155,7 +313,7 @@ npm install chonky2
 + import { FileBrowser } from 'chonky2';
 ```
 
-4️⃣ Remove all FontAwesome or external icon imports — they are now handled internally via Lucide.
+4️⃣ Remove `setChonkyDefaults({ iconComponent: ChonkyIconFA })` and other FontAwesome setup — icons are built in.
 
 ---
 
@@ -165,33 +323,27 @@ npm install chonky2
 |----------|----------|
 | React | 19 or newer |
 | TypeScript | Supported (types included) |
+| Browsers | Current Chrome, Edge, Firefox and Safari |
 
 ---
 
-## 📸 Preview
+## 🛠️ Development
 
-<p align="center">
-  <img src="https://chonky.io/chonky-v2-preview.gif" alt="Chonky2 preview" />
-</p>
+```bash
+yarn install
+yarn dev     # playground at http://localhost:5173, rebuilds the library on change
+yarn build   # builds dist/
+yarn size    # checks the bundle size limit
+```
 
----
-
-## 📚 Documentation
-
-Documentation for Chonky2 is currently being updated.  
-Until then, refer to the original [Chonky documentation](https://chonky.io/).  
-Most APIs remain **backward-compatible**.
+The playground (`playground/`) is a full explorer window with a sidebar, sample folders,
+working create, upload and delete actions, a dark mode toggle and a log of every event.
 
 ---
 
 ## 📝 Changelog
 
-### 6.5.5 (2025-10-15)
-- Upgraded to React 19.2
-- Migrated to MUI 6.5 with new styled engine
-- Removed FontAwesome and added built-in **Lucide Icon Pack**
-- Improved ESM and Vite compatibility
-- Reduced bundle size and dependencies
+See [CHANGELOG.md](./CHANGELOG.md).
 
 ---
 
