@@ -1,7 +1,5 @@
 import { useCallback, useContext } from 'react';
-import { useDrag, useDrop } from 'react-dnd';
-
-import { DndContext as CoreDndContext } from 'react-dnd/dist/core/DndContext.js';
+import { DndContext as CoreDndContext, useDrag, useDrop } from 'react-dnd';
 
 const DndContext: React.Context<any> = (CoreDndContext ?? ({} as any));
 

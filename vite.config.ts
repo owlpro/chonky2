@@ -36,6 +36,8 @@ export default defineConfig({
                 '@mui/material',
                 '@mui/styled-engine-sc',
                 'styled-components',
+                'react-dnd',
+                'react-dnd-html5-backend',
             ],
             output: {
                 globals: {
