@@ -8,6 +8,7 @@ The project follows [Semantic Versioning](https://semver.org/).
 ### Development
 
 - Added a playground: `yarn dev` builds the library in watch mode and serves a demo that runs against `dist/`.
+- Fixed CI: a single job on Node 20 that installs with Yarn 4, builds, and checks bundle size. Removed the broken `size` workflow and pointed `size-limit` at the current `dist/` files.
 
 ## [6.5.9]
 

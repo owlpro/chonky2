@@ -23,7 +23,8 @@
     "scripts": {
         "dev": "vite --config playground/vite.config.ts",
         "build": "vite build",
-        "watch": "vite build --watch"
+        "watch": "vite build --watch",
+        "size": "size-limit"
     },
     "husky": {
         "hooks": {
@@ -32,12 +33,12 @@
     },
     "size-limit": [
         {
-            "path": "dist/chonky2.cjs.production.min.js",
-            "limit": "10 KB"
+            "path": "dist/index.es.js",
+            "limit": "100 KB"
         },
         {
-            "path": "dist/chonky2.esm.js",
-            "limit": "10 KB"
+            "path": "dist/index.cjs.js",
+            "limit": "100 KB"
         }
     ],
     "dependencies": {
@@ -91,7 +92,7 @@
         "rollup": "^4.52.4",
         "rollup-plugin-dts": "^6.2.3",
         "rollup-plugin-node-externals": "^8.1.1",
-        "size-limit": "^9.0.0",
+        "size-limit": "^11.2.0",
         "styled-components": "^6.1.14",
         "tsdef": "^0.0.14",
         "tslib": "^2.8.1",
