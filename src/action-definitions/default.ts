@@ -1,4 +1,4 @@
-import { Nullable } from 'tsdef';
+import { Nullable } from '../types/util.types';
 
 import { selectFocusSearchInput } from '../redux/selectors';
 import { thunkRequestFileAction } from '../redux/thunks/dispatchers.thunks';

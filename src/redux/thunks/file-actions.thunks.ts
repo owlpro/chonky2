@@ -1,4 +1,4 @@
-import { Nilable } from 'tsdef';
+import { Nilable } from '../../types/util.types';
 
 import { ChonkyActions, DefaultFileActions, EssentialFileActions } from '../../action-definitions/index';
 import { FileActionGroup, FileActionMenuItem } from '../../types/action-menus.types';

@@ -1,5 +1,5 @@
 import path from 'path';
-import { build, defineConfig, type Plugin } from 'vite';
+import { build, defineConfig, type Plugin, type Rollup } from 'vite';
 
 const libRoot = path.resolve(__dirname, '..');
 
@@ -14,7 +14,7 @@ const buildLibrary = (): Plugin => ({
             configFile: path.join(libRoot, 'vite.config.ts'),
             logLevel: 'warn',
             build: { watch: {} },
-        })) as import('rollup').RollupWatcher;
+        })) as Rollup.RollupWatcher;
 
         await new Promise<void>((resolve) => {
             watcher.on('event', (event) => {
@@ -29,11 +29,8 @@ export default defineConfig({
     plugins: [buildLibrary()],
     esbuild: { jsx: 'automatic' },
     resolve: {
-        alias: [
-            { find: /^chonky2$/, replacement: path.join(libRoot, 'dist/index.es.js') },
-            { find: '@mui/styled-engine', replacement: '@mui/styled-engine-sc' },
-        ],
-        dedupe: ['react', 'react-dom', 'react-dnd', '@mui/material', '@emotion/react', '@emotion/styled'],
+        alias: [{ find: /^chonky2$/, replacement: path.join(libRoot, 'dist/index.es.js') }],
+        dedupe: ['react', 'react-dom', 'react-dnd'],
     },
     server: {
         fs: { allow: [libRoot] },

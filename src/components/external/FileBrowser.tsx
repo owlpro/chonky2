@@ -1,29 +1,17 @@
-import {
-    createTheme,
-    ThemeProvider as MuiThemeProvider,
-} from '@mui/material';
-import merge from 'deepmerge';
-import React, { ReactNode, useMemo } from 'react';
+import React, { ReactNode, useId, useMemo } from 'react';
 import { DndProvider } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
-import { IntlProvider } from 'react-intl';
-import { ThemeProvider } from 'react-jss';
 import { Provider as ReduxProvider } from 'react-redux';
-import shortid from 'shortid';
 
 import { useChonkyStore } from '../../redux/store';
 import { FileBrowserHandle, FileBrowserProps } from '../../types/file-browser.types';
 import { defaultConfig } from '../../util/default-config';
 import { getValueOrFallback } from '../../util/helpers';
 import { useStaticValue } from '../../util/hooks-helpers';
-import { ChonkyFormattersContext, defaultFormatters } from '../../util/i18n';
+import { ChonkyFormattersContext, ChonkyIntlContext, defaultFormatters } from '../../util/i18n';
+import { createChonkyIntl } from '../../util/intl';
 import { ChonkyIconContext } from '../../util/icon-helper';
-import {
-    darkThemeOverride,
-    lightTheme,
-    mobileThemeOverride,
-    useIsMobileBreakpoint,
-} from '../../util/styles';
+import { ChonkyDarkModeContext, useChonkyStyles } from '../../util/styles';
 import { ChonkyBusinessLogic } from '../internal/ChonkyBusinessLogic';
 import { ChonkyIconPlaceholder } from '../internal/ChonkyIconPlaceholder';
 import { ChonkyPresentationLayer } from '../internal/ChonkyPresentationLayer';
@@ -53,24 +41,22 @@ export const FileBrowser = React.forwardRef<
         () => ({ ...defaultFormatters, ...i18n?.formatters }),
         [i18n]
     );
+    const intl = useMemo(
+        () =>
+            createChonkyIntl({
+                locale: i18n?.locale,
+                defaultLocale: i18n?.defaultLocale,
+                messages: i18n?.messages,
+                timeZone: i18n?.timeZone,
+            }),
+        [i18n?.locale, i18n?.defaultLocale, i18n?.messages, i18n?.timeZone]
+    );
 
-    const chonkyInstanceId = useStaticValue(() => instanceId ?? shortid.generate());
+    const generatedInstanceId = useId();
+    const chonkyInstanceId = useStaticValue(() => instanceId ?? generatedInstanceId);
     const store = useChonkyStore(chonkyInstanceId);
 
-    const isMobileBreakpoint = useIsMobileBreakpoint();
-
-    const theme = useMemo(() => {
-        const muiTheme = createTheme({
-            palette: { mode: darkMode ? 'dark' : 'light' },
-        });
-        const combinedTheme = merge(
-            muiTheme,
-            merge(lightTheme, darkMode ? darkThemeOverride : {})
-        );
-        return isMobileBreakpoint
-            ? merge(combinedTheme, mobileThemeOverride)
-            : combinedTheme;
-    }, [darkMode, isMobileBreakpoint]);
+    useChonkyStyles();
 
     const chonkyComps = (
         <>
@@ -80,31 +66,29 @@ export const FileBrowser = React.forwardRef<
     );
 
     return (
-        <IntlProvider locale="en" defaultLocale="en" {...i18n}>
+        <ChonkyIntlContext.Provider value={intl}>
             <ChonkyFormattersContext.Provider value={formatters}>
                 <ReduxProvider store={store}>
-                    <ThemeProvider theme={theme}>
-                        <MuiThemeProvider theme={theme}>
-                            <ChonkyIconContext.Provider
-                                value={
-                                    iconComponent ??
-                                    defaultConfig.iconComponent ??
-                                    ChonkyIconPlaceholder
-                                }
-                            >
-                                {disableDragAndDrop || disableDragAndDropProvider ? (
-                                    chonkyComps
-                                ) : (
-                                    <DndProvider backend={HTML5Backend}>
-                                        {chonkyComps}
-                                    </DndProvider>
-                                )}
-                            </ChonkyIconContext.Provider>
-                        </MuiThemeProvider>
-                    </ThemeProvider>
+                    <ChonkyDarkModeContext.Provider value={darkMode}>
+                        <ChonkyIconContext.Provider
+                            value={
+                                iconComponent ??
+                                defaultConfig.iconComponent ??
+                                ChonkyIconPlaceholder
+                            }
+                        >
+                            {disableDragAndDrop || disableDragAndDropProvider ? (
+                                chonkyComps
+                            ) : (
+                                <DndProvider backend={HTML5Backend}>
+                                    {chonkyComps}
+                                </DndProvider>
+                            )}
+                        </ChonkyIconContext.Provider>
+                    </ChonkyDarkModeContext.Provider>
                 </ReduxProvider>
             </ChonkyFormattersContext.Provider>
-        </IntlProvider>
+        </ChonkyIntlContext.Provider>
     );
 });
 

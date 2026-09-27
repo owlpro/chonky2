@@ -6,6 +6,7 @@ import { HTML5Backend } from 'react-dnd-html5-backend';
 import {
     ChonkyActions,
     ChonkyDndFileEntryItem,
+    ChonkyFileActionData,
     ChonkyDndFileEntryType,
     FileActionHandler,
     FileData,
@@ -19,14 +20,35 @@ const initialFiles: PlaygroundFile[] = [
     { id: 'root', name: 'Root', isDir: true, parentId: null },
     { id: 'docs', name: 'Documents', isDir: true, parentId: 'root' },
     { id: 'photos', name: 'Photos', isDir: true, parentId: 'root' },
-    { id: 'readme', name: 'README.md', parentId: 'root' },
-    { id: 'report', name: 'Report.pdf', parentId: 'root' },
-    { id: 'notes', name: 'Notes.txt', parentId: 'root' },
+    { id: 'readme', name: 'README.md', parentId: 'root', size: 2_480, modDate: new Date('2026-09-20T10:30:00') },
+    { id: 'report', name: 'Report.pdf', parentId: 'root', size: 1_845_000, modDate: new Date('2026-08-02T16:05:00') },
+    { id: 'notes', name: 'Notes.txt', parentId: 'root', size: 312 },
     { id: 'invoice', name: 'Invoice.xlsx', parentId: 'docs' },
     { id: 'beach', name: 'Beach.png', parentId: 'photos' },
 ];
 
-const FileBrowserDemo = ({ mode, onLog }: { mode: Mode; onLog: (line: string) => void }) => {
+// One log line per Chonky event, e.g. `open_files: Documents` or `change_selection: 2 selected`.
+const describeAction = (data: ChonkyFileActionData) => {
+    const payload = (data.payload ?? {}) as Record<string, any>;
+    const details: string[] = [];
+    if (payload.clickType) details.push(`${payload.clickType} click`);
+    const file = payload.targetFile ?? payload.file ?? payload.draggedFile;
+    if (file) details.push(file.name);
+    else if (Array.isArray(payload.files)) details.push(payload.files.map((f: FileData) => f.name).join(', '));
+    if (payload.selection instanceof Set) details.push(`${payload.selection.size} selected`);
+    if (payload.destination) details.push(`→ ${payload.destination.name}`);
+    return details.length > 0 ? `${data.id}: ${details.join(' ')}` : data.id;
+};
+
+const FileBrowserDemo = ({
+    mode,
+    darkMode,
+    onLog,
+}: {
+    mode: Mode;
+    darkMode: boolean;
+    onLog: (line: string) => void;
+}) => {
     const [files, setFiles] = useState(initialFiles);
     const [folderId, setFolderId] = useState('root');
 
@@ -50,6 +72,7 @@ const FileBrowserDemo = ({ mode, onLog }: { mode: Mode; onLog: (line: string) =>
 
     const handleFileAction = useCallback<FileActionHandler>(
         (data) => {
+            onLog(describeAction(data));
             if (data.id === ChonkyActions.OpenFiles.id) {
                 const target = data.payload.targetFile ?? data.payload.files[0];
                 if (target?.isDir) setFolderId(target.id);
@@ -57,7 +80,6 @@ const FileBrowserDemo = ({ mode, onLog }: { mode: Mode; onLog: (line: string) =>
                 const movedIds = new Set(data.payload.files.map((f) => f.id));
                 const destinationId = data.payload.destination.id;
                 setFiles((prev) => prev.map((f) => (movedIds.has(f.id) ? { ...f, parentId: destinationId } : f)));
-                onLog(`Moved ${data.payload.files.map((f) => f.name).join(', ')} → ${data.payload.destination.name}`);
             }
         },
         [onLog]
@@ -70,6 +92,7 @@ const FileBrowserDemo = ({ mode, onLog }: { mode: Mode; onLog: (line: string) =>
                 folderChain={folderChain}
                 onFileAction={handleFileAction}
                 disableDragAndDropProvider={mode === 'external'}
+                darkMode={darkMode}
             />
         </div>
     );
@@ -109,8 +132,9 @@ const ExternalDropZone = ({ onLog }: { onLog: (line: string) => void }) => {
 
 const App = () => {
     const [mode, setMode] = useState<Mode>('internal');
+    const [darkMode, setDarkMode] = useState(false);
     const [log, setLog] = useState<string[]>([]);
-    const addLog = useCallback((line: string) => setLog((prev) => [line, ...prev].slice(0, 20)), []);
+    const addLog = useCallback((line: string) => setLog((prev) => [line, ...prev].slice(0, 50)), []);
 
     return (
         <div style={{ maxWidth: 1000, margin: '0 auto', padding: 16 }}>
@@ -124,19 +148,28 @@ const App = () => {
                     <input type="radio" checked={mode === 'external'} onChange={() => setMode('external')} /> External
                     DndProvider + disableDragAndDropProvider
                 </label>
+                <label>
+                    <input type="checkbox" checked={darkMode} onChange={(e) => setDarkMode(e.target.checked)} /> Dark
+                    mode
+                </label>
             </div>
 
             {mode === 'internal' ? (
-                <FileBrowserDemo key="internal" mode="internal" onLog={addLog} />
+                <FileBrowserDemo key="internal" mode="internal" darkMode={darkMode} onLog={addLog} />
             ) : (
                 <DndProvider key="external" backend={HTML5Backend}>
-                    <FileBrowserDemo mode="external" onLog={addLog} />
+                    <FileBrowserDemo mode="external" darkMode={darkMode} onLog={addLog} />
                     <ExternalDropZone onLog={addLog} />
                 </DndProvider>
             )}
 
-            <h4>Log</h4>
-            <pre style={{ background: '#fff', padding: 12, minHeight: 80 }}>{log.join('\n') || 'No events yet.'}</pre>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                <h4>Log</h4>
+                <button type="button" onClick={() => setLog([])} disabled={log.length === 0}>
+                    Clear
+                </button>
+            </div>
+            <pre style={{ background: '#fff', padding: 12, minHeight: 80, maxHeight: 240, overflow: 'auto' }}>{log.join('\n') || 'No events yet.'}</pre>
         </div>
     );
 };

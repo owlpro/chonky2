@@ -7,5 +7,5 @@
             "chonky2": ["../src/index.ts"]
         }
     },
-    "include": ["."]
+    "include": [".", "../src/general.d.ts"]
 }

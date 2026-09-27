@@ -1,196 +1,75 @@
-import { Theme, useMediaQuery } from '@mui/material';
+import { createContext, useInsertionEffect, useSyncExternalStore } from 'react';
 
-import classNames from 'classnames';
-import { createUseStyles } from 'react-jss';
-import { DeepPartial } from 'tsdef';
+import chonkyCss from '../styles/chonky.css?inline';
+import { DndEntryState } from '../types/file-list.types';
 
-export const lightTheme = {
-    colors: {
-        debugRed: '#fabdbd',
-        debugBlue: '#bdd8fa',
-        debugGreen: '#d2fabd',
-        debugPurple: '#d2bdfa',
-        debugYellow: '#fae9bd',
+const STYLE_ELEMENT_ID = 'chonky2-styles';
 
-        textActive: '#09f',
-    },
-
-    fontSizes: {
-        rootPrimary: 15,
-    },
-
-    margins: {
-        rootLayoutMargin: 8,
-    },
-
-    toolbar: {
-        size: 30,
-        lineHeight: '30px', // `px` suffix is required for `line-height` fields to work
-        fontSize: 15,
-        buttonRadius: 4,
-    },
-
-    dnd: {
-        canDropColor: 'green',
-        cannotDropColor: 'red',
-        canDropMask: 'rgba(180, 235, 180, 0.75)',
-        cannotDropMask: 'rgba(235, 180, 180, 0.75)',
-        fileListCanDropMaskOne: 'rgba(180, 235, 180, 0.1)',
-        fileListCanDropMaskTwo: 'rgba(180, 235, 180, 0.2)',
-        fileListCannotDropMaskOne: 'rgba(235, 180, 180, 0.1)',
-        fileListCannotDropMaskTwo: 'rgba(235, 180, 180, 0.2)',
-    },
-
-    dragLayer: {
-        border: 'solid 2px #09f',
-        padding: '7px 10px',
-        borderRadius: 2,
-    },
-
-    fileList: {
-        desktopGridGutter: 8,
-        mobileGridGutter: 5,
-    },
-
-    gridFileEntry: {
-        childrenCountSize: '1.6em',
-        iconColorFocused: '#000',
-        iconSize: '2.4em',
-        iconColor: '#fff',
-        borderRadius: 5,
-        fontSize: 14,
-
-        fileColorTint: 'rgba(255, 255, 255, 0.4)',
-        folderBackColorTint: 'rgba(255, 255, 255, 0.1)',
-        folderFrontColorTint: 'rgba(255, 255, 255, 0.4)',
-    },
-
-    listFileEntry: {
-        propertyFontSize: 14,
-        iconFontSize: '1.1em',
-        iconBorderRadius: 5,
-        fontSize: 14,
-    },
+/**
+ * Injects Chonky's stylesheet into `document.head` once. It is prepended so that
+ * rules from the host app win over Chonky's rules of the same specificity.
+ */
+export const useChonkyStyles = () => {
+    useInsertionEffect(() => {
+        if (document.getElementById(STYLE_ELEMENT_ID)) return;
+        const style = document.createElement('style');
+        style.id = STYLE_ELEMENT_ID;
+        style.textContent = chonkyCss;
+        document.head.prepend(style);
+    }, []);
 };
 
-export type ChonkyTheme = typeof lightTheme;
+export const getThemeClassName = (darkMode: boolean) => c('chonky-theme', { 'chonky-dark': darkMode });
 
-export const darkThemeOverride: DeepPartial<ChonkyTheme> = {
-    gridFileEntry: {
-        fileColorTint: 'rgba(50, 50, 50, 0.4)',
-        folderBackColorTint: 'rgba(50, 50, 50, 0.4)',
-        folderFrontColorTint: 'rgba(50, 50, 50, 0.15)',
-    },
-};
+/**
+ * Lets content rendered outside the Chonky root (menus in a portal) pick up the theme.
+ */
+export const ChonkyDarkModeContext = createContext(false);
 
-export const mobileThemeOverride: DeepPartial<ChonkyTheme> = {
-    fontSizes: {
-        rootPrimary: 13,
-    },
-    margins: {
-        rootLayoutMargin: 4,
-    },
-    toolbar: {
-        size: 28,
-        lineHeight: '28px',
-        fontSize: 13,
-    },
-    gridFileEntry: {
-        fontSize: 13,
-    },
-    listFileEntry: {
-        propertyFontSize: 12,
-        iconFontSize: '1em',
-        fontSize: 13,
-    },
+const MOBILE_QUERY = '(max-width:480px)';
+
+const subscribeToMobileQuery = (onChange: () => void) => {
+    const query = window.matchMedia(MOBILE_QUERY);
+    query.addEventListener('change', onChange);
+    return () => query.removeEventListener('change', onChange);
 };
 
 /**
  * Hook: detect mobile breakpoint
  */
-export const useIsMobileBreakpoint = () => {
-    return useMediaQuery('(max-width:480px)');
-};
+export const useIsMobileBreakpoint = () =>
+    useSyncExternalStore(
+        subscribeToMobileQuery,
+        () => window.matchMedia(MOBILE_QUERY).matches,
+        () => false
+    );
 
 /**
- * Utility: generate repeating stripe gradient
+ * Classes that colour an element while a file is dragged over it.
  */
-export const getStripeGradient = (colorOne: string, colorTwo: string) =>
-    `repeating-linear-gradient(
-    45deg,
-    ${colorOne},
-    ${colorOne} 10px,
-    ${colorTwo} 0,
-    ${colorTwo} 20px
-  )`;
+export const getDndOverClasses = (dndState: Pick<DndEntryState, 'dndIsOver' | 'dndCanDrop'>) => ({
+    'chonky-dnd-over-can': dndState.dndIsOver && dndState.dndCanDrop,
+    'chonky-dnd-over-cannot': dndState.dndIsOver && !dndState.dndCanDrop,
+});
+
+type ClassValue = string | number | boolean | undefined | null | Record<string, any> | ClassValue[];
 
 /**
- * Replacement for makeLocalChonkyStyles (using MUI styled API)
- *
- * Example:
- * const MyBox = makeLocalChonkyStyles('div')(({ theme }) => ({
- *   backgroundColor: theme.palette.background.paper,
- * }));
+ * Joins class names, like the `classnames` package: strings and numbers are kept,
+ * object keys are kept when their value is truthy, arrays are flattened.
  */
-export const makeLocalChonkyStyles = <C extends string = string>(
-    styles: (theme: ChonkyTheme & Theme) => any
-    // @ts-ignore
-): any => createUseStyles<ChonkyTheme, C>(styles);
-
-// export function makeLocalChonkyStyles(styles: (theme: Theme) => Record<string, any>) {
-//     return function useLocalChonkyStyles() {
-//         const theme = useTheme();
-//         return useMemo(() => styles(theme), [theme]);
-//     };
-// }
-
-export const makeGlobalChonkyStyles = <C extends string = string>(
-    makeStyles: (theme: ChonkyTheme & Theme) => any
-) => {
-    const selectorMapping = {};
-    const makeGlobalStyles = (theme: ChonkyTheme) => {
-        const localStyles = makeStyles(theme as any);
-        const globalStyles = {};
-        const localSelectors = Object.keys(localStyles);
-        localSelectors.map((localSelector) => {
-            const globalSelector = `chonky-${localSelector}`;
-            const jssSelector = `@global .${globalSelector}`;
-            // @ts-ignore
-            globalStyles[jssSelector] = localStyles[localSelector];
-            // @ts-ignore
-            selectorMapping[localSelector] = globalSelector;
-        });
-        return globalStyles;
-    };
-
-    // @ts-ignore
-    const useStyles = createUseStyles<ChonkyTheme, C>(makeGlobalStyles as any);
-    return (...args: any[]): any => {
-        const styles = useStyles(...args);
-        const classes = {};
-        Object.keys(selectorMapping).map((localSelector) => {
-            // @ts-ignore
-            classes[localSelector] = selectorMapping[localSelector];
-        });
-        return { ...classes, ...styles };
-    };
-};
-
-export function important<T>(value: T): string {
-    let result: string | number | T = value;
-    if (typeof value === 'number') {
-        result = `${value}px`;
-    } else if (Array.isArray(value)) {
-        result = value
-            .map((item) => {
-                if (typeof item === 'number' && item > 0) return `${item}px`;
-                return item;
-            })
-            .join(' ');
+export const c = (...args: ClassValue[]): string => {
+    const classes: string[] = [];
+    for (const arg of args) {
+        if (!arg || arg === true) continue;
+        if (typeof arg === 'string' || typeof arg === 'number') {
+            classes.push(String(arg));
+        } else if (Array.isArray(arg)) {
+            const nested = c(...arg);
+            if (nested) classes.push(nested);
+        } else {
+            for (const key in arg) if (arg[key]) classes.push(key);
+        }
     }
-    return `${result} !important`;
-}
-/**
- * Alias for classnames
- */
-export const c: any = classNames;
+    return classes.join(' ');
+};

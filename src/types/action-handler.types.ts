@@ -1,4 +1,4 @@
-import { AnyObject, Nullable } from 'tsdef';
+import { AnyObject, Nullable } from './util.types';
 
 import { FileAction } from './action.types';
 import { FileData } from './file.types';

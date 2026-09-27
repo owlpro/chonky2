@@ -57,6 +57,7 @@ import {
 } from "lucide-react";
 
 import { ChonkyIconName, ChonkyIconProps } from "../../types/icons.types";
+import { c } from "../../util/styles";
 
 export const IconMap: { [iconName in ChonkyIconName]: any } = {
     // Misc
@@ -151,15 +152,10 @@ export const ChonkyIconLucide: React.FC<ChonkyIconProps> = React.memo(
     ({ icon, spin, className, style }) => {
         const LucideIcon =
             IconMap[icon as keyof typeof IconMap] ?? IconMap.fallbackIcon;
-        const mergedStyle: React.CSSProperties = {
-            ...(style || {}),
-            animation: spin ? "spin 1s linear infinite" : undefined,
-        };
-
         return (
             <LucideIcon
-                className={className}
-                style={mergedStyle}
+                className={c(className, { "chonky-spin": spin })}
+                style={style}
                 size={18}
                 strokeWidth={1.75}
             />

@@ -30,7 +30,7 @@ export type FileViewConfigGrid = import('./types/file-view.types').FileViewConfi
 export type FileViewConfigList = import('./types/file-view.types').FileViewConfigList;
 export type { ThumbnailGenerator } from './types/thumbnails.types';
 
-export type { I18nConfig, ChonkyFormatters } from './types/i18n.types';
+export type { I18nConfig, ChonkyFormatters, ChonkyIntl } from './types/i18n.types';
 export { defaultFormatters, getI18nId, getActionI18nId, I18nNamespace } from './util/i18n';
 
 export { setChonkyDefaults } from './util/default-config';

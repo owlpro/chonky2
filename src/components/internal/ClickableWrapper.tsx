@@ -5,7 +5,7 @@
  */
 
 import React, { ReactNode, useCallback } from 'react';
-import { AnyObjectWithStringKeys } from 'tsdef';
+import { AnyObjectWithStringKeys } from '../../types/util.types';
 
 import { useClickHandler, useKeyDownHandler } from './ClickableWrapper-hooks';
 

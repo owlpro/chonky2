@@ -1,4 +1,4 @@
-import { Nilable } from 'tsdef';
+import { Nilable } from './util.types';
 
 import { StartDragNDropPayload } from './action-payloads.types';
 import { FileData } from './file.types';

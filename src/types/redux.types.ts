@@ -1,4 +1,4 @@
-import { Nullable } from 'tsdef';
+import { Nullable } from './util.types';
 
 import { Action, ThunkAction, ThunkDispatch } from '@reduxjs/toolkit';
 

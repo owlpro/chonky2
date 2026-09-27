@@ -3,7 +3,7 @@
  * @copyright 2020
  * @license MIT
  */
-import React, { ReactNode, useCallback, useMemo } from 'react';
+import React, { ReactNode, useCallback, useContext, useMemo } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 
 import { reduxActions } from '../../redux/reducers';
@@ -14,11 +14,11 @@ import {
 } from '../../redux/selectors';
 import { useDndContextAvailable } from '../../util/dnd-fallback';
 import { elementIsInsideButton } from '../../util/helpers';
-import { makeGlobalChonkyStyles } from '../../util/styles';
+import { c, ChonkyDarkModeContext, getThemeClassName } from '../../util/styles';
 import { useContextMenuTrigger } from '../external/FileContextMenu-hooks';
 import { DnDFileListDragLayer } from '../file-list/DnDFileListDragLayer';
+import { ClickAwayListener } from './ClickAwayListener';
 import { HotkeyListener } from './HotkeyListener';
-import { Box, ClickAwayListener } from '@mui/material';
 
 export interface ChonkyPresentationLayerProps {
     children: ReactNode
@@ -64,39 +64,14 @@ export const ChonkyPresentationLayer: React.FC<ChonkyPresentationLayerProps> = (
     const dndContextAvailable = useDndContextAvailable();
     const showContextMenu = useContextMenuTrigger();
 
-    const classes = useStyles();
+    const darkMode = useContext(ChonkyDarkModeContext);
     return (
         <ClickAwayListener onClickAway={handleClickAway}>
-            <Box className={classes.chonkyRoot} onContextMenu={showContextMenu}>
+            <div className={c('chonky-chonkyRoot', getThemeClassName(darkMode))} onContextMenu={showContextMenu}>
                 {!dndDisabled && dndContextAvailable && <DnDFileListDragLayer />}
                 {hotkeyListenerComponents}
                 {children ? children : null}
-            </Box>
+            </div>
         </ClickAwayListener>
     );
 };
-
-const useStyles = makeGlobalChonkyStyles(theme => ({
-    chonkyRoot: {
-        backgroundColor: theme.palette.background.paper,
-        border: `solid 1px ${theme.palette.divider}`,
-        padding: theme.margins.rootLayoutMargin,
-        fontSize: theme.fontSizes.rootPrimary,
-        color: theme.palette.text.primary,
-        touchAction: 'manipulation', // Disabling zoom on double tap
-        fontFamily: 'sans-serif',
-        flexDirection: 'column',
-        boxSizing: 'border-box',
-        textAlign: 'left',
-        borderRadius: 4,
-        display: 'flex',
-        height: '100%',
-
-        // Disabling select
-        webkitTouchCallout: 'none',
-        webkitUserSelect: 'none',
-        mozUserSelect: 'none',
-        msUserSelect: 'none',
-        userSelect: 'none',
-    },
-}));

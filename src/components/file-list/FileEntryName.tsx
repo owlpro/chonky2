@@ -5,10 +5,9 @@
  */
 
 import React from 'react';
-import { Nullable } from 'tsdef';
+import { Nullable } from '../../types/util.types';
 
 import { FileData } from '../../types/file.types';
-import { makeLocalChonkyStyles } from '../../util/styles';
 import { useFileNameComponent, useModifierIconComponents } from './FileEntry-hooks';
 
 export interface FileEntryNameProps {
@@ -20,23 +19,13 @@ export const FileEntryName: React.FC<FileEntryNameProps> = React.memo(({ file, c
     const modifierIconComponents = useModifierIconComponents(file);
     const fileNameComponent = useFileNameComponent(file);
 
-    const classes = useStyles();
     return (
         <span className={className} title={file ? file.name : undefined}>
             {modifierIconComponents.length > 0 && (
-                <span className={classes.modifierIcons}>{modifierIconComponents}</span>
+                <span className="chonky-modifierIcons">{modifierIconComponents}</span>
             )}
             {fileNameComponent}
         </span>
     );
 });
 FileEntryName.displayName = 'FileEntryName';
-
-const useStyles = makeLocalChonkyStyles(theme => ({
-    modifierIcons: {
-        color: theme.palette.text.secondary,
-        position: 'relative',
-        fontSize: '0.775em',
-        paddingRight: 5,
-    },
-}));

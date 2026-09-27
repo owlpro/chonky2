@@ -5,7 +5,7 @@
  */
 
 import React, { useContext } from 'react';
-import { Nullable } from 'tsdef';
+import { Nullable } from '../../types/util.types';
 
 import { selectFileActionData } from '../../redux/selectors';
 import { useParamSelector } from '../../redux/store';
@@ -14,8 +14,7 @@ import { CustomVisibilityState } from '../../types/action.types';
 import { useFileActionProps, useFileActionTrigger } from '../../util/file-actions';
 import { useLocalizedFileActionStrings } from '../../util/i18n';
 import { ChonkyIconContext } from '../../util/icon-helper';
-import { c, important, makeGlobalChonkyStyles } from '../../util/styles';
-import { Button } from '@mui/material';
+import { c } from '../../util/styles';
 
 export interface ToolbarButtonProps {
     className?: string;
@@ -41,7 +40,6 @@ export const ToolbarButton: React.FC<ToolbarButtonProps> = React.memo(props => {
         disabled,
         dropdown,
     } = props;
-    const classes = useStyles();
     const ChonkyIcon = useContext(ChonkyIconContext);
 
     const iconComponent =
@@ -54,7 +52,7 @@ export const ToolbarButton: React.FC<ToolbarButtonProps> = React.memo(props => {
                     fixedWidth={true}
                 />
             ) : (
-                <div className={classes.iconWithText}>
+                <div className="chonky-iconWithText">
                     <ChonkyIcon
                         icon={icon ? icon : ChonkyIconName.fallbackIcon}
                         fixedWidth={true}
@@ -64,14 +62,13 @@ export const ToolbarButton: React.FC<ToolbarButtonProps> = React.memo(props => {
 
         ) : null;
 
-    const className = c({
-        [externalClassName ?? '']: true,
-        [classes.baseButton]: true,
-        [classes.iconOnlyButton]: iconOnly,
-        [classes.activeButton]: !!active,
+    const className = c(externalClassName, 'chonky-baseButton', {
+        'chonky-iconOnlyButton': iconOnly,
+        'chonky-activeButton': !!active,
     });
     return (
-        <Button
+        <button
+            type="button"
             className={className}
             onClick={onClick}
             title={tooltip ? tooltip : text}
@@ -80,48 +77,16 @@ export const ToolbarButton: React.FC<ToolbarButtonProps> = React.memo(props => {
             {iconComponent}
             {text && !iconOnly && <span>{text}</span>}
             {dropdown && (
-                <div className={classes.iconDropdown}>
+                <div className="chonky-iconDropdown">
                     <ChonkyIcon
                         icon={icon ? icon : ChonkyIconName.dropdown}
                         fixedWidth={true}
                     />
                 </div>
             )}
-        </Button>
+        </button>
     );
 });
-
-const useStyles = makeGlobalChonkyStyles(theme => ({
-    baseButton: {
-        fontSize: important(theme.toolbar.fontSize),
-        textTransform: important('none'),
-        letterSpacing: important(0),
-        minWidth: important('auto'),
-        lineHeight: theme.toolbar.lineHeight,
-        height: theme.toolbar.size,
-        paddingBottom: important(0),
-        paddingTop: important(0),
-    },
-    iconWithText: {
-        display: 'flex',
-        alignItems: 'center',
-        marginRight: 8,
-    },
-    iconOnlyButton: {
-        width: theme.toolbar.size,
-        textAlign: 'center',
-    },
-    iconDropdown: {
-        display: 'flex',
-        alignItems: 'center',
-        fontSize: '0.7em',
-        marginLeft: 2,
-        marginTop: 1,
-    },
-    activeButton: {
-        color: important(theme.colors.textActive),
-    },
-}));
 
 export interface SmartToolbarButtonProps {
     fileActionId: string;

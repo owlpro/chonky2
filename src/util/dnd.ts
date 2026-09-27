@@ -2,7 +2,7 @@ import { useCallback, useEffect, useMemo } from 'react';
 import { useDispatch, useSelector, useStore } from 'react-redux';
 import { useDrag, useDrop } from 'react-dnd';
 import { getEmptyImage } from 'react-dnd-html5-backend';
-import { ExcludeKeys, Nullable } from 'tsdef';
+import { Nullable } from '../types/util.types';
 
 import { EssentialActions } from '../action-definitions/essential';
 import { ChonkyActions } from '../action-definitions/index';
@@ -76,15 +76,20 @@ export const useFileDrag = (file: Nullable<FileData>) => {
         [dispatch]
     );
 
-    const [{ isDragging: dndIsDragging }, drag, preview] = useDrag(() => ({
-        type: ChonkyDndFileEntryType,
-        canDrag,
-        item: () => onDragStart(),
-        end: onDragEnd,
-        collect: (monitor) => ({
-            isDragging: monitor.isDragging(),
+    // The deps make react-dnd pick up new callbacks; without them the spec keeps the
+    // callbacks from the first render.
+    const [{ isDragging: dndIsDragging }, drag, preview] = useDrag(
+        () => ({
+            type: ChonkyDndFileEntryType,
+            canDrag,
+            item: () => onDragStart(),
+            end: onDragEnd,
+            collect: (monitor) => ({
+                isDragging: monitor.isDragging(),
+            }),
         }),
-    }));
+        [canDrag, onDragStart, onDragEnd]
+    );
 
     useEffect(() => {
         preview(getEmptyImage(), { captureDraggingState: true });
@@ -109,7 +114,7 @@ export const useFileDrop = ({
     const onDrop = useCallback(
         (_item: ChonkyDndFileEntryItem, monitor: any) => {
             if (!monitor.canDrop()) return;
-            const result: ExcludeKeys<ChonkyDndDropResult, 'dropEffect'> = {
+            const result: Omit<ChonkyDndDropResult, 'dropEffect'> = {
                 dropTarget: file,
             };
             return result;
@@ -144,15 +149,20 @@ export const useFileDrop = ({
         [forceDisableDrop, file, includeChildrenDrops, folderChainRef]
     );
 
-    const [{ isOver, canDrop: dndCanDrop }, drop] = useDrop(() => ({
-        accept: ChonkyDndFileEntryType,
-        drop: onDrop,
-        canDrop,
-        collect: (monitor) => ({
-            isOver: monitor.isOver({ shallow: true }),
-            canDrop: monitor.canDrop(),
+    // Without deps react-dnd would keep the first render's `file` and `forceDisableDrop`,
+    // e.g. a breadcrumb that started out as the current folder would never accept drops.
+    const [{ isOver, canDrop: dndCanDrop }, drop] = useDrop(
+        () => ({
+            accept: ChonkyDndFileEntryType,
+            drop: onDrop,
+            canDrop,
+            collect: (monitor) => ({
+                isOver: monitor.isOver({ shallow: true }),
+                canDrop: monitor.canDrop(),
+            }),
         }),
-    }));
+        [onDrop, canDrop]
+    );
 
     return {
         dndIsOver: isOver,

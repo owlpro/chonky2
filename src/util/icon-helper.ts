@@ -6,8 +6,7 @@
 
 import { createContext, ElementType, useMemo } from 'react';
 
-import ExactTrie from 'exact-trie';
-import { Nullable } from 'tsdef';
+import { Nullable } from '../types/util.types';
 
 import { ChonkyIconPlaceholder } from '../components/internal/ChonkyIconPlaceholder';
 import { FileData } from '../types/file.types';
@@ -372,7 +371,7 @@ export const ColorsDark: string[] = [
     '#8f3d44',
 ];
 
-const getIconTrie = () => {
+const getIconMap = () => {
     let colourIndex = 0;
     const step = 5;
 
@@ -419,7 +418,7 @@ const getIconTrie = () => {
         [ChonkyIconName.flash, ['swf']],
     ] as const;
 
-    const exactTrie = new ExactTrie({ ignoreCase: true });
+    const iconMap = new Map<string, FileIconData>();
     for (const pair of IconsToExtensions) {
         const [icon, extensions] = pair;
 
@@ -430,21 +429,33 @@ const getIconTrie = () => {
                 icon,
                 colorCode,
             };
-            exactTrie.put(extensions[i]!, iconData, true);
+            iconMap.set(extensions[i]!.toLowerCase(), iconData);
         }
     }
 
-    return exactTrie;
+    return iconMap;
 };
 
-const iconTrie = getIconTrie();
+const iconMap = getIconMap();
+
+/**
+ * Finds the icon for the longest known extension of a file name, e.g. `d.ts` before `ts`.
+ */
+const findIconData = (fileName: string) => {
+    const name = fileName.toLowerCase();
+    let match = iconMap.get(name);
+    for (let i = name.indexOf('.'); !match && i !== -1; i = name.indexOf('.', i + 1)) {
+        match = iconMap.get(name.slice(i + 1));
+    }
+    return match;
+};
 
 export const useIconData = (file: Nullable<FileData>): FileIconData => {
     return useMemo(() => {
         if (!file) return { icon: ChonkyIconName.loading, colorCode: 0 };
         if (file.isDir === true) return { icon: ChonkyIconName.folder, colorCode: 0 };
 
-        const match = iconTrie.getWithCheckpoints(file.name, '.', true);
+        const match = findIconData(file.name);
         return match ? match : { icon: ChonkyIconName.file, colorCode: 32 };
     }, [file]);
 };

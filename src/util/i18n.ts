@@ -1,12 +1,15 @@
-import { filesize } from 'filesize';
 import { createContext, useContext, useMemo } from 'react';
-import { IntlShape, useIntl } from 'react-intl';
-import { Nullable, Undefinable } from 'tsdef';
+import { Nullable, Undefinable } from '../types/util.types';
 
 import { FileAction } from '../types/action.types';
 import { FileData } from '../types/file.types';
 import { ChonkyFormatters } from '../types/i18n.types';
 import { FileHelper } from './file-helper';
+import { ChonkyIntl, createChonkyIntl } from './intl';
+
+export const ChonkyIntlContext = createContext<ChonkyIntl>(createChonkyIntl());
+
+export const useIntl = () => useContext(ChonkyIntlContext);
 
 export enum I18nNamespace {
     Toolbar = 'toolbar',
@@ -78,7 +81,7 @@ export const useLocalizedFileEntryStrings = (file: Nullable<FileData>) => {
 
 export const defaultFormatters: ChonkyFormatters = {
     formatFileModDate: (
-        intl: IntlShape,
+        intl: ChonkyIntl,
         file: Nullable<FileData>
     ): Nullable<string> => {
         const safeModDate = FileHelper.getModDate(file);
@@ -91,18 +94,31 @@ export const defaultFormatters: ChonkyFormatters = {
             return null;
         }
     },
-    formatFileSize: (_intl: IntlShape, file: Nullable<FileData>): Nullable<string> => {
+    formatFileSize: (_intl: ChonkyIntl, file: Nullable<FileData>): Nullable<string> => {
         if (!file || typeof file.size !== 'number') return null;
 
-        const size = file.size;
-        const sizeData = filesize(size, { bits: false, output: 'object' }) as any;
-        if (sizeData.symbol === 'B') {
-            return `${Math.round(sizeData.value / 10) / 100.0} KB`;
-        } else if (sizeData.symbol === 'KB') {
-            return `${Math.round(sizeData.value)} ${sizeData.symbol}`;
+        const { value, symbol } = getFileSizeParts(file.size);
+        if (symbol === 'B') {
+            return `${Math.round(value / 10) / 100.0} KB`;
         }
-        return `${sizeData.value} ${sizeData.symbol}`;
+        return `${value} ${symbol}`;
     },
+};
+
+const FILE_SIZE_SYMBOLS = ['B', 'kB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'];
+
+/**
+ * Splits a byte count into a value (at most 2 decimals) and a decimal (SI) unit.
+ */
+const getFileSizeParts = (size: number) => {
+    const maxExponent = FILE_SIZE_SYMBOLS.length - 1;
+    let exponent = size > 0 ? Math.min(Math.floor(Math.log10(size) / 3), maxExponent) : 0;
+    let value = Math.round((size / 1000 ** exponent) * 100) / 100;
+    if (value === 1000 && exponent < maxExponent) {
+        value = 1;
+        exponent++;
+    }
+    return { value, symbol: FILE_SIZE_SYMBOLS[exponent]! };
 };
 
 export const ChonkyFormattersContext = createContext(defaultFormatters);

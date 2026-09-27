@@ -6,7 +6,7 @@
 
 import React, { useCallback, useRef } from 'react';
 import { useSelector } from 'react-redux';
-import { Nilable, Nullable } from 'tsdef';
+import { Nilable, Nullable } from '../../types/util.types';
 
 import { selectDoubleClickDelay } from '../../redux/selectors';
 import {

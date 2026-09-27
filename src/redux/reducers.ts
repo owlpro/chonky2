@@ -1,4 +1,4 @@
-import { Nilable, Nullable } from 'tsdef';
+import { Nilable, Nullable } from '../types/util.types';
 
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 

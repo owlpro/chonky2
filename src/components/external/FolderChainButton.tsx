@@ -10,7 +10,7 @@ import { DndEntryState } from '../../types/file-list.types';
 import { ChonkyIconName } from '../../types/icons.types';
 import { useDndHoverOpen, useFileDrop } from '../../util/dnd';
 import { ChonkyIconContext } from '../../util/icon-helper';
-import { c, important, makeLocalChonkyStyles } from '../../util/styles';
+import { c, getDndOverClasses } from '../../util/styles';
 import { useDndIcon } from '../file-list/FileEntry-hooks';
 import { FolderChainItem } from './FileNavbar-hooks';
 import { ToolbarButton } from './ToolbarButton';
@@ -40,11 +40,9 @@ export const FolderChainButton: React.FC<FolderChainButtonProps> = React.memo(
         const dndIconName = useDndIcon(dndState);
         const ChonkyIcon = useContext(ChonkyIconContext);
 
-        const classes = useStyles(dndState);
-        const className = c({
-            [classes.baseBreadcrumb]: true,
-            [classes.disabledBreadcrumb]: disabled,
-            [classes.currentBreadcrumb]: current,
+        const className = c('chonky-baseBreadcrumb', getDndOverClasses(dndState), {
+            'chonky-disabledBreadcrumb': disabled,
+            'chonky-currentBreadcrumb': current,
         });
         const text = file ? file.name : 'Loading...';
         const icon =
@@ -56,9 +54,9 @@ export const FolderChainButton: React.FC<FolderChainButtonProps> = React.memo(
         drop(dropRef);
 
         return (
-            <div className={classes.buttonContainer} ref={file ? dropRef : null}>
+            <div className="chonky-folderChainButton" ref={file ? dropRef : null}>
                 {file && dndIconName && (
-                    <div className={classes.dndIndicator}>
+                    <div className={c('chonky-folderChainDndIndicator', { 'chonky-can-drop': dndCanDrop })}>
                         <ChonkyIcon icon={dndIconName} fixedWidth={true} />
                     </div>
                 )}
@@ -73,45 +71,3 @@ export const FolderChainButton: React.FC<FolderChainButtonProps> = React.memo(
         );
     }
 );
-
-const useStyles = makeLocalChonkyStyles(theme => ({
-    buttonContainer: {
-        position: 'relative',
-    },
-    baseBreadcrumb: {
-        color: (dndState: DndEntryState) => {
-            let color = theme.palette.text.primary;
-            if (dndState.dndIsOver) {
-                color = dndState.dndCanDrop
-                    ? theme.dnd.canDropColor
-                    : theme.dnd.cannotDropColor;
-            }
-            return important(color);
-        },
-    },
-    disabledBreadcrumb: {
-        // Constant function here is on purpose. Without the function, the color here
-        // does not override the `baseBreadcrumb` color from above.
-        color: () => important(theme.palette.text.disabled),
-    },
-    currentBreadcrumb: {
-        textDecoration: important('underline'),
-    },
-    dndIndicator: {
-        color: (dndState: DndEntryState) =>
-            dndState.dndCanDrop ? theme.dnd.canDropColor : theme.dnd.cannotDropColor,
-        backgroundColor: (dndState: DndEntryState) =>
-            dndState.dndCanDrop ? theme.dnd.canDropMask : theme.dnd.cannotDropMask,
-        lineHeight: `calc(${theme.toolbar.lineHeight} - 6px)`,
-        transform: 'translateX(-50%) translateY(-50%)',
-        borderRadius: theme.toolbar.buttonRadius,
-        height: theme.toolbar.size - 6,
-        width: theme.toolbar.size - 6,
-        boxSizing: 'border-box',
-        position: 'absolute',
-        textAlign: 'center',
-        left: '50%',
-        top: '50%',
-        zIndex: 5,
-    },
-}));

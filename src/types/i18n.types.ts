@@ -1,13 +1,14 @@
-import { IntlConfig, IntlShape } from 'react-intl';
-import { Nullable } from 'tsdef';
-
+import type { ChonkyIntl, ChonkyIntlConfig } from '../util/intl';
 import { FileData } from './file.types';
+import { Nullable } from './util.types';
 
-export interface I18nConfig extends Partial<IntlConfig> {
+export type { ChonkyIntl };
+
+export interface I18nConfig extends ChonkyIntlConfig {
     formatters?: Partial<ChonkyFormatters>;
 }
 
 export interface ChonkyFormatters {
-    formatFileModDate: (intl: IntlShape, file: Nullable<FileData>) => Nullable<string>;
-    formatFileSize: (intl: IntlShape, file: Nullable<FileData>) => Nullable<string>;
+    formatFileModDate: (intl: ChonkyIntl, file: Nullable<FileData>) => Nullable<string>;
+    formatFileSize: (intl: ChonkyIntl, file: Nullable<FileData>) => Nullable<string>;
 }

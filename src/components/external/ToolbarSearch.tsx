@@ -5,7 +5,6 @@
  */
 
 import React, { useCallback, useContext, useEffect, useRef, useState } from 'react';
-import { useIntl } from 'react-intl';
 import { useDispatch, useSelector } from 'react-redux';
 
 
@@ -13,10 +12,8 @@ import { reduxActions } from '../../redux/reducers';
 import { selectSearchString } from '../../redux/selectors';
 import { ChonkyIconName } from '../../types/icons.types';
 import { useDebounce } from '../../util/hooks-helpers';
-import { getI18nId, I18nNamespace } from '../../util/i18n';
+import { getI18nId, I18nNamespace, useIntl } from '../../util/i18n';
 import { ChonkyIconContext } from '../../util/icon-helper';
-import { important, makeGlobalChonkyStyles } from '../../util/styles';
-import { InputAdornment, TextField } from '@mui/material';
 
 export interface ToolbarSearchProps { }
 
@@ -27,7 +24,6 @@ export const ToolbarSearch: React.FC<ToolbarSearchProps> = React.memo(() => {
         defaultMessage: 'Search',
     });
 
-    const classes = useStyles();
     const ChonkyIcon = useContext(ChonkyIconContext);
 
     const searchInputRef = useRef<HTMLInputElement>(null);
@@ -75,60 +71,23 @@ export const ToolbarSearch: React.FC<ToolbarSearchProps> = React.memo(() => {
     );
 
     return (
-        <TextField
-            className={classes.searchFieldContainer}
-            size="small"
-            variant="outlined"
-            value={localSearchString}
-            placeholder={searchPlaceholderString}
-            onChange={handleChange as any}
-            inputRef={searchInputRef}
-            slotProps={{
-                input: {
-                    onKeyUp: handleKeyUp,
-                    startAdornment: (
-                        <InputAdornment className={classes.searchIcon} position="start">
-                            <ChonkyIcon
-                                icon={showLoadingIndicator ? ChonkyIconName.loading : ChonkyIconName.search}
-                                spin={showLoadingIndicator}
-                            />
-                        </InputAdornment>
-                    ),
-                    className: classes.searchFieldInput,
-                },
-                htmlInput: {
-                    className: classes.searchFieldInputInner
-                }
-            }}
-        />
+        <label className="chonky-searchFieldContainer">
+            <span className="chonky-searchIcon">
+                <ChonkyIcon
+                    icon={showLoadingIndicator ? ChonkyIconName.loading : ChonkyIconName.search}
+                    spin={showLoadingIndicator}
+                />
+            </span>
+            <input
+                ref={searchInputRef}
+                type="text"
+                className="chonky-searchFieldInputInner"
+                value={localSearchString}
+                placeholder={searchPlaceholderString}
+                aria-label={searchPlaceholderString}
+                onChange={handleChange}
+                onKeyUp={handleKeyUp}
+            />
+        </label>
     );
 });
-
-const useStyles = makeGlobalChonkyStyles(theme => ({
-    searchFieldContainer: {
-        height: theme.toolbar.size,
-        width: 150,
-    },
-    searchIcon: {
-        fontSize: '0.9em',
-        opacity: 0.75,
-    },
-    searchFieldInput: {
-        lineHeight: important(0),
-        padding: important(0),
-        margin: important(0),
-        fontSize: important(theme.toolbar.fontSize),
-        borderRadius: theme.toolbar.buttonRadius,
-        height: theme.toolbar.size - 4,
-        paddingLeft: important(8),
-        marginTop: 2,
-    },
-    searchFieldInputInner: {
-        lineHeight: important(`${theme.toolbar.size - 4}px`),
-        fontSize: important(theme.toolbar.fontSize),
-        height: important(theme.toolbar.size - 4),
-        padding: important([0, 8, 0, 0]),
-        margin: important(0),
-        '-webkit-appearance': 'none',
-    },
-}));

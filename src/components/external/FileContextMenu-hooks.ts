@@ -1,6 +1,6 @@
 import React, { useCallback } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { Nullable } from 'tsdef';
+import { Nullable } from '../../types/util.types';
 
 import { ChonkyActions } from '../../action-definitions/index';
 import { reduxActions } from '../../redux/reducers';

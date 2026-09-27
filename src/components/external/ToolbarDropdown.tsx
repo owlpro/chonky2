@@ -8,10 +8,9 @@ import React, { useCallback, useMemo } from 'react';
 
 import { FileActionGroup } from '../../types/action-menus.types';
 import { useLocalizedFileActionGroup } from '../../util/i18n';
-import { important, makeGlobalChonkyStyles } from '../../util/styles';
+import { ChonkyMenu } from '../internal/ChonkyMenu';
 import { ToolbarButton } from './ToolbarButton';
 import { SmartToolbarDropdownButton } from './ToolbarDropdownButton';
-import { Menu } from '@mui/material';
 
 export type ToolbarDropdownProps = FileActionGroup;
 
@@ -20,7 +19,10 @@ export const ToolbarDropdown: React.FC<ToolbarDropdownProps> = React.memo(props 
     const [anchor, setAnchor] = React.useState<null | HTMLElement>(null);
 
     const handleClick = useCallback(
-        (event: React.MouseEvent<HTMLButtonElement>) => setAnchor(event.currentTarget),
+        (event: React.MouseEvent<HTMLButtonElement>) => {
+            const button = event.currentTarget;
+            setAnchor((current) => (current ? null : button));
+        },
         [setAnchor]
     );
     const handleClose = useCallback(() => setAnchor(null), [setAnchor]);
@@ -38,29 +40,12 @@ export const ToolbarDropdown: React.FC<ToolbarDropdownProps> = React.memo(props 
     );
 
     const localizedName = useLocalizedFileActionGroup(name);
-    const classes = useStyles();
     return (
         <>
             <ToolbarButton text={localizedName} onClick={handleClick} dropdown={true} />
-            <Menu
-                autoFocus
-                keepMounted
-                elevation={2}
-                anchorEl={anchor}
-                onClose={handleClose}
-                open={Boolean(anchor)}
-                transitionDuration={150}
-                classes={{ list: classes.dropdownList }}
-            >
+            <ChonkyMenu anchorEl={anchor} onClose={handleClose} open={Boolean(anchor)}>
                 {menuItemComponents}
-            </Menu>
+            </ChonkyMenu>
         </>
     );
 });
-
-const useStyles = makeGlobalChonkyStyles(() => ({
-    dropdownList: {
-        paddingBottom: important(0),
-        paddingTop: important(0),
-    },
-}));

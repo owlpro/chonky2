@@ -1,44 +1,36 @@
+import { readFileSync } from 'fs';
 import path from 'path';
 import { defineConfig } from 'vite';
 import dts from 'vite-plugin-dts';
+
+const pkg = JSON.parse(readFileSync(path.resolve(__dirname, 'package.json'), 'utf8'));
+
+// Dependencies are installed next to chonky2 by the package manager, so they are left
+// out of the bundle. This lets apps share one copy with Chonky (e.g. one react-dnd
+// context) instead of shipping a second, bundled copy.
+const externalPackages = [
+    ...Object.keys(pkg.dependencies),
+    ...Object.keys(pkg.peerDependencies),
+];
+const isExternal = (id: string) =>
+    externalPackages.some((name) => id === name || id.startsWith(`${name}/`));
 
 export default defineConfig({
     plugins: [dts({ include: ['src'] })],
 
     resolve: {
-        dedupe: [
-            'react',
-            'react-dom',
-            '@mui/material',
-            '@emotion/react',
-            '@emotion/styled',
-        ],
-        alias: {
-            '@mui/styled-engine': '@mui/styled-engine-sc',
-        },
+        dedupe: ['react', 'react-dom'],
         preserveSymlinks: true,
     },
     build: {
         lib: {
             entry: path.resolve(__dirname, 'src/index.ts'),
             name: 'chonky2',
-            fileName: (format) => `index.${format}.js`,
+            fileName: (format) => (format === 'cjs' ? 'index.cjs' : 'index.es.js'),
             formats: ['es', 'cjs'],
         },
         rollupOptions: {
-            external: [
-                'react',
-                'react-dom',
-                'react/jsx-runtime',
-                'react-dom/client',
-                '@emotion/react',
-                '@emotion/styled',
-                '@mui/material',
-                '@mui/styled-engine-sc',
-                'styled-components',
-                'react-dnd',
-                'react-dnd-html5-backend',
-            ],
+            external: isExternal,
             output: {
                 globals: {
                     react: 'React',
@@ -47,7 +39,7 @@ export default defineConfig({
                 exports: 'named',
             },
         },
-        minify: 'terser',
+        minify: 'esbuild',
         sourcemap: false,
         emptyOutDir: true,
         ssr: false,

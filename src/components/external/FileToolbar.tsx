@@ -2,7 +2,6 @@ import React, { ReactElement, useMemo } from 'react';
 import { useSelector } from 'react-redux';
 
 import { selectToolbarItems } from '../../redux/selectors';
-import { makeGlobalChonkyStyles } from '../../util/styles';
 import { SmartToolbarButton } from './ToolbarButton';
 import { ToolbarDropdown } from './ToolbarDropdown';
 import { ToolbarInfo } from './ToolbarInfo';
@@ -11,7 +10,6 @@ import { ToolbarSearch } from './ToolbarSearch';
 export interface FileToolbarProps {}
 
 export const FileToolbar: React.FC<FileToolbarProps> = React.memo(() => {
-    const classes = useStyles();
     const toolbarItems = useSelector(selectToolbarItems);
 
     const toolbarItemComponents = useMemo(() => {
@@ -36,36 +34,14 @@ export const FileToolbar: React.FC<FileToolbarProps> = React.memo(() => {
     }, [toolbarItems]);
 
     return (
-        <div className={classes.toolbarWrapper}>
-            <div className={classes.toolbarContainer}>
-                <div className={classes.toolbarLeft}>
+        <div className="chonky-toolbarWrapper">
+            <div className="chonky-toolbarContainer">
+                <div className="chonky-toolbarLeft">
                     <ToolbarSearch />
                     <ToolbarInfo />
                 </div>
-                <div className={classes.toolbarRight}>{toolbarItemComponents}</div>
+                <div className="chonky-toolbarRight">{toolbarItemComponents}</div>
             </div>
         </div>
     );
 });
-
-const useStyles = makeGlobalChonkyStyles(theme => ({
-    toolbarWrapper: {},
-    toolbarContainer: {
-        flexWrap: 'wrap-reverse',
-        display: 'flex',
-    },
-    toolbarLeft: {
-        paddingBottom: theme.margins.rootLayoutMargin,
-        flexWrap: 'nowrap',
-        flexGrow: 10000,
-        display: 'flex',
-    },
-    toolbarLeftFiller: {
-        flexGrow: 10000,
-    },
-    toolbarRight: {
-        paddingBottom: theme.margins.rootLayoutMargin,
-        flexWrap: 'nowrap',
-        display: 'flex',
-    },
-}));

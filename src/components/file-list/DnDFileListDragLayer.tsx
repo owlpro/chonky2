@@ -6,10 +6,9 @@
 
 import React from 'react';
 import { useDragLayer } from 'react-dnd';
-import { Nullable } from 'tsdef';
+import { Nullable } from '../../types/util.types';
 
 import { ChonkyDndFileEntryItem, ChonkyDndFileEntryType } from '../../types/dnd.types';
-import { makeGlobalChonkyStyles } from '../../util/styles';
 
 export interface DnDFileListDragLayerProps {}
 
@@ -42,8 +41,6 @@ const getItemStyles = (
 };
 
 export const DnDFileListDragLayer: React.FC<DnDFileListDragLayerProps> = () => {
-    const classes = useStyles();
-
     const {
         itemType,
         item,
@@ -73,7 +70,7 @@ export const DnDFileListDragLayer: React.FC<DnDFileListDragLayerProps> = () => {
                     currentFileOffset
                 )}
             >
-                <div className={classes.fileDragPreview}>
+                <div className="chonky-fileDragPreview">
                     <b>{item.payload.draggedFile.name}</b>
                     {selectionSize > 1 && (
                         <>
@@ -89,16 +86,3 @@ export const DnDFileListDragLayer: React.FC<DnDFileListDragLayerProps> = () => {
         </div>
     );
 };
-
-const useStyles = makeGlobalChonkyStyles(theme => ({
-    fileDragPreview: {
-        boxShadow: `2px 2px 5px ${theme.palette.divider}`,
-        backgroundColor: theme.palette.background.default,
-        borderRadius: theme.dragLayer.borderRadius,
-        fontSize: theme.fontSizes.rootPrimary,
-        color: theme.palette.text.primary,
-        padding: theme.dragLayer.padding,
-        border: theme.dragLayer.border,
-        display: 'inline-block',
-    },
-}));

@@ -2,7 +2,7 @@ import {
     HTMLProps, useCallback, useContext, useEffect, useMemo, useRef, useState
 } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { Nullable, Undefinable } from 'tsdef';
+import { Nullable, Undefinable } from '../../types/util.types';
 
 import { ChonkyActions } from '../../action-definitions/index';
 import { selectThumbnailGenerator } from '../../redux/selectors';

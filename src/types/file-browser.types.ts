@@ -1,5 +1,5 @@
 import { ElementType, UIEvent } from 'react';
-import { Nullable } from 'tsdef';
+import { Nullable } from './util.types';
 
 import { ChonkyActions } from '../action-definitions/index';
 import { GenericFileActionHandler } from './action-handler.types';
@@ -136,8 +136,9 @@ export interface FileBrowserProps {
 
     /**
      * Determines whether the file selection should be cleared when user clicks
-     * anywhere outside of Chonky. By default, selection is cleared on outside click
-     * unless the click target is a button.
+     * anywhere outside of Chonky, or on empty space in the file list. By default,
+     * selection is cleared on such clicks unless the click target is a button or a
+     * modifier key (Ctrl, Cmd, Shift) is held while clicking inside the list.
      */
     clearSelectionOnOutsideClick?: boolean;
 
@@ -154,10 +155,9 @@ export interface FileBrowserProps {
     darkMode?: boolean;
 
     /**
-     * Configuration for the `react-intl` i18n library. Chonky provides some default
-     * values, e.g. `locale` and `defaultLocale` are set to `en`. Any settings you
-     * specify here will override the defaults.
-     * @see https://formatjs.io/docs/react-intl/components
+     * Translations and formatting settings. `locale` defaults to `en`. `messages` maps
+     * message IDs (see `getI18nId`) to ICU MessageFormat strings; `{arg}`, `plural`,
+     * `selectordinal`, `select`, `number`, `date` and `time` arguments are supported.
      */
     i18n?: I18nConfig;
 

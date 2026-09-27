@@ -1,4 +1,4 @@
-import { MaybePromise, Undefinable } from 'tsdef';
+import { MaybePromise, Undefinable } from '../../types/util.types';
 
 import { FileActionData, FileActionState } from '../../types/action-handler.types';
 import { FileAction } from '../../types/action.types';

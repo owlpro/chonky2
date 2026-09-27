@@ -1,4 +1,4 @@
-import { Nullable } from 'tsdef';
+import { Nullable } from './util.types';
 
 import { FileData } from './file.types';
 

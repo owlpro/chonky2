@@ -1,5 +1,5 @@
 <p align="center">
-    <img src="https://chonky.io/chonky-logo-v2.png" alt="Chonky2 Logo" width="500" />
+    <img src="./images/chonky-logo-v7.png" alt="Chonky v7 Logo" width="500" />
     <br />
     <a href="https://www.npmjs.com/package/chonky2">
         <img alt="NPM package" src="https://img.shields.io/npm/v/chonky2.svg?style=flat&colorB=ffac5c" />
@@ -31,9 +31,9 @@ Users can **drag & drop**, **select multiple files**, **toggle between grid and 
 - Fully compatible with **React 19.2** and the new JSX runtime.
 - Improved internal architecture for better performance and tree-shaking.
 
-### 🎨 Material UI 6.5
-- Updated to **@mui/material v6.5.0**.
-- Refactored styling system to align with MUI’s Styled Engine.
+### 🎨 No UI Framework Required
+- Material UI, Emotion, styled-components and JSS are no longer needed.
+- Styles are plain CSS, injected automatically, and themed with CSS variables.
 
 ### 🪶 Built-in Lucide Icon Pack
 - **FontAwesome removed completely.**
@@ -49,20 +49,11 @@ Users can **drag & drop**, **select multiple files**, **toggle between grid and 
 
 ## 📦 Installation
 
-Install Chonky2 and its compatible peer dependencies:
-
 ```bash
 npm install chonky2
-
-npm install \
-    @emotion/react@^11.14.0 \
-    @emotion/styled@^11.14.1 \
-    @mui/material@^6.5.0 \
-    @mui/styled-engine-sc@^6.4.9 \
-    styled-components@^6.1.14
 ```
 
-> **Note:** Ensure you match these versions for consistent styling and compatibility.
+The only peer dependencies are `react` and `react-dom` (19 or newer).
 
 ---
 
@@ -86,8 +77,47 @@ export default function Example() {
 }
 ```
 
-- No need to import icons — they are included automatically.  
-- Works seamlessly with MUI v6.5 components and themes.
+- No need to import icons or stylesheets — they are included automatically.
+
+---
+
+## 🎨 Theming
+
+Pass `darkMode` for the built-in dark theme. To change colors or sizes, override the
+CSS variables on `.chonky-theme` from your own stylesheet:
+
+```css
+.chonky-theme {
+    --chonky-primary: #7b1fa2;
+    --chonky-text-active: #7b1fa2;
+    --chonky-toolbar-size: 34px;
+}
+```
+
+The full list of variables is at the top of
+[`src/styles/chonky.css`](./src/styles/chonky.css).
+
+---
+
+## 🌍 Translations
+
+Pass a locale and translated messages through `i18n`. Messages use ICU syntax
+(`{arg}`, `plural`, `select`, `selectordinal`, `#`); numbers, dates and plural rules
+come from the browser's `Intl` APIs.
+
+```tsx
+<FullFileBrowser
+    files={files}
+    i18n={{
+        locale: 'fa',
+        messages: {
+            'chonky.toolbar.searchPlaceholder': 'جست‌وجو',
+            'chonky.toolbar.visibleFileCount': '{fileCount, plural, other {# مورد}}',
+            'chonky.actions.open_files.button.name': 'باز کردن',
+        },
+    }}
+/>
+```
 
 ---
 
@@ -117,8 +147,7 @@ npm install chonky2
 
 | Library | Version |
 |----------|----------|
-| React | 19.2 |
-| MUI | 6.5.x |
+| React | 19 or newer |
 | TypeScript | Supported (types included) |
 
 ---

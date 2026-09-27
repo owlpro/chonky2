@@ -4,11 +4,9 @@
  * @license MIT
  */
 
-import c from 'classnames';
 import React from 'react';
-import { Nullable } from 'tsdef';
-
-import { makeGlobalChonkyStyles } from '../../util/styles';
+import { Nullable } from '../../types/util.types';
+import { c } from '../../util/styles';
 
 export interface FileThumbnailProps {
     className: string;
@@ -20,15 +18,6 @@ export const FileThumbnail: React.FC<FileThumbnailProps> = React.memo(props => {
 
     const thumbnailStyle: React.CSSProperties = thumbnailUrl ? { backgroundImage: `url('${thumbnailUrl}')` } : {};
 
-    const classes = useStyles();
-    return <div className={c([className, classes.fileThumbnail])} style={thumbnailStyle} />;
+    return <div className={c(className, 'chonky-fileThumbnail')} style={thumbnailStyle} />;
 });
 FileThumbnail.displayName = 'FileThumbnail';
-
-const useStyles = makeGlobalChonkyStyles(() => ({
-    fileThumbnail: {
-        backgroundRepeat: 'no-repeat',
-        backgroundPosition: 'center',
-        backgroundSize: 'contain',
-    },
-}));

@@ -1,4 +1,4 @@
-import { MaybePromise, Nullable } from 'tsdef';
+import { MaybePromise, Nullable } from './util.types';
 
 import { FileActionState } from './action-handler.types';
 import { FileViewConfig } from './file-view.types';

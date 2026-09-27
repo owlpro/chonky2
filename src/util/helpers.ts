@@ -1,5 +1,5 @@
 // Used in React hooks to indicate empty deps are intentional.
-import { MaybePromise, Nullable, WritableProps } from 'tsdef';
+import { MaybePromise, Nullable, WritableProps } from '../types/util.types';
 
 import { FileAction, FileActionEffect } from '../types/action.types';
 import { Logger } from './logger';

@@ -5,19 +5,14 @@
  */
 
 import React from 'react';
-import { useIntl } from 'react-intl';
 import { useSelector } from 'react-redux';
 
 import { selectHiddenFileCount, selectors, selectSelectionSize } from '../../redux/selectors';
-import { getI18nId, I18nNamespace } from '../../util/i18n';
-import { important, makeGlobalChonkyStyles } from '../../util/styles';
-import { Typography } from '@mui/material';
+import { getI18nId, I18nNamespace, useIntl } from '../../util/i18n';
 
 export interface ToolbarInfoProps {}
 
 export const ToolbarInfo: React.FC<ToolbarInfoProps> = React.memo(() => {
-    const classes = useStyles();
-
     const displayFileIds = useSelector(selectors.getDisplayFileIds);
     const selectionSize = useSelector(selectSelectionSize);
     const hiddenCount = useSelector(selectHiddenFileCount);
@@ -56,42 +51,20 @@ export const ToolbarInfo: React.FC<ToolbarInfoProps> = React.memo(() => {
     );
 
     return (
-        <div className={classes.infoContainer}>
-            <Typography className={classes.infoText} variant="body1">
+        <div className="chonky-infoContainer">
+            <div className="chonky-infoText">
                 {fileCountString}
                 {(selectedString || hiddenString) && (
-                    <span className={classes.extraInfoSpan}>
+                    <span className="chonky-extraInfoSpan">
                         (
-                        <span className={classes.selectionSizeText}>
+                        <span className="chonky-selectionSizeText">
                             {selectedString}
                         </span>
                         {selectedString && hiddenString && ', '}
-                        <span className={classes.hiddenCountText}>{hiddenString}</span>)
+                        <span className="chonky-hiddenCountText">{hiddenString}</span>)
                     </span>
                 )}
-            </Typography>
+            </div>
         </div>
     );
 });
-
-const useStyles = makeGlobalChonkyStyles(theme => ({
-    infoContainer: {
-        height: theme.toolbar.size,
-        display: 'flex',
-    },
-    infoText: {
-        lineHeight: important(theme.toolbar.lineHeight),
-        fontSize: important(theme.toolbar.fontSize),
-        marginLeft: important(12),
-        height: theme.toolbar.size,
-    },
-    extraInfoSpan: {
-        marginRight: important(8),
-        marginLeft: important(8),
-        opacity: 0.8,
-    },
-    selectionSizeText: {
-        color: theme.colors.textActive,
-    },
-    hiddenCountText: {},
-}));

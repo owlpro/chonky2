@@ -5,7 +5,7 @@
  */
 
 import React, { useCallback, useContext } from 'react';
-import { Nullable } from 'tsdef';
+import { Nullable } from '../../types/util.types';
 
 import { selectFileActionData } from '../../redux/selectors';
 import { useParamSelector } from '../../redux/store';
@@ -14,8 +14,7 @@ import { CustomVisibilityState } from '../../types/action.types';
 import { useFileActionProps, useFileActionTrigger } from '../../util/file-actions';
 import { useLocalizedFileActionStrings } from '../../util/i18n';
 import { ChonkyIconContext } from '../../util/icon-helper';
-import { c, important, makeGlobalChonkyStyles } from '../../util/styles';
-import { ListItemIcon, ListItemText, MenuItem } from '@mui/material';
+import { c } from '../../util/styles';
 
 export interface ToolbarDropdownButtonProps {
     text: string;
@@ -26,56 +25,30 @@ export interface ToolbarDropdownButtonProps {
 }
 
 export const ToolbarDropdownButton = React.forwardRef(
-    (props: ToolbarDropdownButtonProps, ref: React.Ref<HTMLLIElement>) => {
+    (props: ToolbarDropdownButtonProps, ref: React.Ref<HTMLButtonElement>) => {
         const { text, active, icon, onClick, disabled } = props;
-        const classes = useStyles();
         const ChonkyIcon = useContext(ChonkyIconContext);
 
-        const className = c({
-            [classes.baseButton]: true,
-            [classes.activeButton]: active,
-        });
         return (
-            <MenuItem
+            <button
                 ref={ref}
-                className={className}
+                type="button"
+                role="menuitem"
+                tabIndex={-1}
+                className={c('chonky-menuItem', { 'chonky-activeButton': active })}
                 onClick={onClick}
                 disabled={disabled}
             >
                 {icon && (
-                    <ListItemIcon className={classes.icon}>
+                    <span className="chonky-menuItemIcon">
                         <ChonkyIcon icon={icon} fixedWidth={true} />
-                    </ListItemIcon>
+                    </span>
                 )}
-                <ListItemText primaryTypographyProps={{ className: classes.text }}>
-                    {text}
-                </ListItemText>
-            </MenuItem>
+                <span>{text}</span>
+            </button>
         );
     }
 );
-
-const useStyles = makeGlobalChonkyStyles(theme => ({
-    baseButton: {
-        lineHeight: important(theme.toolbar.lineHeight),
-        height: important(theme.toolbar.size),
-        minHeight: important('auto'),
-        minWidth: important('auto'),
-        padding: important([20, 12]),
-    },
-    icon: {
-        fontSize: important(theme.toolbar.fontSize),
-        minWidth: important('auto'),
-        color: important('inherit'),
-        marginRight: 8,
-    },
-    text: {
-        fontSize: important(theme.toolbar.fontSize),
-    },
-    activeButton: {
-        color: important(theme.colors.textActive),
-    },
-}));
 
 export interface SmartToolbarDropdownButtonProps {
     fileActionId: string;
@@ -83,7 +56,7 @@ export interface SmartToolbarDropdownButtonProps {
 }
 
 export const SmartToolbarDropdownButton = React.forwardRef(
-    (props: SmartToolbarDropdownButtonProps, ref: React.Ref<HTMLLIElement>) => {
+    (props: SmartToolbarDropdownButtonProps, ref: React.Ref<HTMLButtonElement>) => {
         const { fileActionId, onClickFollowUp } = props;
 
         const action = useParamSelector(selectFileActionData, fileActionId) ?? null;

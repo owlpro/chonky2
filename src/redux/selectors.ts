@@ -1,6 +1,4 @@
-import { sort } from 'fast-sort';
-import FuzzySearch from 'fuzzy-search';
-import { Nilable, Nullable } from 'tsdef';
+import { Nilable, Nullable } from '../types/util.types';
 
 import { createSelector } from '@reduxjs/toolkit';
 
@@ -133,6 +131,21 @@ const makeGetFiles = (fileIdsSelector: (state: RootState) => Nullable<string>[])
                 fileId && fileMap[fileId] ? fileMap[fileId] : null
             )
     );
+type SortDirection = 1 | -1;
+
+/**
+ * Compares two sort keys. Missing (`null`/`undefined`) keys go last in both
+ * directions, and keys of different types are ordered by type name.
+ */
+const compareSortKeys = (a: any, b: any, order: SortDirection): number => {
+    if (a == null) return 1;
+    if (b == null) return -1;
+    if (typeof a !== typeof b) return (typeof a < typeof b ? -1 : 1) * order;
+    if (a < b) return -order;
+    if (a > b) return order;
+    return 0;
+};
+
 const getSortedFileIds = createSelector(
     [
         getFileIds,
@@ -148,42 +161,51 @@ const getSortedFileIds = createSelector(
             return fileIds;
         }
 
-        const prepareSortKeySelector =
-            (selector: FileSortKeySelector) => (file: Nullable<FileData>) =>
-                selector(file);
-
-        const sortFunctions: {
-            asc?: (file: FileData) => any;
-            desc?: (file: FileData) => any;
-        }[] = [];
-
+        const sorters: { getKey: FileSortKeySelector; order: SortDirection }[] = [];
         if (showFolderFirst) {
             // If option is undefined (relevant actions is not enabled), we don't show
             // folders first.
-            sortFunctions.push({
-                desc: prepareSortKeySelector(FileHelper.isDirectory),
-            });
+            sorters.push({ getKey: FileHelper.isDirectory, order: -1 });
         }
         if (sortAction.sortKeySelector) {
-            const configKeyName = sortOrder === SortOrder.ASC ? 'asc' : 'desc';
-            sortFunctions.push({
-                [configKeyName]: prepareSortKeySelector(sortAction.sortKeySelector),
+            sorters.push({
+                getKey: sortAction.sortKeySelector,
+                order: sortOrder === SortOrder.ASC ? 1 : -1,
             });
         }
-        if (sortFunctions.length === 0) return fileIds;
+        if (sorters.length === 0) return fileIds;
 
-        // We copy the array because `fast-sort` mutates it
-        const sortedFileIds = sort([...files])
-            .by(sortFunctions as any)
-            .map((file) => (file ? file.id : null));
-        return sortedFileIds;
+        const sortedFiles = [...files].sort((a, b) => {
+            for (const { getKey, order } of sorters) {
+                const keyA = getKey(a);
+                const keyB = getKey(b);
+                if (keyA == null && keyB == null) continue;
+                const result = compareSortKeys(keyA, keyB, order);
+                if (result !== 0) return result;
+            }
+            return 0;
+        });
+        return sortedFiles.map((file) => (file ? file.id : null));
     }
 );
-const getSearcher = createSelector(
-    [makeGetFiles(getCleanFileIds)],
-    (cleanFiles) =>
-        new FuzzySearch(cleanFiles as FileData[], ['name'], { caseSensitive: false })
-);
+/**
+ * Fuzzy match: every character of `query` appears in `text`, in order.
+ */
+const isFuzzyMatch = (text: string, query: string) => {
+    let queryIndex = 0;
+    for (let i = 0; i < text.length && queryIndex < query.length; ++i) {
+        if (text[i] === query[queryIndex]) queryIndex++;
+    }
+    return queryIndex === query.length;
+};
+const getSearcher = createSelector([makeGetFiles(getCleanFileIds)], (cleanFiles) => ({
+    search: (searchString: string) => {
+        const query = searchString.toLocaleLowerCase();
+        return (cleanFiles as FileData[]).filter(
+            (file) => typeof file.name === 'string' && isFuzzyMatch(file.name.toLocaleLowerCase(), query)
+        );
+    },
+}));
 const getSearchFilteredFileIds = createSelector(
     [getCleanFileIds, getSearchString, getSearcher],
     (cleanFileIds, searchString, searcher) =>

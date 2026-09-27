@@ -5,16 +5,14 @@
  */
 
 import React, { ReactElement, useEffect, useMemo } from 'react';
-import { useIntl } from 'react-intl';
 import { useDispatch, useSelector } from 'react-redux';
 
 import { reduxActions } from '../../redux/reducers';
 import { selectContextMenuConfig, selectContextMenuItems } from '../../redux/selectors';
-import { getI18nId, I18nNamespace } from '../../util/i18n';
-import { important, makeGlobalChonkyStyles } from '../../util/styles';
+import { getI18nId, I18nNamespace, useIntl } from '../../util/i18n';
+import { ChonkyMenu } from '../internal/ChonkyMenu';
 import { useContextMenuDismisser } from './FileContextMenu-hooks';
 import { SmartToolbarDropdownButton } from './ToolbarDropdownButton';
-import { ListSubheader, Menu } from '@mui/material';
 
 export interface FileContextMenuProps {}
 
@@ -33,7 +31,7 @@ export const FileContextMenu: React.FC<FileContextMenuProps> = React.memo(() => 
             id: getI18nId(I18nNamespace.FileContextMenu, 'browserMenuShortcut'),
             defaultMessage: 'Browser menu: {shortcut}',
         },
-        { shortcut: <strong>Alt + Right Click</strong> }
+        { shortcut: <strong key="shortcut">Alt + Right Click</strong> }
     );
 
     const contextMenuConfig = useSelector(selectContextMenuConfig);
@@ -73,33 +71,10 @@ export const FileContextMenu: React.FC<FileContextMenuProps> = React.memo(() => 
         [contextMenuConfig]
     );
 
-    const classes = useStyles();
     return (
-        <Menu
-            elevation={2}
-            disablePortal
-            onClose={hideContextMenu}
-            transitionDuration={150}
-            open={!!contextMenuConfig}
-            anchorPosition={anchorPosition}
-            anchorReference="anchorPosition"
-            classes={{ list: classes.contextMenuList }}
-        >
+        <ChonkyMenu onClose={hideContextMenu} open={!!contextMenuConfig} anchorPosition={anchorPosition}>
             {contextMenuItemComponents}
-            <ListSubheader component="div" className={classes.browserMenuTooltip}>
-                {browserMenuShortcutString}
-            </ListSubheader>
-        </Menu>
+            <div className="chonky-browserMenuTooltip">{browserMenuShortcutString}</div>
+        </ChonkyMenu>
     );
 });
-
-const useStyles = makeGlobalChonkyStyles(() => ({
-    contextMenuList: {
-        paddingBottom: important(0),
-        paddingTop: important(0),
-    },
-    browserMenuTooltip: {
-        lineHeight: important('30px'),
-        fontSize: important('0.7em'),
-    },
-}));
