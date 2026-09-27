@@ -21,6 +21,7 @@
         "node": ">=18"
     },
     "scripts": {
+        "dev": "vite --config playground/vite.config.ts",
         "build": "vite build",
         "watch": "vite build --watch"
     },
@@ -85,10 +86,13 @@
         "babel-loader": "^9.2.1",
         "chalk": "^5.6.2",
         "husky": "^9.1.0",
+        "react": "^19.2.0",
+        "react-dom": "^19.2.0",
         "rollup": "^4.52.4",
         "rollup-plugin-dts": "^6.2.3",
         "rollup-plugin-node-externals": "^8.1.1",
         "size-limit": "^9.0.0",
+        "styled-components": "^6.1.14",
         "tsdef": "^0.0.14",
         "tslib": "^2.8.1",
         "tsup": "^8.1.0",
