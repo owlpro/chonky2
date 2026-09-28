@@ -5,6 +5,8 @@ The project follows [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [7.0.0]
+
 ### Breaking
 
 - Chonky no longer uses Material UI, Emotion, styled-components or JSS. The only peer dependencies are now `react` and `react-dom`; `@mui/material`, `@mui/styled-engine-sc`, `@emotion/react`, `@emotion/styled` and `styled-components` can be uninstalled if the app doesn't use them itself. Together with the dependency changes below, Chonky's cost in an app bundle drops from about 139 KB to 55 KB (minified + brotli, all dependencies included).
@@ -79,6 +81,8 @@ The project follows [Semantic Versioning](https://semver.org/).
 - Toolbar menus and the context menu opened behind modals with a `z-index` above 1300, such as MUI's `Modal`. Menus now use `--chonky-menu-z-index` (2000).
 - Keyboard shortcuts applied to the whole page while Chonky was mounted, even hidden (e.g. in a closed dialog that stays mounted): Ctrl+A, Ctrl+C and the others were taken away from the rest of the page, and every Chonky on the page reacted. Shortcuts now apply while focus is inside that Chonky, or on an element around it (the page body, or a dialog that just opened with Chonky in it) as long as that Chonky is visible, is the only one there, and no other text on the page is selected. Clicking anywhere in Chonky, including empty list space, puts focus in it, and focus stays in Chonky after Enter or Escape in the rename field.
 - The tops of tall letters in list view names and columns were cut off with fonts whose capitals are short compared to their other letters. Names are now only clipped sideways.
+- `disableDragAndDropProvider` now works with an app-level `DndProvider`. `react-dnd` and `react-dnd-html5-backend` are no longer bundled, so Chonky shares the app's drag-and-drop context. They remain regular dependencies, so no extra install is needed. Based on [#1](https://github.com/owlpro/chonky2/pull/1) by @ttessman.
+- Added `types` to the `exports` map so bundlers using `moduleResolution: "bundler"` resolve the type declarations.
 
 ### Development
 
@@ -94,10 +98,3 @@ The project follows [Semantic Versioning](https://semver.org/).
 - The playground log shows the search text of `ChangeSearch`.
 - `yarn watch:linked` builds `dist-linked/` for trying Chonky inside another Vite app during development: unminified, with source maps and type declarations, and with all dependencies except React bundled in.
 - Store tests for selecting the folder the user came out of.
-
-## [6.5.9]
-
-### Fixed
-
-- `disableDragAndDropProvider` now works with an app-level `DndProvider`. `react-dnd` and `react-dnd-html5-backend` are no longer bundled, so Chonky shares the app's drag-and-drop context. They remain regular dependencies, so no extra install is needed. Based on [#1](https://github.com/owlpro/chonky2/pull/1) by @ttessman.
-- Added `types` to the `exports` map so bundlers using `moduleResolution: "bundler"` resolve the type declarations.
