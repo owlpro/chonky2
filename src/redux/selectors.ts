@@ -7,6 +7,7 @@ import { FileArray, FileData, FileFilter } from '../types/file.types';
 import { RootState } from '../types/redux.types';
 import { FileSortKeySelector, SortOrder } from '../types/sort.types';
 import { FileHelper } from '../util/file-helper';
+import { getSearchTerms, isSearchMatch } from '../util/search';
 
 // Raw selectors
 export const selectInstanceId = (state: RootState) => state.instanceId;
@@ -44,7 +45,8 @@ export const selectCleanFileIds = (state: RootState) => state.cleanFileIds;
 export const selectFileData = (fileId: Nullable<string>) => (state: RootState) =>
     fileId ? selectFileMap(state)[fileId] : null;
 
-export const selectHiddenFileIdMap = (state: RootState) => state.hiddenFileIdMap;
+// Files hidden by the search or the "show hidden files" option
+export const selectHiddenFileIdMap = (state: RootState) => getHiddenFileIdMap(state);
 export const selectHiddenFileCount = (state: RootState) =>
     Object.keys(selectHiddenFileIdMap(state)).length;
 
@@ -197,28 +199,13 @@ const getSortedFileIds = createSelector(
         return sortedFiles.map((file) => (file ? file.id : null));
     }
 );
-/**
- * Fuzzy match: every character of `query` appears in `text`, in order.
- */
-const isFuzzyMatch = (text: string, query: string) => {
-    let queryIndex = 0;
-    for (let i = 0; i < text.length && queryIndex < query.length; ++i) {
-        if (text[i] === query[queryIndex]) queryIndex++;
-    }
-    return queryIndex === query.length;
-};
-const getSearcher = createSelector([makeGetFiles(getCleanFileIds)], (cleanFiles) => ({
-    search: (searchString: string) => {
-        const query = searchString.toLocaleLowerCase();
-        return (cleanFiles as FileData[]).filter(
-            (file) => typeof file.name === 'string' && isFuzzyMatch(file.name.toLocaleLowerCase(), query)
-        );
-    },
-}));
+const getSearchTermList = createSelector([getSearchString], (searchString) => getSearchTerms(searchString));
 const getSearchFilteredFileIds = createSelector(
-    [getCleanFileIds, getSearchString, getSearcher],
-    (cleanFileIds, searchString, searcher) =>
-        searchString ? searcher.search(searchString).map((f) => f.id) : cleanFileIds
+    [getCleanFileIds, makeGetFiles(getCleanFileIds), getSearchTermList],
+    (cleanFileIds, cleanFiles, terms) =>
+        terms.length === 0
+            ? cleanFileIds
+            : cleanFiles.filter((file) => isSearchMatch(file, terms)).map((file) => file!.id)
 );
 const getHiddenFileIdMap = createSelector(
     [
@@ -249,7 +236,7 @@ const getDisplayFileIds = createSelector(
         sortedFileIds.filter((id) => !id || !hiddenFileIdMap[id])
 );
 const getLastClickIndex = createSelector(
-    [_getLastClick, getSortedFileIds],
+    [_getLastClick, getDisplayFileIds],
     /** Returns the last click index after ensuring it is actually still valid. */
     (lastClick, displayFileIds) => {
         if (
@@ -277,7 +264,7 @@ export const selectors = {
 
     // Memoized selectors
     getSortedFileIds,
-    getSearcher,
+    getSearchTermList,
     getSearchFilteredFileIds,
     getHiddenFileIdMap,
     getDisplayFileIds,

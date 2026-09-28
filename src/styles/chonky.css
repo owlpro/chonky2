@@ -410,6 +410,36 @@
     opacity: 1;
 }
 
+.chonky-searchClear {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    width: 24px;
+    height: 24px;
+    padding: 0;
+    margin-right: -6px;
+    border: 0;
+    border-radius: 4px;
+    background: transparent;
+    color: var(--chonky-text-secondary);
+    cursor: pointer;
+}
+
+.chonky-searchClear:hover {
+    background-color: var(--chonky-hover);
+    color: var(--chonky-text);
+}
+
+.chonky-searchClear:active {
+    background-color: var(--chonky-pressed);
+}
+
+.chonky-searchClear:focus-visible {
+    outline: 2px solid var(--chonky-focus-ring);
+    outline-offset: -2px;
+}
+
 /* Status bar */
 
 .chonky-statusBar {

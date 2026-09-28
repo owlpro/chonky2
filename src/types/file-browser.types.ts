@@ -30,6 +30,17 @@ export interface FileBrowserHandle {
     setFileSelection(selection: Set<string>, reset?: boolean): void;
 
     /**
+     * Scrolls the file list to the given files and selects them, e.g. to show a file
+     * the app looked up by its ID. Files that are not in `files` yet are revealed once
+     * they show up, so this can be called before or after the app opens their folder.
+     * The request is dropped if `files` finishes loading (has no `null` placeholders)
+     * without them. The search is cleared if it hides any of the files.
+     * @param fileIds IDs of the files to reveal.
+     * @param [select=true] Whether to replace the selection with the revealed files.
+     */
+    revealFiles(fileIds: string[], select?: boolean): void;
+
+    /**
      * Method used to programatically trigger file actions in Chonky.
      * @param action A file action definition object
      * @param payload The payload expected by the action. If action does not expect

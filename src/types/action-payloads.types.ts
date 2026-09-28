@@ -37,6 +37,11 @@ export type MoveFilesPayload = EndDragNDropPayload & { files: FileData[] };
 
 export type ChangeSelectionPayload = { selection: Set<string> };
 
+export interface ChangeSearchPayload {
+    /** The search field text, trimmed. Empty when the search was cleared. */
+    searchString: string;
+}
+
 export interface OpenFilesPayload {
     targetFile?: FileData;
     files: FileData[];

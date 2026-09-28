@@ -21,6 +21,7 @@ export type FileData = {
     size?: number; // File size in bytes
     modDate?: Date | string; // Last change date (or its string representation)
     childrenCount?: number; // Number of files inside of a folder (only for folders)
+    searchText?: string; // Extra text the search field matches besides the name, e.g. an ID or URL
 
     // Default preview overriding
     color?: string; // Color to use for this file

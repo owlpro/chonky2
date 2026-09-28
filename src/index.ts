@@ -25,7 +25,7 @@ export type {
     FileActionState,
 } from './types/action-handler.types';
 export type { ChonkyActionUnion } from './types/file-browser.types';
-export type { ChangeFileNamePayload, CopyFilesToPayload, DropFilesPayload, MoveFilesPayload } from './types/action-payloads.types';
+export type { ChangeFileNamePayload, ChangeSearchPayload, CopyFilesToPayload, DropFilesPayload, MoveFilesPayload } from './types/action-payloads.types';
 export { ChonkyIconName } from './types/icons.types';
 export type ChonkyIconProps = import('./types/icons.types').ChonkyIconProps;
 export type { FileBrowserHandle, FileBrowserProps } from './types/file-browser.types';

@@ -24,12 +24,8 @@ export const initialRootState: RootState = {
     fileIds: [],
     cleanFileIds: [],
 
-    sortedFileIds: [],
-    hiddenFileIdMap: {},
-
     focusSearchInput: null,
     searchString: '',
-    searchMode: 'currentFolder',
 
     selectionMap: {},
     disableSelection: false,
@@ -56,6 +52,7 @@ export const initialRootState: RootState = {
     renamingFileId: null,
     newFileWatch: null,
     revealFileIds: null,
+    pendingReveal: null,
 
     clipboard: null,
 };

@@ -7,7 +7,7 @@ import { reduxThunks } from '../redux/thunks';
 import { thunkNavigateHistory } from '../redux/thunks/file-actions.thunks';
 import { thunkRequestFileAction } from '../redux/thunks/dispatchers.thunks';
 import {
-    ChangeFileNamePayload, ChangeSelectionPayload, CopyFilesToPayload, EndDragNDropPayload, KeyboardClickFilePayload, MouseClickFilePayload,
+    ChangeFileNamePayload, ChangeSearchPayload, ChangeSelectionPayload, CopyFilesToPayload, EndDragNDropPayload, KeyboardClickFilePayload, MouseClickFilePayload,
     MoveFilesPayload, OpenFileContextMenuPayload, OpenFilesPayload, StartDragNDropPayload
 } from '../types/action-payloads.types';
 import { ChonkyIconName } from '../types/icons.types';
@@ -223,6 +223,15 @@ export const EssentialActions = {
     ChangeSelection: defineFileAction({
         id: 'change_selection',
         __payloadType: {} as ChangeSelectionPayload,
+    } as const),
+    /**
+     * Action that is dispatched when the search changes: after the user stops typing,
+     * presses Enter or Escape, or when navigating clears it. Chonky filters the current
+     * folder by itself; handle this to search elsewhere, e.g. to look a file up by ID.
+     */
+    ChangeSearch: defineFileAction({
+        id: 'change_search',
+        __payloadType: {} as ChangeSearchPayload,
     } as const),
     /**
      * Action that is dispatched when the user confirms a new name in the inline rename

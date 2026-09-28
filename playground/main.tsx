@@ -53,6 +53,7 @@ const describeAction = (data: ChonkyFileActionData) => {
     if (payload.selection instanceof Set) details.push(`${payload.selection.size} selected`);
     if (payload.destination) details.push(`→ ${payload.destination.name}`);
     if (typeof payload.name === 'string') details.push(`→ ${payload.name}`);
+    if (typeof payload.searchString === 'string') details.push(`"${payload.searchString}"`);
     if (details.length === 0 && data.state.selectedFilesForAction.length > 0) {
         details.push(data.state.selectedFilesForAction.map((f) => f.name).join(', '));
     }

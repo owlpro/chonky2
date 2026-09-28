@@ -13,6 +13,7 @@ import { ChonkyClipboard, NavigationHistory, NewFileWatch, RootState } from '../
 import { SortOrder } from '../types/sort.types';
 import { ThumbnailGenerator } from '../types/thumbnails.types';
 import { FileHelper } from '../util/file-helper';
+import { getSearchTerms, isSearchMatch } from '../util/search';
 import { sanitizeInputArray } from './files-transforms';
 import { initialRootState } from './state';
 
@@ -35,6 +36,40 @@ const recordNavigation = (history: NavigationHistory, folder: FileData) => {
         const kept = entries.slice(Math.max(0, index + 2 - MAX_HISTORY_ENTRIES), index + 1);
         history.entries = [...kept, folder];
         history.index = history.entries.length - 1;
+    }
+};
+
+/**
+ * Scrolls to `fileIds` and, if `select` is set, selects them. Clears the search if it
+ * hides any of them.
+ */
+const showFiles = (state: RootState, fileIds: string[], select: boolean) => {
+    const terms = getSearchTerms(state.searchString);
+    if (!fileIds.every((id) => isSearchMatch(state.fileMap[id] ?? null, terms))) state.searchString = '';
+
+    state.revealFileIds = fileIds;
+    if (select && !state.disableSelection) {
+        state.selectionMap = {};
+        fileIds
+            .filter((id) => FileHelper.isSelectable(state.fileMap[id] ?? null))
+            .forEach((id) => (state.selectionMap[id] = true));
+    }
+};
+
+/**
+ * Reveals the files of `pendingReveal` once they are in `files`. After a files update,
+ * gives up if the list has finished loading (no `null` placeholders) without them.
+ */
+const applyPendingReveal = (state: RootState, afterFilesUpdate: boolean) => {
+    const pending = state.pendingReveal;
+    if (!pending) return;
+
+    const presentIds = pending.fileIds.filter((id) => state.fileMap[id]);
+    if (presentIds.length > 0) {
+        state.pendingReveal = null;
+        showFiles(state, presentIds, pending.select);
+    } else if (afterFilesUpdate && !state.fileIds.includes(null)) {
+        state.pendingReveal = null;
     }
 };
 
@@ -65,12 +100,16 @@ const reducers = {
     setRawFolderChain(state: RootState, action: PayloadAction<FileArray | any>) {
         const rawFolderChain = action.payload;
         const { sanitizedArray: folderChain, errorMessages } = sanitizeInputArray('folderChain', rawFolderChain);
+        const previousFolderId = state.folderChain[state.folderChain.length - 1]?.id ?? null;
         state.rawFolderChain = rawFolderChain;
         state.folderChain = folderChain;
         state.folderChainErrorMessages = errorMessages;
 
         const currentFolder = folderChain.length > 0 ? folderChain[folderChain.length - 1] : null;
         if (currentFolder) recordNavigation(state.navigationHistory, currentFolder);
+
+        // A search only applies to the folder it was typed in
+        if ((currentFolder?.id ?? null) !== previousFolderId) state.searchString = '';
 
         // Files created before navigating away are not picked up in the new folder
         if (state.newFileWatch && state.newFileWatch.parentId !== (currentFolder?.id ?? null)) {
@@ -117,16 +156,16 @@ const reducers = {
             if (newFileIds.length > 0) {
                 const shownIds = watch.kind === 'folder' ? newFileIds.slice(0, 1) : newFileIds;
                 state.newFileWatch = null;
-                state.revealFileIds = shownIds;
                 if (watch.kind === 'folder') state.renamingFileId = shownIds[0]!;
-                if (!state.disableSelection) {
-                    state.selectionMap = {};
-                    shownIds
-                        .filter((id) => FileHelper.isSelectable(fileMap[id] ?? null))
-                        .forEach((id) => (state.selectionMap[id] = true));
-                }
+                showFiles(state, shownIds, true);
             }
         }
+
+        applyPendingReveal(state, true);
+    },
+    revealFiles(state: RootState, action: PayloadAction<{ fileIds: string[]; select: boolean }>) {
+        state.pendingReveal = { fileIds: action.payload.fileIds, select: action.payload.select };
+        applyPendingReveal(state, false);
     },
     watchForNewFiles(state: RootState, action: PayloadAction<NewFileWatch['kind']>) {
         const currentFolder = state.folderChain.length > 0 ? state.folderChain[state.folderChain.length - 1] : null;
@@ -155,19 +194,6 @@ const reducers = {
     endRename(state: RootState) {
         state.renamingFileId = null;
     },
-    setSortedFileIds(state: RootState, action: PayloadAction<Nullable<string>[]>) {
-        state.sortedFileIds = action.payload;
-    },
-    setHiddenFileIds(state: RootState, action: PayloadAction<FileIdTrueMap>) {
-        state.hiddenFileIdMap = action.payload;
-
-        // Cleanup selection
-        for (const selectedFileId of Object.keys(state.selectionMap)) {
-            if (state.hiddenFileIdMap[selectedFileId]) {
-                delete state.selectionMap[selectedFileId];
-            }
-        }
-    },
     setFocusSearchInput(state: RootState, action: PayloadAction<Nullable<() => void>>) {
         state.focusSearchInput = action.payload;
     },
@@ -194,6 +220,9 @@ const reducers = {
         else if (FileHelper.isSelectable(state.fileMap[action.payload.fileId] ?? null)) {
             state.selectionMap[action.payload.fileId] = true;
         }
+    },
+    deselectFiles(state: RootState, action: PayloadAction<string[]>) {
+        action.payload.forEach((id) => delete state.selectionMap[id]);
     },
     clearSelection(state: RootState) {
         if (state.disableSelection) return;

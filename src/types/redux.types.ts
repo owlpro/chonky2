@@ -48,14 +48,10 @@ export type RootState = {
     fileIds: Nullable<string>[];
     cleanFileIds: string[];
 
-    // Derivative files
-    sortedFileIds: Nullable<string>[];
-    hiddenFileIdMap: FileIdTrueMap;
-
     // Search
     focusSearchInput: Nullable<() => void>;
+    /** Text in the search field. Cleared when the current folder changes. */
     searchString: string;
-    searchMode: 'currentFolder';
 
     // Selection
     selectionMap: FileSelection;
@@ -96,6 +92,11 @@ export type RootState = {
     newFileWatch: Nullable<NewFileWatch>;
     /** Files the file list should scroll to, e.g. new uploads. */
     revealFileIds: Nullable<string[]>;
+    /**
+     * Files the app asked to reveal (`FileBrowserHandle.revealFiles`) that are not in
+     * `files` yet, e.g. while the app loads their folder.
+     */
+    pendingReveal: Nullable<PendingReveal>;
 
     /** Files copied or cut with `CopyFiles` / `CutFiles`, for `PasteFiles`. */
     clipboard: Nullable<ChonkyClipboard>;
@@ -107,6 +108,11 @@ export interface ChonkyClipboard {
     fileIds: FileIdTrueMap;
     /** The folder the files were copied or cut from. */
     source: Nullable<FileData>;
+}
+
+export interface PendingReveal {
+    fileIds: string[];
+    select: boolean;
 }
 
 export interface NewFileWatch {

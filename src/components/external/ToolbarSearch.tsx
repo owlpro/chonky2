@@ -23,6 +23,10 @@ export const ToolbarSearch: React.FC<ToolbarSearchProps> = React.memo(() => {
         id: getI18nId(I18nNamespace.Toolbar, 'searchPlaceholder'),
         defaultMessage: 'Search',
     });
+    const clearSearchString = intl.formatMessage({
+        id: getI18nId(I18nNamespace.Toolbar, 'clearSearch'),
+        defaultMessage: 'Clear search',
+    });
 
     const ChonkyIcon = useContext(ChonkyIconContext);
 
@@ -32,8 +36,8 @@ export const ToolbarSearch: React.FC<ToolbarSearchProps> = React.memo(() => {
     const reduxSearchString = useSelector(selectSearchString);
 
     const [localSearchString, setLocalSearchString] = useState(reduxSearchString);
-    const [debouncedLocalSearchString] = useDebounce(localSearchString, 300);
-    const [showLoadingIndicator, setShowLoadingIndicator] = useState(false);
+    const [debouncedLocalSearchString, setDebouncedLocalSearchString] = useDebounce(localSearchString, 300);
+    const showLoadingIndicator = localSearchString !== debouncedLocalSearchString;
 
     useEffect(() => {
         dispatch(
@@ -46,15 +50,30 @@ export const ToolbarSearch: React.FC<ToolbarSearchProps> = React.memo(() => {
         };
     }, [dispatch]);
 
+    const dispatchedSearchStringRef = useRef(reduxSearchString);
     useEffect(() => {
-        setShowLoadingIndicator(false);
+        dispatchedSearchStringRef.current = debouncedLocalSearchString;
         dispatch(reduxActions.setSearchString(debouncedLocalSearchString));
     }, [debouncedLocalSearchString, dispatch]);
 
+    // Follow changes made outside the field, e.g. the search being cleared on navigation
+    useEffect(() => {
+        if (reduxSearchString === dispatchedSearchStringRef.current) return;
+        dispatchedSearchStringRef.current = reduxSearchString;
+        setLocalSearchString(reduxSearchString);
+        setDebouncedLocalSearchString(reduxSearchString);
+    }, [reduxSearchString, setDebouncedLocalSearchString]);
+
     const handleChange = useCallback((event: React.FormEvent<HTMLInputElement>) => {
-        setShowLoadingIndicator(true);
         setLocalSearchString(event.currentTarget.value);
     }, []);
+    const handleKeyDown = useCallback(
+        (event: React.KeyboardEvent<HTMLInputElement>) => {
+            // Search right away instead of waiting for the debounce
+            if (event.key === 'Enter') setDebouncedLocalSearchString(event.currentTarget.value);
+        },
+        [setDebouncedLocalSearchString]
+    );
     const handleKeyUp = useCallback(
         (event: React.KeyboardEvent<HTMLInputElement>) => {
             // Remove focus from the search input field when user presses escape.
@@ -63,12 +82,18 @@ export const ToolbarSearch: React.FC<ToolbarSearchProps> = React.memo(() => {
             //       @see https://stackoverflow.com/a/37461974
             if (event.key === 'Escape') {
                 setLocalSearchString('');
-                dispatch(reduxActions.setSearchString(''));
+                setDebouncedLocalSearchString('');
                 if (searchInputRef.current) searchInputRef.current.blur();
             }
         },
-        [dispatch]
+        [setDebouncedLocalSearchString]
     );
+
+    const handleClear = useCallback(() => {
+        setLocalSearchString('');
+        setDebouncedLocalSearchString('');
+        if (searchInputRef.current) searchInputRef.current.focus();
+    }, [setDebouncedLocalSearchString]);
 
     return (
         <label className="chonky-search">
@@ -86,8 +111,20 @@ export const ToolbarSearch: React.FC<ToolbarSearchProps> = React.memo(() => {
                 placeholder={searchPlaceholderString}
                 aria-label={searchPlaceholderString}
                 onChange={handleChange}
+                onKeyDown={handleKeyDown}
                 onKeyUp={handleKeyUp}
             />
+            {localSearchString && (
+                <button
+                    type="button"
+                    className="chonky-searchClear"
+                    title={clearSearchString}
+                    aria-label={clearSearchString}
+                    onClick={handleClear}
+                >
+                    <ChonkyIcon icon={ChonkyIconName.close} />
+                </button>
+            )}
         </label>
     );
 });

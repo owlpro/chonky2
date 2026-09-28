@@ -150,6 +150,7 @@ as selection, sorting and view switching work on their own; the ones that change
 | `CopyFilesTo` | Copied files pasted | `payload.files`, `payload.destination` |
 | `ChangeFileName` | A new name confirmed in the inline rename field | `payload.file`, `payload.name` |
 | `ChangeSelection` | Selection changed | `payload.selection` (a `Set` of IDs) |
+| `ChangeSearch` | Search text changed (after typing stops, Enter, Esc, or cleared by navigating) | `payload.searchString` (trimmed) |
 | `DropFiles` | Files dragged in from the computer are dropped | `payload.files` (`File[]`), `payload.destination` |
 | `CreateFolder`, `UploadFiles`, `DownloadFiles`, `CopyFiles`, `CutFiles`, `DeleteFiles` | Their button, menu item or hotkey | `state.selectedFilesForAction` |
 
@@ -170,6 +171,23 @@ appear in the toolbar, menus and context menu.
   folder entry or breadcrumb they are dropped on (`payload.destination`).
 - New files that show up in the current folder after `UploadFiles`, `DropFiles` or
   `PasteFiles` are selected and scrolled into view.
+- **Search.** The search field filters the current folder: a file is shown when every word
+  typed is part of its `name` or its `searchText`. The search is cleared when the folder
+  changes, and files it hides are deselected. To find files outside the current folder,
+  handle `ChangeSearch`, open the folder the file is in, and reveal it with the ref:
+
+```tsx
+const browserRef = useRef<FileBrowserHandle>(null);
+
+const handleAction: FileActionHandler = async (data) => {
+  if (data.id === ChonkyActions.ChangeSearch.id) {
+    const media = await findMediaById(data.payload.searchString); // your API
+    if (!media) return;
+    openFolder(media.folderId);                 // update folderChain and files
+    browserRef.current?.revealFiles([media.id]); // selected and scrolled to once listed
+  }
+};
+```
 
 ```tsx
 <FullFileBrowser
@@ -267,6 +285,7 @@ Each file is a plain object. Only `id` and `name` are required:
   thumbnailUrl: '/thumbs/report.png', // shown in the grid view
   isHidden: false,            // hidden unless "Show hidden files" is on
   color: '#e53935',           // overrides the icon colour
+  searchText: 'https://cdn.example.com/f/9f3c2e', // also matched by the search field
 }
 ```
 
@@ -341,7 +360,7 @@ Message IDs follow the pattern `chonky.<area>.<name>`:
 
 | Area | IDs |
 |---|---|
-| `toolbar` | `searchPlaceholder`, `visibleFileCount`, `selectedFileCount`, `hiddenFileCount` |
+| `toolbar` | `searchPlaceholder`, `clearSearch`, `visibleFileCount`, `selectedFileCount`, `hiddenFileCount` |
 | `fileList` | `nothingToShow`, `nameColumn`, `typeColumn`, `sizeColumn`, `dateColumn` |
 | `fileEntry` | `folderType`, `fileType`, `genericFileType`, `folderItemCount` |
 | `contextMenu` | `browserMenuShortcut` |

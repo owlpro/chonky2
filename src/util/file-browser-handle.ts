@@ -24,6 +24,9 @@ export const useFileBrowserHandle = (ref: React.Ref<FileBrowserHandle>) => {
                 const fileIds = Array.from(selection);
                 dispatch(reduxActions.selectFiles({ fileIds, reset }));
             },
+            revealFiles(fileIds, select = true): void {
+                dispatch(reduxActions.revealFiles({ fileIds, select }));
+            },
             requestFileAction<Action extends FileAction>(
                 action: Action,
                 payload: Action['__payloadType']

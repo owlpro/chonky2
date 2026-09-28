@@ -13,6 +13,7 @@ The project follows [Semantic Versioning](https://semver.org/).
 - Default entry sizes changed: list rows are 34px (was 30px), grid tiles are 140×140 (was 165×130) and compact entries 240×52 (was 220×40).
 - `react-intl` is no longer used; Chonky formats messages itself with the browser's `Intl` APIs. `i18n` accepts `locale`, `defaultLocale`, `messages`, `timeZone` and `formatters`; other `react-intl` options (`formats`, `textComponent`, `onError`, …) are ignored. Messages support `{arg}`, `plural`, `selectordinal`, `select`, `#`, `number`/`date`/`time` arguments and apostrophe quoting, but not rich-text tags such as `<b>…</b>`. Custom `formatters` receive a `ChonkyIntl` object instead of `react-intl`'s `IntlShape`; it has the same `formatMessage`, `formatDate`, `formatTime` and `formatNumber` methods, so most formatters only need a type change.
 - The CommonJS build is now `dist/index.cjs` (was `dist/index.cjs.js`). Deep imports of that file need updating; `require('chonky2')` is unaffected.
+- Removed the unused `reduxActions.setHiddenFileIds` and `reduxActions.setSortedFileIds`, `selectors.getSearcher`, and the `sortedFileIds`, `hiddenFileIdMap` and `searchMode` state fields. `selectHiddenFileIdMap` now returns the files hidden by the search or the hidden-files option (it was always empty).
 
 ### Added
 
@@ -30,6 +31,11 @@ The project follows [Semantic Versioning](https://semver.org/).
 - `FullFileBrowser` props `toolbarStart` and `toolbarEnd`, and `FileToolbar` props `startContent` and `endContent`, for the app's own toolbar elements. `ToolbarButton` is exported to build them, and its `icon` can be any element.
 - `useFolderDropTarget(folder)` makes an element outside Chonky, such as a sidebar entry, a drop target for files dragged from Chonky; drops arrive as `MoveFiles`. It needs a shared react-dnd context (`disableDragAndDropProvider`).
 - `ChonkyIconName` is exported as a value (it was type-only), with new `rename`, `cut` and `close` icons. The `ChangeFileNamePayload`, `CopyFilesToPayload` and `MoveFilesPayload` types are exported.
+- `searchText` file field: extra text the search field matches besides the name, e.g. a media ID or URL.
+- `ChonkyActions.ChangeSearch` is dispatched when the search text changes, with the trimmed text in `payload.searchString`, so apps can search outside the current folder. The `ChangeSearchPayload` type is exported.
+- `FileBrowserHandle.revealFiles(fileIds, select = true)` scrolls to files and selects them. Files that aren't listed yet are revealed when they show up, so an app can call it while it opens their folder; the request is dropped if the folder finishes loading without them.
+- Enter in the search field searches right away instead of waiting for the typing pause.
+- A clear (✕) button in the search field, shown while it has text. Its label is the `chonky.toolbar.clearSearch` message.
 
 ### Changed
 
@@ -41,6 +47,8 @@ The project follows [Semantic Versioning](https://semver.org/).
 - Removed the `classnames`, `deepmerge`, `exact-trie`, `fast-sort`, `filesize`, `fuzzy-search`, `react-intl`, `react-jss`, `react-virtualized-auto-sizer`, `redux-watch` and `shortid` dependencies.
 - The grid view fills its width: `entryWidth` is now the smallest tile width, as many tiles as fit go in a row, and they stretch to share the leftover space. Room for a scrollbar is only kept when the tiles overflow.
 - `@reduxjs/toolkit` is now `^2.9.0` (was `>=1.9.0`, which allowed 1.x versions Chonky doesn't work with).
+- The search matches words instead of letters: a file is shown when every space-separated word typed is part of its name (or `searchText`), ignoring case. Before, letters only had to appear in order, so `pdf` also matched `profile_draft.png`. Spaces around the text no longer affect the search.
+- The search is cleared when the current folder changes, and when a new folder or upload, or a file passed to `revealFiles`, would be hidden by it.
 
 ### Fixed
 
@@ -52,6 +60,9 @@ The project follows [Semantic Versioning](https://semver.org/).
 - Loading spinners now actually spin.
 - File names without a dot (e.g. `README`) were shown as `.README`.
 - React warning about a missing `key` in the context menu.
+- Files hidden by the search stayed selected, so actions such as Delete applied to files the user couldn't see. Select all (Ctrl+A) also selected them, and hidden files (`isHidden`) too. Files are now deselected when they get hidden, and Select all only selects visible files. The status bar's hidden file count, which always showed 0, now works.
+- Shift+click range selection didn't work while a search was active or hidden files were filtered out.
+- The search field's loading spinner kept spinning if the text was changed back within 300 ms, or if Escape was pressed right after typing.
 
 ### Development
 
@@ -61,6 +72,8 @@ The project follows [Semantic Versioning](https://semver.org/).
 - Rewrote the README for v7: screenshots, a working quick start, actions and shortcuts, file fields, theming variables, translation message IDs, and upgrade notes.
 - The playground uses an app-level `DndProvider` by default, so files can be dropped onto its sidebar (`useFolderDropTarget`). It registers rename, cut, paste and drop-to-upload, shows a custom `Show info` action in the Actions menu and a close button at the end of the toolbar.
 - The playground is a full explorer window with a sidebar, sample folders with thumbnails, working Create folder, Upload and Delete actions, a dark mode toggle and a log of every Chonky event.
+- Added store tests for search, `revealFiles` and the selection and search watchers (`test/search.test.ts`). They need no DOM, so they run with `npx vitest run test/search.test.ts`.
+- The playground log shows the search text of `ChangeSearch`.
 
 ## [6.5.9]
 
