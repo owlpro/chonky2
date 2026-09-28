@@ -52,4 +52,10 @@ export const initialRootState: RootState = {
 
     contextMenuMounted: false,
     contextMenuConfig: null,
+
+    renamingFileId: null,
+    newFileWatch: null,
+    revealFileIds: null,
+
+    clipboard: null,
 };

@@ -9,7 +9,7 @@ The project follows [Semantic Versioning](https://semver.org/).
 
 - Chonky no longer uses Material UI, Emotion, styled-components or JSS. The only peer dependencies are now `react` and `react-dom`; `@mui/material`, `@mui/styled-engine-sc`, `@emotion/react`, `@emotion/styled` and `styled-components` can be uninstalled if the app doesn't use them itself. Together with the dependency changes below, Chonky's cost in an app bundle drops from about 139 KB to 55 KB (minified + brotli, all dependencies included).
 - New Fluent (Windows 11 File Explorer) look. Styles are plain CSS injected once into `<head>`, and theme values are CSS variables on `.chonky-theme` (see `src/styles/chonky.css`). Overrides written against MUI's theme, MUI class names (`.MuiButton-root`, …) or the old `chonky-*` class names no longer apply.
-- New layout: `FileToolbar` shows the current folder's name, one menu per action group and the ungrouped action buttons. The search field moved into `FileNavbar`, and the item count moved to the new `FileStatusBar`. Apps that render `FileToolbar` without `FileNavbar` no longer get a search field. `FullFileBrowser` now renders toolbar, navbar, list, status bar in that order.
+- New layout: `FileToolbar` shows one menu per action group, then the ungrouped action buttons, then the view mode buttons after a divider. The current folder's name is only shown in the breadcrumb. `CreateFolder` and `UploadFiles` are icon-only buttons. The search field moved into `FileNavbar`, and the item count moved to the new `FileStatusBar`. Apps that render `FileToolbar` without `FileNavbar` no longer get a search field. `FullFileBrowser` now renders toolbar, navbar, list, status bar in that order.
 - Default entry sizes changed: list rows are 34px (was 30px), grid tiles are 140×140 (was 165×130) and compact entries 240×52 (was 220×40).
 - `react-intl` is no longer used; Chonky formats messages itself with the browser's `Intl` APIs. `i18n` accepts `locale`, `defaultLocale`, `messages`, `timeZone` and `formatters`; other `react-intl` options (`formats`, `textComponent`, `onError`, …) are ignored. Messages support `{arg}`, `plural`, `selectordinal`, `select`, `#`, `number`/`date`/`time` arguments and apostrophe quoting, but not rich-text tags such as `<b>…</b>`. Custom `formatters` receive a `ChonkyIntl` object instead of `react-intl`'s `IntlShape`; it has the same `formatMessage`, `formatDate`, `formatTime` and `formatNumber` methods, so most formatters only need a type change.
 - The CommonJS build is now `dist/index.cjs` (was `dist/index.cjs.js`). Deep imports of that file need updating; `require('chonky2')` is unaffected.
@@ -22,6 +22,14 @@ The project follows [Semantic Versioning](https://semver.org/).
 - Type column, formatted by the new `formatFileType` formatter (`Folder`, `PDF File`, …). Folders with `childrenCount` show an item count in the Size column.
 - Colour-coded file icons: a folder, or a page labelled with the file's extension, in a colour per file type. They are used unless the app sets `iconComponent` or a file sets `icon`. Grid tiles show `thumbnailUrl` images.
 - `ChonkyIconName.goBack` and `ChonkyIconName.goForward`.
+- `ChonkyActions.DropFiles`: when registered, files dragged in from the user's computer can be dropped anywhere on Chonky. The payload has the dropped `files` and the `destination` folder: the current folder, or the folder entry or breadcrumb they were dropped on. The `DropFilesPayload` type is exported.
+- Inline rename: `ChonkyActions.RenameFile` (F2, toolbar and context menu) turns the selected file's name into a text field, with the name before the extension selected. Enter or clicking elsewhere confirms, Escape cancels, and a changed name is dispatched as the new `ChonkyActions.ChangeFileName` (`payload.file`, `payload.name`). Files with `renamable: false` can't be renamed (`FileHelper.isRenamable`).
+- After `CreateFolder`, the first folder that shows up in the current folder is selected and put into rename mode with its whole name selected.
+- Copy, cut and paste: `CopyFiles` (Ctrl+C) now also puts the files on Chonky's clipboard, the new `ChonkyActions.CutFiles` (Ctrl+X) does the same for moving and shows the files faded, and the new `ChonkyActions.PasteFiles` (Ctrl+V) pastes into the current folder or the folder its context menu was opened on. Copies are dispatched as the new `ChonkyActions.CopyFilesTo`, cut files as `MoveFiles`. The shortcuts also work with Cmd on macOS.
+- Files that show up in the current folder after `UploadFiles`, `DropFiles` or `PasteFiles` are selected, and the file list scrolls to them.
+- `FullFileBrowser` props `toolbarStart` and `toolbarEnd`, and `FileToolbar` props `startContent` and `endContent`, for the app's own toolbar elements. `ToolbarButton` is exported to build them, and its `icon` can be any element.
+- `useFolderDropTarget(folder)` makes an element outside Chonky, such as a sidebar entry, a drop target for files dragged from Chonky; drops arrive as `MoveFiles`. It needs a shared react-dnd context (`disableDragAndDropProvider`).
+- `ChonkyIconName` is exported as a value (it was type-only), with new `rename`, `cut` and `close` icons. The `ChangeFileNamePayload`, `CopyFilesToPayload` and `MoveFilesPayload` types are exported.
 
 ### Changed
 
@@ -31,6 +39,7 @@ The project follows [Semantic Versioning](https://semver.org/).
 - Clicking empty space in the file list clears the selection, like clicking outside Chonky does. It follows `clearSelectionOnOutsideClick` and is skipped while Ctrl, Cmd or Shift is held.
 - Dependencies are no longer bundled into `dist/`. They are installed alongside Chonky, so an app that uses the same libraries shares one copy.
 - Removed the `classnames`, `deepmerge`, `exact-trie`, `fast-sort`, `filesize`, `fuzzy-search`, `react-intl`, `react-jss`, `react-virtualized-auto-sizer`, `redux-watch` and `shortid` dependencies.
+- The grid view fills its width: `entryWidth` is now the smallest tile width, as many tiles as fit go in a row, and they stretch to share the leftover space. Room for a scrollbar is only kept when the tiles overflow.
 - `@reduxjs/toolkit` is now `^2.9.0` (was `>=1.9.0`, which allowed 1.x versions Chonky doesn't work with).
 
 ### Fixed
@@ -38,6 +47,8 @@ The project follows [Semantic Versioning](https://semver.org/).
 - `require('chonky2')` failed in Node because the CommonJS build had a `.js` extension inside a `"type": "module"` package.
 - Type declarations imported from `tsdef`, which was a dev-only dependency, so some types resolved to `any` for consumers.
 - Files could not be dropped onto a folder in the breadcrumb after navigating into a subfolder. Drag-and-drop targets kept the state from their first render, so a breadcrumb that started out as the current folder never accepted drops.
+- Holding a dragged file over a breadcrumb for 1.5 seconds opened that folder, which made it the current folder and cancelled the drop onto it. Breadcrumbs no longer open on hover; folders in the file list still do.
+- Button, menu item, breadcrumb and list view labels sat about 2px above their icons. Labels are now trimmed to their cap height (`text-box`), so they center on the icons in browsers that support it. Breadcrumbs also use a font 1px smaller than the rest of Chonky, and their separators are 12px.
 - Loading spinners now actually spin.
 - File names without a dot (e.g. `README`) were shown as `.README`.
 - React warning about a missing `key` in the context menu.
@@ -48,6 +59,7 @@ The project follows [Semantic Versioning](https://semver.org/).
 - Fixed CI: a single job on Node 20 that installs with Yarn 4, builds, and checks bundle size. Removed the broken `size` workflow and pointed `size-limit` at the current `dist/` files.
 - Removed unused dev dependencies (Babel, Rollup plugins, `tsup`, `husky`, `chalk`, stale `@types/*`) and `scripts/check-peer-deps.js`. `size-limit` now checks only the ESM build, with a 60 kB limit.
 - Rewrote the README for v7: screenshots, a working quick start, actions and shortcuts, file fields, theming variables, translation message IDs, and upgrade notes.
+- The playground uses an app-level `DndProvider` by default, so files can be dropped onto its sidebar (`useFolderDropTarget`). It registers rename, cut, paste and drop-to-upload, shows a custom `Show info` action in the Actions menu and a close button at the end of the toolbar.
 - The playground is a full explorer window with a sidebar, sample folders with thumbnails, working Create folder, Upload and Delete actions, a dark mode toggle and a log of every Chonky event.
 
 ## [6.5.9]

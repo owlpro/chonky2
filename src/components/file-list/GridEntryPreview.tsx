@@ -13,6 +13,8 @@ export type FileEntryState = {
     iconSpin: boolean;
     selected: boolean;
     focused: boolean;
+    /** On Chonky's clipboard from `CutFiles`, waiting to be pasted. */
+    cut: boolean;
 };
 
 /**
@@ -22,6 +24,7 @@ export type FileEntryState = {
 export const getEntryStateClasses = (entryState: FileEntryState, dndState: DndEntryState) => ({
     'chonky-selected': entryState.selected,
     'chonky-focused': entryState.focused,
+    'chonky-cut': entryState.cut,
     'chonky-has-thumbnail': !!entryState.thumbnailUrl,
     'chonky-dnd-dragging': dndState.dndIsDragging,
     ...getDndOverClasses(dndState),

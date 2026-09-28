@@ -130,6 +130,7 @@
 /* Root */
 
 .chonky-chonkyRoot {
+    position: relative;
     display: flex;
     flex-direction: column;
     box-sizing: border-box;
@@ -147,6 +148,18 @@
     -webkit-touch-callout: none;
     -webkit-user-select: none;
     user-select: none;
+}
+
+/* Files dragged in from the OS over the current folder, see `ChonkyActions.DropFiles` */
+.chonky-chonkyRoot.chonky-nativeFileDropOver::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    border: 2px dashed var(--chonky-drop-border);
+    border-radius: inherit;
+    background-color: var(--chonky-drop-bg);
+    pointer-events: none;
 }
 
 .chonky-chonkyRoot *,
@@ -173,6 +186,14 @@
     white-space: nowrap;
     cursor: pointer;
     transition: background-color 100ms;
+}
+
+/* Trims button and menu labels to their cap height, so flex centering lines the text
+   up with the icons instead of centering the font's ascent/descent box. */
+.chonky-baseButton > span,
+.chonky-menuItem > span:not(.chonky-menuItemIcon) {
+    line-height: 1;
+    text-box: trim-both cap alphabetic;
 }
 
 .chonky-baseButton:hover:not(:disabled) {
@@ -220,22 +241,6 @@
     background-color: var(--chonky-chrome-bg);
 }
 
-.chonky-toolbarTitle {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    min-width: 0;
-    max-width: 40%;
-    margin-right: 8px;
-    font-weight: 600;
-}
-
-.chonky-toolbarTitleText {
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-}
-
 .chonky-menuBar {
     display: flex;
     align-items: center;
@@ -252,6 +257,14 @@
     align-items: center;
     gap: 2px;
     margin-left: auto;
+}
+
+.chonky-toolbarDivider {
+    align-self: center;
+    width: 1px;
+    height: 20px;
+    margin: 0 6px;
+    background-color: var(--chonky-field-border);
 }
 
 /* Navbar: history buttons and address bar */
@@ -310,8 +323,13 @@
 
 .chonky-separator {
     align-items: center;
+    padding: 0 1px;
     color: var(--chonky-text-secondary);
-    font-size: 0.8em;
+}
+
+.chonky-separator svg {
+    width: 12px;
+    height: 12px;
 }
 
 .chonky-breadcrumb {
@@ -320,8 +338,15 @@
 }
 
 .chonky-baseButton.chonky-breadcrumbButton {
+    gap: 6px;
     height: calc(var(--chonky-control-height) - 8px);
     padding: 0 6px;
+    font-size: calc(var(--chonky-font-size) - 1px);
+}
+
+.chonky-breadcrumbButton svg {
+    width: 16px;
+    height: 16px;
 }
 
 .chonky-baseButton.chonky-breadcrumbButton:disabled {
@@ -601,7 +626,8 @@
     box-shadow: inset 0 0 0 2px var(--chonky-focus-ring);
 }
 
-.chonky-dnd-dragging {
+.chonky-dnd-dragging,
+.chonky-cut {
     opacity: 0.5;
 }
 
@@ -665,15 +691,59 @@
 }
 
 .chonky-listFileEntryName {
-    overflow: hidden;
+    overflow: clip;
+    overflow-clip-margin: 0.3em; /* keeps descenders that fall outside the trimmed box */
     text-overflow: ellipsis;
+    /* Centers the name on the icon, see `.chonky-baseButton > span` */
+    line-height: 1;
+    text-box: trim-both cap alphabetic;
+}
+
+/* Inline rename field, see `ChonkyActions.RenameFile` */
+.chonky-renaming {
+    display: flex;
+    flex: 1;
+    min-width: 0;
+    overflow: visible;
+    text-box: normal;
+}
+
+.chonky-renameInput {
+    width: 100%;
+    min-width: 0;
+    height: 24px;
+    margin: 0 -5px; /* keeps the text where the name was, inside the padding */
+    padding: 0 4px;
+    border: 1px solid var(--chonky-accent);
+    border-radius: var(--chonky-radius-control);
+    background-color: var(--chonky-field-bg);
+    color: var(--chonky-text);
+    font: inherit;
+    outline: none;
+    -webkit-user-select: text;
+    user-select: text;
+}
+
+.chonky-gridFileEntryName.chonky-renaming {
+    display: flex;
+    width: 100%;
+}
+
+.chonky-gridFileEntryName .chonky-renameInput {
+    margin: 0;
+    text-align: center;
 }
 
 .chonky-listFileEntry .chonky-listColumnType,
 .chonky-listFileEntry .chonky-listColumnSize,
 .chonky-listFileEntry .chonky-listColumnDate {
+    overflow: clip;
+    overflow-clip-margin: 0.3em;
     color: var(--chonky-text-secondary);
     font-size: 13px;
+    /* Same line as the trimmed name */
+    line-height: 1;
+    text-box: trim-both cap alphabetic;
 }
 
 .chonky-listHeaderCell {

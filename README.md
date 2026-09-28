@@ -146,29 +146,95 @@ as selection, sorting and view switching work on their own; the ones that change
 | Action | When it fires | Payload / state |
 |---|---|---|
 | `OpenFiles` | Double click, Enter, breadcrumbs, Up, Back, Forward | `payload.targetFile`, `payload.files` |
-| `MoveFiles` | Files dropped onto a folder | `payload.files`, `payload.destination` |
+| `MoveFiles` | Files dropped onto a folder, or cut files pasted | `payload.files`, `payload.destination` |
+| `CopyFilesTo` | Copied files pasted | `payload.files`, `payload.destination` |
+| `ChangeFileName` | A new name confirmed in the inline rename field | `payload.file`, `payload.name` |
 | `ChangeSelection` | Selection changed | `payload.selection` (a `Set` of IDs) |
-| `CreateFolder`, `UploadFiles`, `DownloadFiles`, `CopyFiles`, `DeleteFiles` | Their button, menu item or hotkey | `state.selectedFilesForAction` |
+| `DropFiles` | Files dragged in from the computer are dropped | `payload.files` (`File[]`), `payload.destination` |
+| `CreateFolder`, `UploadFiles`, `DownloadFiles`, `CopyFiles`, `CutFiles`, `DeleteFiles` | Their button, menu item or hotkey | `state.selectedFilesForAction` |
 
-`CreateFolder`, `UploadFiles`, `DownloadFiles`, `CopyFiles` and `DeleteFiles` are opt-in.
-Add the ones you support, and they appear in the toolbar, menus and context menu:
+`CreateFolder`, `UploadFiles`, `DownloadFiles`, `CopyFiles`, `CutFiles`, `PasteFiles`,
+`RenameFile`, `DeleteFiles` and `DropFiles` are opt-in. Add the ones you support, and they
+appear in the toolbar, menus and context menu.
+
+- **Create and rename.** `RenameFile` (F2) turns the selected file's name into a text field.
+  After `CreateFolder`, the first folder that shows up in the current folder gets the same
+  field, with its name selected. Enter or clicking elsewhere confirms, Esc cancels. A
+  changed name reaches you as `ChangeFileName`.
+- **Copy, cut and paste.** `CopyFiles` (Ctrl+C) and `CutFiles` (Ctrl+X) put the selection
+  on Chonky's clipboard; cut files are shown faded. `PasteFiles` (Ctrl+V) pastes into the
+  current folder, or into the folder its context menu was opened on: copies arrive as
+  `CopyFilesTo`, cut files as `MoveFiles`.
+- **Upload by drag and drop.** `DropFiles` has no button: it makes the whole file browser a
+  drop target for files from the user's computer. They go to the current folder, or to the
+  folder entry or breadcrumb they are dropped on (`payload.destination`).
+- New files that show up in the current folder after `UploadFiles`, `DropFiles` or
+  `PasteFiles` are selected and scrolled into view.
 
 ```tsx
 <FullFileBrowser
   files={files}
   folderChain={folderChain}
-  fileActions={[ChonkyActions.CreateFolder, ChonkyActions.UploadFiles, ChonkyActions.DeleteFiles]}
+  fileActions={[ChonkyActions.CreateFolder, ChonkyActions.RenameFile, ChonkyActions.DropFiles, ChonkyActions.DeleteFiles]}
   onFileAction={(data) => {
-    if (data.id === ChonkyActions.DeleteFiles.id) {
+    if (data.id === ChonkyActions.CreateFolder.id) {
+      api.createFolder(currentFolderId, 'New folder'); // the user renames it in place
+    } else if (data.id === ChonkyActions.ChangeFileName.id) {
+      api.rename(data.payload.file.id, data.payload.name);
+    } else if (data.id === ChonkyActions.DeleteFiles.id) {
       api.delete(data.state.selectedFilesForAction.map((file) => file.id));
+    } else if (data.id === ChonkyActions.DropFiles.id) {
+      api.upload(data.payload.files, data.payload.destination.id);
     }
   }}
 />
 ```
 
 Custom actions are created with `defineFileAction`. Actions with a `button.group` appear
-in that group's menu in the toolbar (e.g. `Actions`, `Options`); actions without one get
-their own toolbar button.
+in that group's menu in the toolbar (e.g. `Actions`, `Options`) and, with
+`button.contextMenu`, in the context menu; actions without a group get their own toolbar
+button:
+
+```tsx
+const ShowInfo = defineFileAction({
+  id: 'show_info',
+  requiresSelection: true,
+  button: { name: 'Show info', toolbar: true, contextMenu: true, group: 'Actions', icon: ChonkyIconName.info },
+});
+```
+
+### Toolbar content
+
+`FullFileBrowser` takes `toolbarStart` (before the menus) and `toolbarEnd` (after the view
+buttons, behind a divider) for your own elements. `ToolbarButton` looks like Chonky's
+buttons, and its `icon` can be a `ChonkyIconName` or any element:
+
+```tsx
+<FullFileBrowser
+  {...props}
+  toolbarEnd={<ToolbarButton icon={ChonkyIconName.close} iconOnly text="Close" onClick={closeDialog} />}
+/>
+```
+
+With your own layout, pass the same content to `FileToolbar` as `startContent` and `endContent`.
+
+### Dropping onto your own elements
+
+`useFolderDropTarget(folder)` makes an element outside Chonky, such as a sidebar entry, a
+drop target for files dragged from Chonky; a drop there arrives as `MoveFiles`. It needs
+Chonky and your app to share one react-dnd context:
+
+```tsx
+<DndProvider backend={HTML5Backend}>
+  <Sidebar />
+  <FullFileBrowser {...props} disableDragAndDropProvider />
+</DndProvider>
+
+const SidebarItem = ({ folder }: { folder: FileData }) => {
+  const { dropRef, isOver, canDrop } = useFolderDropTarget(folder);
+  return <button ref={dropRef} className={isOver && canDrop ? 'drop-over' : ''}>{folder.name}</button>;
+};
+```
 
 ### Keyboard shortcuts
 
@@ -181,7 +247,8 @@ their own toolbar button.
 | Alt+← / Alt+→ | Back / Forward |
 | Ctrl+F | Focus the search field |
 | Ctrl+H | Show or hide hidden files |
-| Ctrl+C, Delete | `CopyFiles`, `DeleteFiles` (when added) |
+| F2 | Rename the selected file (`RenameFile`, when added) |
+| Ctrl+C, Ctrl+X, Ctrl+V, Delete | `CopyFiles`, `CutFiles`, `PasteFiles`, `DeleteFiles` (when added) |
 
 ---
 

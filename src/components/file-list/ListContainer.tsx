@@ -25,6 +25,7 @@ import { getI18nId, I18nNamespace, useIntl } from '../../util/i18n';
 import { ChonkyIconContext } from '../../util/icon-helper';
 import { c } from '../../util/styles';
 import { SmartFileEntry } from './FileEntry';
+import { useRevealFiles } from './FileList-hooks';
 
 export interface FileListListProps {
     width: number;
@@ -109,6 +110,9 @@ export const ListContainer: React.FC<FileListListProps> = React.memo((props) => 
         (index: number) => displayFileIdsRef.current[index] ?? `loading-file-${index}`,
         [displayFileIdsRef]
     );
+
+    const scrollToIndex = useCallback((index: number) => listRef.current?.scrollToItem(index, 'smart'), []);
+    useRevealFiles(displayFileIds, scrollToIndex);
 
     const listComponent = useMemo(() => {
         // When entry size is null, we use List view

@@ -6,6 +6,7 @@ import { ChonkyActions } from '../action-definitions/index';
 import {
     selectCanGoBack,
     selectCanGoForward,
+    selectClipboard,
     selectFileActionData,
     selectFileViewConfig,
     selectOptionValue,
@@ -36,6 +37,7 @@ export const useFileActionProps = (
     const parentFolder = useSelector(selectParentFolder);
     const canGoBack = useSelector(selectCanGoBack);
     const canGoForward = useSelector(selectCanGoForward);
+    const hasClipboard = !!useSelector(selectClipboard);
     const fileViewConfig = useSelector(selectFileViewConfig);
 
     const sortActionId = useSelector(selectSortActionId);
@@ -100,6 +102,8 @@ export const useFileActionProps = (
             disabled = disabled || !canGoBack;
         } else if (action.id === ChonkyActions.GoForward.id) {
             disabled = disabled || !canGoForward;
+        } else if (action.id === ChonkyActions.PasteFiles.id) {
+            disabled = disabled || !hasClipboard;
         }
 
         return { icon, active, disabled };
@@ -107,6 +111,7 @@ export const useFileActionProps = (
         parentFolder,
         canGoBack,
         canGoForward,
+        hasClipboard,
         fileViewConfig,
         sortActionId,
         sortOrder,

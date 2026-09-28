@@ -15,6 +15,7 @@ export type FileData = {
     selectable?: boolean; // Can be selected, default: true
     draggable?: boolean; // Can be dragged, default: true
     droppable?: boolean; // Can have files dropped into it, default: true for folders
+    renamable?: boolean; // Can be renamed inline with `ChonkyActions.RenameFile`, default: true
     dndOpenable?: boolean; // Can be opened by DnD hover, default: true for folders
 
     size?: number; // File size in bytes

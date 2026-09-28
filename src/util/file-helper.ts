@@ -54,6 +54,10 @@ export class FileHelper {
         return !!file && file.draggable !== false;
     }
 
+    public static isRenamable(file: Nullable<FileData>): file is FileData {
+        return !!file && file.renamable !== false;
+    }
+
     public static isDroppable(file: Nullable<FileData>): file is FileData {
         // Folders are droppable by default, files are not
         if (!file) return false;

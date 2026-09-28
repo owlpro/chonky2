@@ -47,3 +47,26 @@ export interface OpenFileContextMenuPayload {
     clientY: number;
     triggerFileId: Nullable<string>;
 }
+
+export interface CopyFilesToPayload {
+    /** The copied files. */
+    files: FileData[];
+    /** The folder they were copied from. */
+    source: Nullable<FileData>;
+    /** The folder to put the copies in. */
+    destination: FileData;
+}
+
+export interface ChangeFileNamePayload {
+    /** The file as it was before the rename. */
+    file: FileData;
+    /** The new name, trimmed. Never empty and never equal to `file.name`. */
+    name: string;
+}
+
+export interface DropFilesPayload {
+    /** Files dropped from outside the browser, e.g. from the OS file manager. */
+    files: File[];
+    /** Folder the files were dropped into: a folder entry, a breadcrumb or the current folder. */
+    destination: FileData;
+}

@@ -7,7 +7,7 @@ import { reduxThunks } from '../redux/thunks';
 import { thunkNavigateHistory } from '../redux/thunks/file-actions.thunks';
 import { thunkRequestFileAction } from '../redux/thunks/dispatchers.thunks';
 import {
-    ChangeSelectionPayload, EndDragNDropPayload, KeyboardClickFilePayload, MouseClickFilePayload,
+    ChangeFileNamePayload, ChangeSelectionPayload, CopyFilesToPayload, EndDragNDropPayload, KeyboardClickFilePayload, MouseClickFilePayload,
     MoveFilesPayload, OpenFileContextMenuPayload, OpenFilesPayload, StartDragNDropPayload
 } from '../types/action-payloads.types';
 import { ChonkyIconName } from '../types/icons.types';
@@ -210,11 +210,28 @@ export const EssentialActions = {
         __payloadType: {} as MoveFilesPayload,
     } as const),
     /**
+     * Action that is dispatched when the user pastes copied files (see `PasteFiles`).
+     * Create copies of `files` in `destination`. Cut files are pasted with `MoveFiles`.
+     */
+    CopyFilesTo: defineFileAction({
+        id: 'copy_files_to',
+        __payloadType: {} as CopyFilesToPayload,
+    } as const),
+    /**
      * Action that is dispatched when the selection changes for any reason.
      */
     ChangeSelection: defineFileAction({
         id: 'change_selection',
         __payloadType: {} as ChangeSelectionPayload,
+    } as const),
+    /**
+     * Action that is dispatched when the user confirms a new name in the inline rename
+     * field (see `RenameFile` and `CreateFolder`). Apply it to your data; Chonky shows
+     * the new name once `files` has it.
+     */
+    ChangeFileName: defineFileAction({
+        id: 'change_file_name',
+        __payloadType: {} as ChangeFileNamePayload,
     } as const),
     /**
      * Action that is dispatched when user wants to open some files. This action is

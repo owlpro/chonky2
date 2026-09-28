@@ -87,6 +87,11 @@ export const selectOptionValue = (optionId: string) => (state: RootState) =>
 export const selectThumbnailGenerator = (state: RootState) => state.thumbnailGenerator;
 export const selectDoubleClickDelay = (state: RootState) => state.doubleClickDelay;
 export const selectIsDnDDisabled = (state: RootState) => state.disableDragAndDrop;
+export const selectRenamingFileId = (state: RootState) => state.renamingFileId;
+export const selectRevealFileIds = (state: RootState) => state.revealFileIds;
+export const selectClipboard = (state: RootState) => state.clipboard;
+export const selectIsFileCut = (fileId: Nullable<string>) => (state: RootState) =>
+    !!fileId && state.clipboard?.mode === 'cut' && !!state.clipboard.fileIds[fileId];
 export const selectClearSelectionOnOutsideClick = (state: RootState) =>
     state.clearSelectionOnOutsideClick;
 

@@ -8,7 +8,7 @@ import React, { useMemo, useRef } from 'react';
 
 import { DndEntryState } from '../../types/file-list.types';
 import { ChonkyIconName } from '../../types/icons.types';
-import { useDndHoverOpen, useFileDrop } from '../../util/dnd';
+import { useFileDrop } from '../../util/dnd';
 import { c, getDndOverClasses } from '../../util/styles';
 import { FolderChainItem } from './FileNavbar-hooks';
 import { ToolbarButton } from './ToolbarButton';
@@ -34,7 +34,8 @@ export const FolderChainButton: React.FC<FolderChainButtonProps> = React.memo(
             }),
             [dndCanDrop, dndIsOver]
         );
-        useDndHoverOpen(file, dndState);
+        // No hover-to-open here: opening an ancestor makes it the current folder, which
+        // no longer accepts the drop the user was aiming at.
         const className = c('chonky-breadcrumbButton', getDndOverClasses(dndState), {
             'chonky-disabledBreadcrumb': disabled,
             'chonky-currentBreadcrumb': current,

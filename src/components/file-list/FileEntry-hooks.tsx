@@ -5,7 +5,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { Nullable, Undefinable } from '../../types/util.types';
 
 import { ChonkyActions } from '../../action-definitions/index';
-import { selectThumbnailGenerator } from '../../redux/selectors';
+import { selectIsFileCut, selectThumbnailGenerator } from '../../redux/selectors';
 import { thunkRequestFileAction } from '../../redux/thunks/dispatchers.thunks';
 import { DndEntryState } from '../../types/file-list.types';
 import { FileData } from '../../types/file.types';
@@ -34,6 +34,7 @@ export const useFileEntryHtmlProps = (file: Nullable<FileData>): HTMLProps<HTMLD
 export const useFileEntryState = (file: Nullable<FileData>, selected: boolean, focused: boolean) => {
     const iconData = useIconData(file);
     const { thumbnailUrl, thumbnailLoading } = useThumbnailUrl(file);
+    const cut = useSelector(selectIsFileCut(file?.id ?? null));
 
     return useMemo<FileEntryState>(() => {
         const iconSpin = thumbnailLoading || !file;
@@ -47,8 +48,9 @@ export const useFileEntryState = (file: Nullable<FileData>, selected: boolean, f
             color: file?.color ?? getFileTypeColor(iconData.icon),
             selected: selected,
             focused: !!focused,
+            cut,
         };
-    }, [file, focused, iconData, selected, thumbnailLoading, thumbnailUrl]);
+    }, [cut, file, focused, iconData, selected, thumbnailLoading, thumbnailUrl]);
 };
 
 export const useDndIcon = (dndState: DndEntryState) => {

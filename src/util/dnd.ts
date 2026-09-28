@@ -1,15 +1,18 @@
 import { useCallback, useEffect, useMemo } from 'react';
 import { useDispatch, useSelector, useStore } from 'react-redux';
 import { useDrag, useDrop } from 'react-dnd';
-import { getEmptyImage } from 'react-dnd-html5-backend';
+import { getEmptyImage, NativeTypes } from 'react-dnd-html5-backend';
 import { Nullable } from '../types/util.types';
 
 import { EssentialActions } from '../action-definitions/essential';
 import { ChonkyActions } from '../action-definitions/index';
 import {
     selectCurrentFolder,
+    selectFileActionMap,
     selectFolderChain,
     selectInstanceId,
+    selectIsDnDDisabled,
+    selectRenamingFileId,
     selectSelectedFiles,
 } from '../redux/selectors';
 import { thunkRequestFileAction } from '../redux/thunks/dispatchers.thunks';
@@ -22,8 +25,15 @@ import {
 import { DndEntryState } from '../types/file-list.types';
 import { FileData } from '../types/file.types';
 import { FileHelper } from './file-helper';
+import { useDropIfAvailable } from './dnd-fallback';
 import { useInstanceVariable } from './hooks-helpers';
 import { RootState } from '../types/redux.types';
+
+type NativeFileItem = { files: File[] };
+
+/** Files dragged in from the OS are accepted only when the app registered `DropFiles`. */
+const selectCanDropNativeFiles = (state: RootState) =>
+    !selectIsDnDDisabled(state) && !!selectFileActionMap(state)[ChonkyActions.DropFiles.id];
 
 export const useFileDrag = (file: Nullable<FileData>) => {
     const store = useStore<RootState>();
@@ -109,17 +119,35 @@ export const useFileDrop = ({
     forceDisableDrop,
     includeChildrenDrops,
 }: UseFileDropParams) => {
+    const dispatch = useDispatch<any>();
     const folderChainRef = useInstanceVariable(useSelector(selectFolderChain));
+    // Only other folders take OS files. Drops on files or on the current folder (the
+    // file list, its breadcrumb) fall through to the zone on the Chonky root, see
+    // `useNativeFileDrop`.
+    const currentFolderId = useSelector(selectCurrentFolder)?.id;
+    const acceptNativeFiles =
+        useSelector(selectCanDropNativeFiles) &&
+        !forceDisableDrop &&
+        FileHelper.isDroppable(file) &&
+        file.id !== currentFolderId;
 
     const onDrop = useCallback(
-        (_item: ChonkyDndFileEntryItem, monitor: any) => {
+        (item: ChonkyDndFileEntryItem | NativeFileItem, monitor: any) => {
             if (!monitor.canDrop()) return;
+            if (monitor.getItemType() === NativeTypes.FILE) {
+                dispatch(
+                    thunkRequestFileAction(ChonkyActions.DropFiles, {
+                        files: (item as NativeFileItem).files,
+                        destination: file!,
+                    })
+                );
+            }
             const result: Omit<ChonkyDndDropResult, 'dropEffect'> = {
                 dropTarget: file,
             };
             return result;
         },
-        [file]
+        [dispatch, file]
     );
 
     const canDrop = useCallback(
@@ -131,6 +159,7 @@ export const useFileDrop = ({
             ) {
                 return false;
             }
+            if (monitor.getItemType() === NativeTypes.FILE) return true;
 
             const { source, draggedFile, selectedFiles } = item.payload;
             const prohibitedFileIds = new Set<string>();
@@ -153,7 +182,7 @@ export const useFileDrop = ({
     // e.g. a breadcrumb that started out as the current folder would never accept drops.
     const [{ isOver, canDrop: dndCanDrop }, drop] = useDrop(
         () => ({
-            accept: ChonkyDndFileEntryType,
+            accept: acceptNativeFiles ? [ChonkyDndFileEntryType, NativeTypes.FILE] : ChonkyDndFileEntryType,
             drop: onDrop,
             canDrop,
             collect: (monitor) => ({
@@ -161,7 +190,7 @@ export const useFileDrop = ({
                 canDrop: monitor.canDrop(),
             }),
         }),
-        [onDrop, canDrop]
+        [acceptNativeFiles, onDrop, canDrop]
     );
 
     return {
@@ -171,14 +200,94 @@ export const useFileDrop = ({
     };
 };
 
+/**
+ * Makes an element (the Chonky root) a drop zone for files dragged in from the OS.
+ * They are uploaded to the current folder, unless a folder entry or breadcrumb inside
+ * the element takes the drop first.
+ */
+export const useNativeFileDrop = () => {
+    const store = useStore<RootState>();
+    const dispatch = useDispatch<any>();
+    const enabled = useSelector(selectCanDropNativeFiles);
+
+    const [{ isOver }, drop] = useDropIfAvailable(
+        () => ({
+            accept: enabled ? NativeTypes.FILE : [],
+            canDrop: () => !!selectCurrentFolder(store.getState()),
+            drop: (item: NativeFileItem, monitor) => {
+                const currentFolder = selectCurrentFolder(store.getState());
+                if (monitor.didDrop() || !currentFolder) return;
+                dispatch(
+                    thunkRequestFileAction(ChonkyActions.DropFiles, {
+                        files: item.files,
+                        destination: currentFolder,
+                    })
+                );
+            },
+            collect: (monitor) => ({
+                isOver: monitor.isOver({ shallow: true }) && monitor.canDrop(),
+            }),
+        }),
+        [enabled, store, dispatch]
+    );
+
+    return { nativeFileDropIsOver: !!isOver, nativeFileDrop: drop };
+};
+
+/**
+ * Makes an element outside Chonky, such as an app's sidebar entry, a drop target for
+ * files dragged from Chonky. A drop there makes Chonky dispatch `MoveFiles` with
+ * `folder` as the destination, the same as a drop onto a folder in the file list.
+ *
+ * The element must share Chonky's drag-and-drop context: wrap the app in react-dnd's
+ * `DndProvider` with `HTML5Backend` and pass `disableDragAndDropProvider` to Chonky.
+ * Without a `DndProvider` the hook does nothing. Chonky doesn't know the app's folder
+ * tree, so moving a folder into one of its own subfolders has to be rejected by the app.
+ */
+export const useFolderDropTarget = (folder: Nullable<FileData>) => {
+    const [{ isOver, canDrop }, drop] = useDropIfAvailable(
+        () => ({
+            accept: ChonkyDndFileEntryType,
+            canDrop: (item: ChonkyDndFileEntryItem) => {
+                if (!FileHelper.isDroppable(folder)) return false;
+                const { source, draggedFile, selectedFiles } = item.payload;
+                if (source?.id === folder.id) return false;
+                return ![draggedFile, ...selectedFiles].some((file) => file.id === folder.id);
+            },
+            drop: (_item: ChonkyDndFileEntryItem, monitor) => {
+                if (monitor.didDrop()) return;
+                const result: Omit<ChonkyDndDropResult, 'dropEffect'> = { dropTarget: folder };
+                return result;
+            },
+            collect: (monitor) => ({
+                isOver: monitor.isOver({ shallow: true }),
+                canDrop: monitor.canDrop(),
+            }),
+        }),
+        [folder]
+    );
+
+    return {
+        /** Ref callback for the drop target element. */
+        dropRef: drop as (node: Nullable<Element>) => void,
+        /** A Chonky file is being dragged over the element. */
+        isOver: !!isOver,
+        /** The file being dragged can be dropped into `folder`. */
+        canDrop: !!canDrop,
+    };
+};
+
 export const useFileEntryDnD = (file: Nullable<FileData>) => {
     const { dndIsDragging, drag } = useFileDrag(file);
     const { dndIsOver, dndCanDrop, drop } = useFileDrop({ file });
 
+    // While the name is being edited, mouse drags select text in the field instead
+    const renaming = useSelector(selectRenamingFileId) === file?.id && !!file;
+
     const combinedRef = (node: HTMLDivElement | null) => {
         if (!node) return;
         drop(node);
-        drag(node);
+        drag(renaming ? null : node);
     };
 
     const dndState = useMemo<DndEntryState>(

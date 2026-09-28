@@ -8,6 +8,9 @@ export { FileStatusBar } from './components/external/FileStatusBar';
 export { FileList } from './components/file-list/FileList';
 export { FileContextMenu } from './components/external/FileContextMenu';
 export { FullFileBrowser } from './components/external/FullFileBrowser';
+export type { FullFileBrowserProps } from './components/external/FullFileBrowser';
+export { ToolbarButton } from './components/external/ToolbarButton';
+export type { ToolbarButtonProps } from './components/external/ToolbarButton';
 
 export { ChonkyActions, DefaultFileActions, OptionIds } from './action-definitions';
 export { defineFileAction } from './util/helpers';
@@ -22,7 +25,8 @@ export type {
     FileActionState,
 } from './types/action-handler.types';
 export type { ChonkyActionUnion } from './types/file-browser.types';
-export type { ChonkyIconName } from './types/icons.types';
+export type { ChangeFileNamePayload, CopyFilesToPayload, DropFilesPayload, MoveFilesPayload } from './types/action-payloads.types';
+export { ChonkyIconName } from './types/icons.types';
 export type ChonkyIconProps = import('./types/icons.types').ChonkyIconProps;
 export type { FileBrowserHandle, FileBrowserProps } from './types/file-browser.types';
 export { FileViewMode } from './types/file-view.types';
@@ -37,6 +41,7 @@ export { defaultFormatters, getI18nId, getActionI18nId, I18nNamespace } from './
 export { setChonkyDefaults } from './util/default-config';
 
 export { ChonkyDndFileEntryType } from './types/dnd.types';
+export { useFolderDropTarget } from './util/dnd';
 export type ChonkyDndFileEntryItem = import('./types/dnd.types').ChonkyDndFileEntryItem;
 
 export type FileActionHandler = GenericFileActionHandler<ChonkyActionUnion>;

@@ -3,7 +3,7 @@
  * @copyright 2020
  * @license MIT
  */
-import React, { ReactNode, useCallback, useContext, useMemo } from 'react';
+import React, { ReactNode, useCallback, useContext, useMemo, useRef } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 
 import { reduxActions } from '../../redux/reducers';
@@ -12,6 +12,7 @@ import {
     selectFileActionIds,
     selectIsDnDDisabled,
 } from '../../redux/selectors';
+import { useNativeFileDrop } from '../../util/dnd';
 import { useDndContextAvailable } from '../../util/dnd-fallback';
 import { elementIsInsideButton } from '../../util/helpers';
 import { c, ChonkyDarkModeContext, getThemeClassName } from '../../util/styles';
@@ -64,10 +65,20 @@ export const ChonkyPresentationLayer: React.FC<ChonkyPresentationLayerProps> = (
     const dndContextAvailable = useDndContextAvailable();
     const showContextMenu = useContextMenuTrigger();
 
+    const { nativeFileDropIsOver, nativeFileDrop } = useNativeFileDrop();
+    const rootRef = useRef<HTMLDivElement | null>(null);
+    nativeFileDrop(rootRef);
+
     const darkMode = useContext(ChonkyDarkModeContext);
     return (
         <ClickAwayListener onClickAway={handleClickAway}>
-            <div className={c('chonky-chonkyRoot', getThemeClassName(darkMode))} onContextMenu={showContextMenu}>
+            <div
+                ref={rootRef}
+                className={c('chonky-chonkyRoot', getThemeClassName(darkMode), {
+                    'chonky-nativeFileDropOver': nativeFileDropIsOver,
+                })}
+                onContextMenu={showContextMenu}
+            >
                 {!dndDisabled && dndContextAvailable && <DnDFileListDragLayer />}
                 {hotkeyListenerComponents}
                 {children ? children : null}

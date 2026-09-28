@@ -9,7 +9,7 @@ import { ContextMenuConfig } from '../types/context-menu.types';
 import { FileViewConfig } from '../types/file-view.types';
 import { FileArray, FileData, FileIdTrueMap, FileMap } from '../types/file.types';
 import { OptionMap } from '../types/options.types';
-import { NavigationHistory, RootState } from '../types/redux.types';
+import { ChonkyClipboard, NavigationHistory, NewFileWatch, RootState } from '../types/redux.types';
 import { SortOrder } from '../types/sort.types';
 import { ThumbnailGenerator } from '../types/thumbnails.types';
 import { FileHelper } from '../util/file-helper';
@@ -71,6 +71,11 @@ const reducers = {
 
         const currentFolder = folderChain.length > 0 ? folderChain[folderChain.length - 1] : null;
         if (currentFolder) recordNavigation(state.navigationHistory, currentFolder);
+
+        // Files created before navigating away are not picked up in the new folder
+        if (state.newFileWatch && state.newFileWatch.parentId !== (currentFolder?.id ?? null)) {
+            state.newFileWatch = null;
+        }
     },
     setNavigationHistoryPendingIndex(state: RootState, action: PayloadAction<Nullable<number>>) {
         state.navigationHistory.pendingIndex = action.payload;
@@ -98,6 +103,57 @@ const reducers = {
                 delete state.selectionMap[selectedFileId];
             }
         }
+
+        if (state.renamingFileId && !fileMap[state.renamingFileId]) state.renamingFileId = null;
+        if (state.revealFileIds && !state.revealFileIds.some((id) => fileMap[id])) state.revealFileIds = null;
+
+        // Select and reveal the files the user just created or uploaded, and put a new
+        // folder into rename mode, like a desktop file manager does
+        const watch = state.newFileWatch;
+        if (watch) {
+            const newFileIds = cleanFileIds.filter(
+                (id) => !watch.knownFileIds[id] && (watch.kind === 'files' || fileMap[id]?.isDir)
+            );
+            if (newFileIds.length > 0) {
+                const shownIds = watch.kind === 'folder' ? newFileIds.slice(0, 1) : newFileIds;
+                state.newFileWatch = null;
+                state.revealFileIds = shownIds;
+                if (watch.kind === 'folder') state.renamingFileId = shownIds[0]!;
+                if (!state.disableSelection) {
+                    state.selectionMap = {};
+                    shownIds
+                        .filter((id) => FileHelper.isSelectable(fileMap[id] ?? null))
+                        .forEach((id) => (state.selectionMap[id] = true));
+                }
+            }
+        }
+    },
+    watchForNewFiles(state: RootState, action: PayloadAction<NewFileWatch['kind']>) {
+        const currentFolder = state.folderChain.length > 0 ? state.folderChain[state.folderChain.length - 1] : null;
+        const knownFileIds: FileIdTrueMap = {};
+        state.cleanFileIds.forEach((id) => (knownFileIds[id] = true));
+        state.newFileWatch = { kind: action.payload, parentId: currentFolder?.id ?? null, knownFileIds };
+    },
+    clearRevealFileIds(state: RootState) {
+        state.revealFileIds = null;
+    },
+    setClipboard(state: RootState, action: PayloadAction<Nullable<Omit<ChonkyClipboard, 'fileIds'>>>) {
+        if (!action.payload) {
+            state.clipboard = null;
+            return;
+        }
+        const fileIds: FileIdTrueMap = {};
+        action.payload.files.forEach((file) => (fileIds[file.id] = true));
+        state.clipboard = { ...action.payload, fileIds };
+    },
+    startRename(state: RootState, action: PayloadAction<string>) {
+        if (!state.fileMap[action.payload]) return;
+        state.renamingFileId = action.payload;
+        state.revealFileIds = [action.payload];
+        if (!state.disableSelection) state.selectionMap = { [action.payload]: true };
+    },
+    endRename(state: RootState) {
+        state.renamingFileId = null;
     },
     setSortedFileIds(state: RootState, action: PayloadAction<Nullable<string>[]>) {
         state.sortedFileIds = action.payload;

@@ -85,7 +85,35 @@ export type RootState = {
     // Context menu
     contextMenuMounted: boolean;
     contextMenuConfig: Nullable<ContextMenuConfig>;
+
+    // Inline rename
+    renamingFileId: Nullable<string>;
+    /**
+     * Set when the user asks for new files (`CreateFolder`, `UploadFiles`, `DropFiles`):
+     * the folder they were asked for in and the files that were there. When new files
+     * show up there they are selected and scrolled to; a new folder is also renamed.
+     */
+    newFileWatch: Nullable<NewFileWatch>;
+    /** Files the file list should scroll to, e.g. new uploads. */
+    revealFileIds: Nullable<string[]>;
+
+    /** Files copied or cut with `CopyFiles` / `CutFiles`, for `PasteFiles`. */
+    clipboard: Nullable<ChonkyClipboard>;
 };
+
+export interface ChonkyClipboard {
+    mode: 'copy' | 'cut';
+    files: FileData[];
+    fileIds: FileIdTrueMap;
+    /** The folder the files were copied or cut from. */
+    source: Nullable<FileData>;
+}
+
+export interface NewFileWatch {
+    kind: 'folder' | 'files';
+    parentId: Nullable<string>;
+    knownFileIds: FileIdTrueMap;
+}
 
 export type ChonkyThunk<ReturnType = void> = ThunkAction<ReturnType, RootState, null, Action<string>>;
 

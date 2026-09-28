@@ -21,7 +21,8 @@ export interface ToolbarButtonProps {
     text: string;
     tooltip?: string;
     active?: boolean;
-    icon?: Nullable<ChonkyIconName | string>;
+    /** A `ChonkyIconName`, an icon name the `iconComponent` knows, or any element. */
+    icon?: Nullable<ChonkyIconName | string | React.ReactElement>;
     iconOnly?: boolean;
     onClick?: (event: React.MouseEvent<HTMLButtonElement>) => void;
     disabled?: boolean;
@@ -42,11 +43,12 @@ export const ToolbarButton: React.FC<ToolbarButtonProps> = React.memo(props => {
     } = props;
     const ChonkyIcon = useContext(ChonkyIconContext);
 
-    const iconComponent =
-        icon || iconOnly ? (
+    const iconComponent = React.isValidElement(icon) ? (
+        <div className="chonky-iconWithText">{icon}</div>
+    ) : icon || iconOnly ? (
             iconOnly ? (
                 <ChonkyIcon
-                    icon={icon ? icon : ChonkyIconName.fallbackIcon}
+                    icon={(icon as string) || ChonkyIconName.fallbackIcon}
                     size={18}
                     style={{ minWidth: 18, minHeight: 18 }}
                     fixedWidth={true}
@@ -54,7 +56,7 @@ export const ToolbarButton: React.FC<ToolbarButtonProps> = React.memo(props => {
             ) : (
                 <div className="chonky-iconWithText">
                     <ChonkyIcon
-                        icon={icon ? icon : ChonkyIconName.fallbackIcon}
+                        icon={(icon as string) || ChonkyIconName.fallbackIcon}
                         fixedWidth={true}
                     />
                 </div>
@@ -79,7 +81,7 @@ export const ToolbarButton: React.FC<ToolbarButtonProps> = React.memo(props => {
             {dropdown && (
                 <div className="chonky-iconDropdown">
                     <ChonkyIcon
-                        icon={icon ? icon : ChonkyIconName.dropdown}
+                        icon={(icon as string) || ChonkyIconName.dropdown}
                         fixedWidth={true}
                     />
                 </div>

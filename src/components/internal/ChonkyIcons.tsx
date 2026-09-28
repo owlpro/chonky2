@@ -52,6 +52,8 @@ import {
     FileText as FileDoc,
     Cpu,
     Monitor,
+    PencilLine,
+    Scissors,
 } from "lucide-react";
 
 import { ChonkyIconName, ChonkyIconProps } from "../../types/icons.types";
@@ -85,6 +87,7 @@ export const IconMap: { [iconName in ChonkyIconName]: any } = {
     [ChonkyIconName.goForward]: ArrowRight,
     [ChonkyIconName.copy]: Copy,
     [ChonkyIconName.paste]: ClipboardPaste,
+    [ChonkyIconName.cut]: Scissors,
     [ChonkyIconName.share]: Share2,
     [ChonkyIconName.search]: Search,
     [ChonkyIconName.selectAllFiles]: SquareCheck,
@@ -107,6 +110,8 @@ export const IconMap: { [iconName in ChonkyIconName]: any } = {
     [ChonkyIconName.folderCreate]: FolderPlus,
     [ChonkyIconName.folderOpen]: FolderOpen,
     [ChonkyIconName.folderChainSeparator]: ChevronRight,
+    [ChonkyIconName.rename]: PencilLine,
+    [ChonkyIconName.close]: X,
     [ChonkyIconName.download]: Download,
     [ChonkyIconName.upload]: Upload,
     [ChonkyIconName.trash]: Trash2,
