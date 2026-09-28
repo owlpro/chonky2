@@ -12,36 +12,47 @@ const externalPackages = [
     ...Object.keys(pkg.dependencies),
     ...Object.keys(pkg.peerDependencies),
 ];
-const isExternal = (id: string) =>
-    externalPackages.some((name) => id === name || id.startsWith(`${name}/`));
+const isPackageIn = (names: string[]) => (id: string) =>
+    names.some((name) => id === name || id.startsWith(`${name}/`));
 
-export default defineConfig({
-    plugins: [dts({ include: ['src'] })],
+// `--mode linked` builds `dist-linked/` for trying Chonky inside an app through a Vite
+// alias. Only React is left out, so the app's own copies of Chonky's other dependencies
+// (e.g. an older Redux Toolkit) can't replace them. Not minified, with source maps and
+// type declarations, so the app's editor can be pointed at them too.
+export default defineConfig(({ mode }) => {
+    const linked = mode === 'linked';
+    return {
+        plugins: [dts({ include: ['src'] })],
+        // Bundled dependencies read process.env.NODE_ENV, which browsers don't have
+        define: linked ? { 'process.env.NODE_ENV': JSON.stringify('development') } : {},
 
-    resolve: {
-        dedupe: ['react', 'react-dom'],
-        preserveSymlinks: true,
-    },
-    build: {
-        lib: {
-            entry: path.resolve(__dirname, 'src/index.ts'),
-            name: 'chonky2',
-            fileName: (format) => (format === 'cjs' ? 'index.cjs' : 'index.es.js'),
-            formats: ['es', 'cjs'],
+        resolve: {
+            dedupe: ['react', 'react-dom'],
+            preserveSymlinks: true,
         },
-        rollupOptions: {
-            external: isExternal,
-            output: {
-                globals: {
-                    react: 'React',
-                    'react-dom': 'ReactDOM',
-                },
-                exports: 'named',
+        build: {
+            lib: {
+                entry: path.resolve(__dirname, 'src/index.ts'),
+                name: 'chonky2',
+                fileName: (format) => (format === 'cjs' ? 'index.cjs' : 'index.es.js'),
+                formats: linked ? ['es'] : ['es', 'cjs'],
             },
+            outDir: linked ? 'dist-linked' : 'dist',
+            rollupOptions: {
+                external: isPackageIn(linked ? Object.keys(pkg.peerDependencies) : externalPackages),
+                output: {
+                    globals: {
+                        react: 'React',
+                        'react-dom': 'ReactDOM',
+                    },
+                    exports: 'named',
+                },
+            },
+            minify: linked ? false : 'esbuild',
+            sourcemap: linked,
+            // Rewriting the files in place keeps the app's dev server from seeing them deleted
+            emptyOutDir: !linked,
+            ssr: false,
         },
-        minify: 'esbuild',
-        sourcemap: false,
-        emptyOutDir: true,
-        ssr: false,
-    },
+    };
 });

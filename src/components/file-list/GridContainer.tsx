@@ -77,7 +77,8 @@ let scrollbarWidth: number | undefined;
 const getScrollbarWidth = () => {
     if (scrollbarWidth === undefined) {
         const probe = document.createElement('div');
-        probe.style.cssText = 'position:absolute;top:-9999px;width:100px;height:100px;overflow:scroll';
+        // Thin, like the scrollbars chonky.css gives the file list
+        probe.style.cssText = 'position:absolute;top:-9999px;width:100px;height:100px;overflow:scroll;scrollbar-width:thin';
         document.body.appendChild(probe);
         scrollbarWidth = probe.offsetWidth - probe.clientWidth;
         probe.remove();

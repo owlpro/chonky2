@@ -12,9 +12,11 @@ import {
     defineFileAction,
     FileActionHandler,
     FileData,
+    FileSidebar,
+    FileSidebarItem,
+    FileSidebarSection,
     FullFileBrowser,
     ToolbarButton,
-    useFolderDropTarget,
 } from 'chonky2';
 
 import { HOME_ID, initialFiles, PlaygroundFile, sidebarSections } from './data';
@@ -87,60 +89,36 @@ const getDescendantIds = (files: PlaygroundFile[], rootIds: Set<string>) => {
 
 let nextFileId = 1;
 
-// Files dragged from Chonky can be dropped here when Chonky shares the app's DnD context.
-const SidebarItem = ({
-    folder,
-    label,
-    active,
-    onOpen,
-}: {
-    folder: FileData | null;
-    label: string;
-    active: boolean;
-    onOpen: () => void;
-}) => {
-    const { dropRef, isOver, canDrop } = useFolderDropTarget(folder);
-    return (
-        <button
-            ref={dropRef}
-            type="button"
-            className={`pg-sidebarItem${active ? ' pg-active' : ''}${isOver && canDrop ? ' pg-dropOver' : ''}`}
-            onClick={onOpen}
-        >
-            {label}
-        </button>
-    );
-};
-
-const Sidebar = ({
-    files,
-    folderId,
-    onOpen,
-}: {
-    files: PlaygroundFile[];
-    folderId: string;
-    onOpen: (id: string) => void;
-}) => (
-    <nav className="pg-sidebar">
-        <div className="pg-sidebarTitle">File Explorer</div>
+// Chonky's own navigation pane. Items open their folder with `OpenFiles`, and take
+// files dragged from the list (`MoveFiles`) or from the computer (`DropFiles`).
+const Sidebar = ({ files }: { files: PlaygroundFile[] }) => (
+    <FileSidebar>
         {sidebarSections.map((section) => (
-            <div key={section.title} className="pg-sidebarSection">
-                <div className="pg-sidebarSectionTitle">{section.title}</div>
+            <FileSidebarSection key={section.title} title={section.title}>
                 {section.items.map((item) => (
-                    <SidebarItem
+                    <FileSidebarItem
                         key={item.folderId}
                         folder={files.find((f) => f.id === item.folderId) ?? null}
                         label={item.label}
-                        active={item.folderId === folderId}
-                        onOpen={() => onOpen(item.folderId)}
+                        icon={item.folderId === HOME_ID ? ChonkyIconName.home : undefined}
                     />
                 ))}
-            </div>
+            </FileSidebarSection>
         ))}
-    </nav>
+    </FileSidebar>
 );
 
-const Explorer = ({ mode, darkMode, onLog }: { mode: Mode; darkMode: boolean; onLog: (line: string) => void }) => {
+const Explorer = ({
+    mode,
+    darkMode,
+    loading,
+    onLog,
+}: {
+    mode: Mode;
+    darkMode: boolean;
+    loading: boolean;
+    onLog: (line: string) => void;
+}) => {
     const [files, setFiles] = useState(initialFiles);
     const [folderId, setFolderId] = useState(HOME_ID);
     const uploadInputRef = useRef<HTMLInputElement>(null);
@@ -241,7 +219,6 @@ const Explorer = ({ mode, darkMode, onLog }: { mode: Mode; darkMode: boolean; on
 
     return (
         <div className={`pg-window${darkMode ? ' pg-dark' : ''}`}>
-            <Sidebar files={files} folderId={folderId} onOpen={setFolderId} />
             <div className="pg-browser">
                 <FullFileBrowser
                     files={visibleFiles}
@@ -251,6 +228,8 @@ const Explorer = ({ mode, darkMode, onLog }: { mode: Mode; darkMode: boolean; on
                     defaultFileViewActionId={ChonkyActions.EnableListView.id}
                     disableDragAndDropProvider={mode === 'external'}
                     darkMode={darkMode}
+                    loading={loading}
+                    sidebar={<Sidebar files={files} />}
                     toolbarEnd={
                         <ToolbarButton
                             icon={ChonkyIconName.close}
@@ -294,6 +273,7 @@ const ExternalDropZone = ({ onLog }: { onLog: (line: string) => void }) => {
 const App = () => {
     const [mode, setMode] = useState<Mode>('external');
     const [darkMode, setDarkMode] = useState(false);
+    const [loading, setLoading] = useState(false);
     const [log, setLog] = useState<string[]>([]);
     const addLog = useCallback((line: string) => setLog((prev) => [line, ...prev].slice(0, 50)), []);
 
@@ -304,7 +284,7 @@ const App = () => {
                 <div className="pg-controls">
                     <label>
                         <input type="radio" checked={mode === 'external'} onChange={() => setMode('external')} />{' '}
-                        External DndProvider + disableDragAndDropProvider (sidebar takes drops)
+                        External DndProvider + disableDragAndDropProvider (drop zone below takes drops)
                     </label>
                     <label>
                         <input type="radio" checked={mode === 'internal'} onChange={() => setMode('internal')} />{' '}
@@ -314,14 +294,18 @@ const App = () => {
                         <input type="checkbox" checked={darkMode} onChange={(e) => setDarkMode(e.target.checked)} />{' '}
                         Dark mode
                     </label>
+                    <label>
+                        <input type="checkbox" checked={loading} onChange={(e) => setLoading(e.target.checked)} />{' '}
+                        Loading
+                    </label>
                 </div>
             </header>
 
             {mode === 'internal' ? (
-                <Explorer key="internal" mode="internal" darkMode={darkMode} onLog={addLog} />
+                <Explorer key="internal" mode="internal" darkMode={darkMode} loading={loading} onLog={addLog} />
             ) : (
                 <DndProvider key="external" backend={HTML5Backend}>
-                    <Explorer mode="external" darkMode={darkMode} onLog={addLog} />
+                    <Explorer mode="external" darkMode={darkMode} loading={loading} onLog={addLog} />
                     <ExternalDropZone onLog={addLog} />
                 </DndProvider>
             )}

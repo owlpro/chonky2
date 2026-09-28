@@ -161,6 +161,38 @@ describe('revealFiles', () => {
     });
 });
 
+describe('going up a folder', () => {
+    const home = { id: 'home', name: 'Home', isDir: true };
+    const photos = { id: 'c3', name: 'Photos', isDir: true };
+    const selected = (state: RootState) => Object.keys(state.selectionMap);
+
+    it('selects the folder the user came out of once it is listed', () => {
+        const store = makeStore();
+        store.dispatch(reduxActions.setRawFolderChain([home, photos]));
+        store.dispatch(reduxActions.setRawFiles([{ id: 'p1', name: 'beach.jpg' }]));
+
+        store.dispatch(reduxActions.setRawFolderChain([home]));
+        // The app clears the list while it loads the parent folder
+        store.dispatch(reduxActions.setLoading(true));
+        store.dispatch(reduxActions.setRawFiles([]));
+        expect(selected(store.getState())).toEqual([]);
+
+        store.dispatch(reduxActions.setLoading(false));
+        store.dispatch(reduxActions.setRawFiles(files));
+        expect(selected(store.getState())).toEqual(['c3']);
+        expect(store.getState().revealFileIds).toEqual(['c3']);
+    });
+
+    it('does not select anything when opening a subfolder', () => {
+        const store = makeStore();
+        store.dispatch(reduxActions.setRawFolderChain([home]));
+        store.dispatch(reduxActions.setRawFiles(files));
+        store.dispatch(reduxActions.setRawFolderChain([home, photos]));
+        store.dispatch(reduxActions.setRawFiles([{ id: 'p1', name: 'beach.jpg' }]));
+        expect(selected(store.getState())).toEqual([]);
+    });
+});
+
 describe('store watchers', () => {
     const makeWatchedStore = () => {
         const store = makeStore();

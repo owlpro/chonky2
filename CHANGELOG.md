@@ -36,8 +36,18 @@ The project follows [Semantic Versioning](https://semver.org/).
 - `FileBrowserHandle.revealFiles(fileIds, select = true)` scrolls to files and selects them. Files that aren't listed yet are revealed when they show up, so an app can call it while it opens their folder; the request is dropped if the folder finishes loading without them.
 - Enter in the search field searches right away instead of waiting for the typing pause.
 - A clear (✕) button in the search field, shown while it has text. Its label is the `chonky.toolbar.clearSearch` message.
+- Sidebar: `FullFileBrowser`'s new `sidebar` prop shows a navigation pane left of the file list, built from the new `FileSidebar`, `FileSidebarSection` and `FileSidebarItem` components. An item opens its `folder` with `OpenFiles`, takes files dragged from the list (`MoveFiles`) or from the computer (`DropFiles`), and is highlighted while its folder is the current folder or an ancestor. The pane hides when Chonky is narrower than 560px; its width is `--chonky-sidebar-width`.
+- `loading` prop: a progress bar runs along the top of the file list, and an empty list shows a spinner and the new `chonky.fileList.loading` message ("Loading…") instead of "Nothing to show".
+- Thumbnails pulse while their image loads, and show a broken image icon when it fails to load (they stayed blank).
+- `ChonkyIconName.home`, `ChonkyIconName.refresh` and `ChonkyIconName.imageBroken`.
+- Select all also works with Cmd+A on macOS.
+- The mouse's back and forward buttons run `GoBack` and `GoForward` over Chonky, instead of making the browser leave the page.
+- After going up to a parent folder (Back, Up or a breadcrumb), the folder the user came out of is selected and scrolled to once it is listed, like in File Explorer.
+- CSS variables `--chonky-menu-z-index` (default `2000`) and `--chonky-scrollbar-thumb`.
 
 ### Changed
+
+- The package description and keywords say what Chonky is (a file explorer component for React) instead of "A File Browser component for React".
 
 - Menus (toolbar dropdowns and the context menu) are Chonky's own component: they render in a portal, stay inside the viewport, close on outside click, Escape, scroll or resize, and support arrow-key, Home and End navigation.
 - File sizes use `KB` for kilobytes everywhere (bigger files showed `kB`).
@@ -49,6 +59,9 @@ The project follows [Semantic Versioning](https://semver.org/).
 - `@reduxjs/toolkit` is now `^2.9.0` (was `>=1.9.0`, which allowed 1.x versions Chonky doesn't work with).
 - The search matches words instead of letters: a file is shown when every space-separated word typed is part of its name (or `searchText`), ignoring case. Before, letters only had to appear in order, so `pdf` also matched `profile_draft.png`. Spaces around the text no longer affect the search.
 - The search is cleared when the current folder changes, and when a new folder or upload, or a file passed to `revealFiles`, would be hidden by it.
+- Registering `UploadFiles` also registers `DropFiles`, so an app that uploads files gets drag-and-drop uploads too. Handle `DropFiles` along with `UploadFiles`.
+- Scrollbars inside Chonky are thin, in the theme's colours.
+- `revealFiles` keeps waiting while the `loading` prop is on or the list is empty, since apps often clear the list while they load a folder. Before, the first files update without the file cancelled it.
 
 ### Fixed
 
@@ -63,17 +76,24 @@ The project follows [Semantic Versioning](https://semver.org/).
 - Files hidden by the search stayed selected, so actions such as Delete applied to files the user couldn't see. Select all (Ctrl+A) also selected them, and hidden files (`isHidden`) too. Files are now deselected when they get hidden, and Select all only selects visible files. The status bar's hidden file count, which always showed 0, now works.
 - Shift+click range selection didn't work while a search was active or hidden files were filtered out.
 - The search field's loading spinner kept spinning if the text was changed back within 300 ms, or if Escape was pressed right after typing.
+- Toolbar menus and the context menu opened behind modals with a `z-index` above 1300, such as MUI's `Modal`. Menus now use `--chonky-menu-z-index` (2000).
+- Keyboard shortcuts applied to the whole page while Chonky was mounted, even hidden (e.g. in a closed dialog that stays mounted): Ctrl+A, Ctrl+C and the others were taken away from the rest of the page, and every Chonky on the page reacted. Shortcuts now apply while focus is inside that Chonky, or on an element around it (the page body, or a dialog that just opened with Chonky in it) as long as that Chonky is visible, is the only one there, and no other text on the page is selected. Clicking anywhere in Chonky, including empty list space, puts focus in it, and focus stays in Chonky after Enter or Escape in the rename field.
+- The tops of tall letters in list view names and columns were cut off with fonts whose capitals are short compared to their other letters. Names are now only clipped sideways.
 
 ### Development
 
 - Added a playground: `yarn dev` builds the library in watch mode and serves a demo that runs against `dist/`.
 - Fixed CI: a single job on Node 20 that installs with Yarn 4, builds, and checks bundle size. Removed the broken `size` workflow and pointed `size-limit` at the current `dist/` files.
-- Removed unused dev dependencies (Babel, Rollup plugins, `tsup`, `husky`, `chalk`, stale `@types/*`) and `scripts/check-peer-deps.js`. `size-limit` now checks only the ESM build, with a 60 kB limit.
+- Removed unused dev dependencies (Babel, Rollup plugins, `tsup`, `husky`, `chalk`, stale `@types/*`) and `scripts/check-peer-deps.js`. `size-limit` now checks only the ESM build, with a 65 kB limit.
 - Rewrote the README for v7: screenshots, a working quick start, actions and shortcuts, file fields, theming variables, translation message IDs, and upgrade notes.
-- The playground uses an app-level `DndProvider` by default, so files can be dropped onto its sidebar (`useFolderDropTarget`). It registers rename, cut, paste and drop-to-upload, shows a custom `Show info` action in the Actions menu and a close button at the end of the toolbar.
+- Reorganized the README for readers new to Chonky: what it is and how it works, a table of contents, installation, guides, a props and ref reference, and how to run the playground. New screenshots, including the context menu and the playground.
+- The playground uses an app-level `DndProvider` by default, so files can be dropped onto the drop zone below the window. It registers rename, cut, paste and drop-to-upload, shows a custom `Show info` action in the Actions menu and a close button at the end of the toolbar.
+- The playground uses Chonky's `FileSidebar`, has a Loading toggle, and has a picture whose thumbnail is missing.
 - The playground is a full explorer window with a sidebar, sample folders with thumbnails, working Create folder, Upload and Delete actions, a dark mode toggle and a log of every Chonky event.
 - Added store tests for search, `revealFiles` and the selection and search watchers (`test/search.test.ts`). They need no DOM, so they run with `npx vitest run test/search.test.ts`.
 - The playground log shows the search text of `ChangeSearch`.
+- `yarn watch:linked` builds `dist-linked/` for trying Chonky inside another Vite app during development: unminified, with source maps and type declarations, and with all dependencies except React bundled in.
+- Store tests for selecting the folder the user came out of.
 
 ## [6.5.9]
 

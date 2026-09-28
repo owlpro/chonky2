@@ -39,6 +39,8 @@ export const initialFiles: PlaygroundFile[] = [
     { id: 'setup', name: 'setup-2.4.1.zip', parentId: 'downloads', size: 58_400_000, modDate: date('2026-09-26T18:40:00') },
     { id: 'song', name: 'Morning Walk.mp3', parentId: 'downloads', size: 6_100_000, modDate: date('2026-07-11T07:25:00') },
     { id: 'photo', name: '894300.jpg', parentId: 'downloads', size: 2_100_000, modDate: date('2026-02-16T17:23:00'), thumbnailUrl: makeThumbnail(190, 30) },
+    // Its thumbnail doesn't exist, to show the broken image icon
+    { id: 'broken', name: 'Missing preview.jpg', parentId: 'downloads', size: 1_300_000, modDate: date('2026-07-20T09:30:00'), thumbnailUrl: '/missing-thumbnail.jpg' },
     { id: 'holo1', name: 'holo-01.png', parentId: 'textures', size: 3_400_000, modDate: date('2026-02-28T12:40:00'), thumbnailUrl: makeThumbnail(280, 300) },
     { id: 'holo2', name: 'holo-02.png', parentId: 'textures', size: 3_100_000, modDate: date('2026-02-28T12:41:00'), thumbnailUrl: makeThumbnail(320, 260) },
 

@@ -5,6 +5,8 @@ export { FileBrowser } from './components/external/FileBrowser';
 export { FileNavbar } from './components/external/FileNavbar';
 export { FileToolbar } from './components/external/FileToolbar';
 export { FileStatusBar } from './components/external/FileStatusBar';
+export { FileSidebar, FileSidebarItem, FileSidebarSection } from './components/external/FileSidebar';
+export type { FileSidebarProps, FileSidebarItemProps, FileSidebarSectionProps } from './components/external/FileSidebar';
 export { FileList } from './components/file-list/FileList';
 export { FileContextMenu } from './components/external/FileContextMenu';
 export { FullFileBrowser } from './components/external/FullFileBrowser';

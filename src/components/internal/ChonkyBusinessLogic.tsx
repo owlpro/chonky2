@@ -20,6 +20,8 @@ import { getValueOrFallback } from '../../util/helpers';
 export const ChonkyBusinessLogicInner = React.memo(
     React.forwardRef<FileBrowserHandle, FileBrowserProps>((props, ref) => {
         // ==== Update Redux state
+        // Before the files, so `setRawFiles` knows whether they are still loading
+        useDTE(reduxActions.setLoading, !!props.loading);
         usePropReduxUpdate(reduxActions.setRawFiles, props.files ?? initialRootState.rawFiles);
         usePropReduxUpdate(reduxActions.setRawFolderChain, props.folderChain);
         useDTE(

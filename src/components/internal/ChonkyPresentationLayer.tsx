@@ -6,12 +6,14 @@
 import React, { ReactNode, useCallback, useContext, useMemo, useRef } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 
+import { ChonkyActions } from '../../action-definitions/index';
 import { reduxActions } from '../../redux/reducers';
 import {
     selectClearSelectionOnOutsideClick,
     selectFileActionIds,
     selectIsDnDDisabled,
 } from '../../redux/selectors';
+import { thunkRequestFileAction } from '../../redux/thunks/dispatchers.thunks';
 import { useNativeFileDrop } from '../../util/dnd';
 import { useDndContextAvailable } from '../../util/dnd-fallback';
 import { elementIsInsideButton } from '../../util/helpers';
@@ -50,6 +52,23 @@ export const ChonkyPresentationLayer: React.FC<ChonkyPresentationLayerProps> = (
         [dispatch, clearSelectionOnOutsideClick]
     );
 
+    const rootRef = useRef<HTMLDivElement | null>(null);
+
+    // The mouse's back and forward buttons go through Chonky's folder history, like in
+    // File Explorer. Cancelling both events keeps the browser (or the app's router) from
+    // leaving the page.
+    const handleMouseDown = useCallback((event: React.MouseEvent) => {
+        if (event.button === 3 || event.button === 4) event.preventDefault();
+    }, []);
+    const handleMouseUp = useCallback(
+        (event: React.MouseEvent) => {
+            if (event.button !== 3 && event.button !== 4) return;
+            event.preventDefault();
+            dispatch(thunkRequestFileAction(event.button === 3 ? ChonkyActions.GoBack : ChonkyActions.GoForward, undefined));
+        },
+        [dispatch]
+    );
+
     // Generate necessary components
     const hotkeyListenerComponents = useMemo(
         () =>
@@ -57,6 +76,7 @@ export const ChonkyPresentationLayer: React.FC<ChonkyPresentationLayerProps> = (
                 <HotkeyListener
                     key={`file-action-listener-${actionId}`}
                     fileActionId={actionId}
+                    rootRef={rootRef}
                 />
             )),
         [fileActionIds]
@@ -66,7 +86,6 @@ export const ChonkyPresentationLayer: React.FC<ChonkyPresentationLayerProps> = (
     const showContextMenu = useContextMenuTrigger();
 
     const { nativeFileDropIsOver, nativeFileDrop } = useNativeFileDrop();
-    const rootRef = useRef<HTMLDivElement | null>(null);
     nativeFileDrop(rootRef);
 
     const darkMode = useContext(ChonkyDarkModeContext);
@@ -78,6 +97,11 @@ export const ChonkyPresentationLayer: React.FC<ChonkyPresentationLayerProps> = (
                     'chonky-nativeFileDropOver': nativeFileDropIsOver,
                 })}
                 onContextMenu={showContextMenu}
+                onMouseDown={handleMouseDown}
+                onMouseUp={handleMouseUp}
+                // Focusable, so a click anywhere in Chonky (e.g. empty list space) puts focus
+                // inside it and its keyboard shortcuts apply
+                tabIndex={-1}
             >
                 {!dndDisabled && dndContextAvailable && <DnDFileListDragLayer />}
                 {hotkeyListenerComponents}

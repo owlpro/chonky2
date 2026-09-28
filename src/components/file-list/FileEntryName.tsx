@@ -78,13 +78,13 @@ const FileRenameInput: React.FC<{ file: FileData }> = ({ file }) => {
     const handleKeyDown = useCallback(
         (event: React.KeyboardEvent<HTMLInputElement>) => {
             event.stopPropagation();
-            if (event.key === 'Enter') {
-                event.preventDefault();
-                finish(true);
-            } else if (event.key === 'Escape') {
-                event.preventDefault();
-                finish(false);
-            }
+            if (event.key !== 'Enter' && event.key !== 'Escape') return;
+            event.preventDefault();
+            finish(event.key === 'Enter');
+            // The field is about to unmount, which would drop focus to <body> and turn
+            // Chonky's shortcuts off; keep focus in Chonky. After `finish`, so the blur
+            // this causes doesn't confirm again.
+            inputRef.current?.closest<HTMLElement>('.chonky-chonkyRoot')?.focus({ preventScroll: true });
         },
         [finish]
     );

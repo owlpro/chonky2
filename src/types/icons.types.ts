@@ -62,6 +62,10 @@ export enum ChonkyIconName {
     text = 'text',
     archive = 'archive',
     image = 'image',
+    home = 'home',
+    refresh = 'refresh',
+    /** Shown in place of a thumbnail that failed to load */
+    imageBroken = 'imageBroken',
     video = 'video',
     info = 'info',
     key = 'key',

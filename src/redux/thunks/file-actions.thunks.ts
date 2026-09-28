@@ -49,7 +49,12 @@ export const thunkUpdateRawFileActions = (
         defaultActionsToAdd = DefaultFileActions;
     }
 
-    const fileActions = mergeFileActionsArrays(sanitizedArray, EssentialFileActions, defaultActionsToAdd);
+    // An app that uploads files also gets them by drag and drop, as `DropFiles`
+    const impliedActions = sanitizedArray.some((action: FileAction) => action.id === ChonkyActions.UploadFiles.id)
+        ? [ChonkyActions.DropFiles]
+        : [];
+
+    const fileActions = mergeFileActionsArrays(sanitizedArray, EssentialFileActions, impliedActions, defaultActionsToAdd);
     const optionDefaults: any = {};
     fileActions.map(a => (a.option ? (optionDefaults[a.option.id] = a.option.defaultValue) : null));
 

@@ -53,6 +53,12 @@
     --chonky-list-type-width: 130px;
     --chonky-list-size-width: 100px;
     --chonky-list-date-width: 180px;
+    --chonky-sidebar-width: 200px;
+
+    --chonky-scrollbar-thumb: rgba(0, 0, 0, 0.25);
+
+    /* Menus render in a portal on <body>, so they have to stack above the app's modals */
+    --chonky-menu-z-index: 2000;
 }
 
 .chonky-theme.chonky-dark {
@@ -86,6 +92,8 @@
     --chonky-icon-paper: #3a3a3a;
     --chonky-icon-paper-stroke: #6b6b6b;
     --chonky-icon-fold: #505050;
+
+    --chonky-scrollbar-thumb: rgba(255, 255, 255, 0.25);
 
     --chonky-placeholder: rgba(255, 255, 255, 0.1);
 }
@@ -127,10 +135,20 @@
     animation: chonky-spin 1s linear infinite;
 }
 
+/* Thin scrollbars everywhere in Chonky (keep in sync with getScrollbarWidth in GridContainer.tsx) */
+.chonky-theme,
+.chonky-theme * {
+    scrollbar-width: thin;
+    scrollbar-color: var(--chonky-scrollbar-thumb) transparent;
+}
+
 /* Root */
 
 .chonky-chonkyRoot {
     position: relative;
+    /* Lets the sidebar hide when Chonky is narrow, see `.chonky-sidebar` */
+    container: chonky / inline-size;
+    outline: 0; /* Focusable only to scope its shortcuts, see ChonkyPresentationLayer */
     display: flex;
     flex-direction: column;
     box-sizing: border-box;
@@ -440,6 +458,120 @@
     outline-offset: -2px;
 }
 
+/* Sidebar (FileSidebar) */
+
+.chonky-browserBody {
+    display: flex;
+    flex: 1;
+    min-height: 0;
+}
+
+.chonky-browserBody > .chonky-fileListWrapper {
+    min-width: 0;
+}
+
+.chonky-sidebar {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    flex-shrink: 0;
+    box-sizing: border-box;
+    width: var(--chonky-sidebar-width);
+    padding: 8px 6px;
+    overflow-y: auto;
+    border-inline-end: 1px solid var(--chonky-divider);
+}
+
+@container chonky (max-width: 560px) {
+    .chonky-sidebar {
+        display: none;
+    }
+}
+
+.chonky-sidebarSection {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.chonky-sidebarSectionTitle {
+    padding: 0 10px 4px;
+    color: var(--chonky-text-secondary);
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.chonky-sidebarItem {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-shrink: 0;
+    height: var(--chonky-control-height);
+    padding: 0 10px 0 14px;
+    border: 0;
+    border-radius: var(--chonky-radius-control);
+    background: transparent;
+    color: var(--chonky-text);
+    font: inherit;
+    font-size: calc(var(--chonky-font-size) - 1px);
+    text-align: start;
+    cursor: pointer;
+}
+
+.chonky-sidebarItem:hover {
+    background-color: var(--chonky-hover);
+}
+
+.chonky-sidebarItem:focus-visible {
+    outline: 2px solid var(--chonky-focus-ring);
+    outline-offset: -2px;
+}
+
+.chonky-sidebarItemActive {
+    background-color: var(--chonky-pressed);
+    font-weight: 600;
+}
+
+/* Accent mark of the active item, like File Explorer's navigation pane */
+.chonky-sidebarItemActive::before {
+    content: '';
+    position: absolute;
+    inset-inline-start: 3px;
+    top: 50%;
+    width: 3px;
+    height: 14px;
+    border-radius: 2px;
+    background: var(--chonky-accent);
+    transform: translateY(-50%);
+}
+
+.chonky-sidebarItem.chonky-dnd-over-can {
+    background-color: var(--chonky-drop-bg);
+    box-shadow: inset 0 0 0 1px var(--chonky-drop-border);
+}
+
+.chonky-sidebarItem.chonky-dnd-over-cannot {
+    background-color: var(--chonky-no-drop-bg);
+}
+
+.chonky-sidebarItemIcon {
+    display: flex;
+    flex-shrink: 0;
+    font-size: 16px;
+}
+
+.chonky-sidebarItemLabel {
+    min-width: 0;
+    overflow-x: clip;
+    overflow-y: visible;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    /* Centers the label on the icon, see `.chonky-baseButton > span` */
+    line-height: 1;
+    text-box: trim-both cap alphabetic;
+}
+
 /* Status bar */
 
 .chonky-statusBar {
@@ -467,7 +599,7 @@
 
 .chonky-menu {
     position: fixed;
-    z-index: 1300;
+    z-index: var(--chonky-menu-z-index);
     min-width: 180px;
     max-height: calc(100vh - 32px);
     overflow-y: auto;
@@ -547,6 +679,38 @@
     border-radius: var(--chonky-radius);
     background-color: var(--chonky-drop-bg);
     pointer-events: none;
+}
+
+/* Indeterminate progress bar along the top of the list while `loading` is set */
+.chonky-loadingBar {
+    position: absolute;
+    z-index: 1;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 2px;
+    overflow: hidden;
+    pointer-events: none;
+}
+
+.chonky-loadingBar::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    width: 40%;
+    border-radius: 2px;
+    background: var(--chonky-accent);
+    animation: chonky-loading-bar 1.2s ease-in-out infinite;
+}
+
+@keyframes chonky-loading-bar {
+    from {
+        left: -40%;
+    }
+    to {
+        left: 100%;
+    }
 }
 
 .chonky-fileListEmpty {
@@ -709,7 +873,9 @@
 
 .chonky-listCell {
     min-width: 0;
-    overflow: hidden;
+    /* Cells are as tall as their trimmed text, so only clip sideways */
+    overflow-x: clip;
+    overflow-y: visible;
     text-overflow: ellipsis;
     white-space: nowrap;
 }
@@ -721,8 +887,10 @@
 }
 
 .chonky-listFileEntryName {
-    overflow: clip;
-    overflow-clip-margin: 0.3em; /* keeps descenders that fall outside the trimmed box */
+    /* Clipped only sideways for the ellipsis: letters taller than the trimmed box
+       (ascenders, descenders, fonts with a small cap height) stay visible */
+    overflow-x: clip;
+    overflow-y: visible;
     text-overflow: ellipsis;
     /* Centers the name on the icon, see `.chonky-baseButton > span` */
     line-height: 1;
@@ -767,8 +935,8 @@
 .chonky-listFileEntry .chonky-listColumnType,
 .chonky-listFileEntry .chonky-listColumnSize,
 .chonky-listFileEntry .chonky-listColumnDate {
-    overflow: clip;
-    overflow-clip-margin: 0.3em;
+    overflow-x: clip;
+    overflow-y: visible;
     color: var(--chonky-text-secondary);
     font-size: 13px;
     /* Same line as the trimmed name */
@@ -856,9 +1024,31 @@
 }
 
 .chonky-fileThumbnail {
-    background-repeat: no-repeat;
-    background-position: center;
-    background-size: contain;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.chonky-fileThumbnail img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+}
+
+.chonky-thumbnailLoading {
+    background-color: var(--chonky-placeholder);
+    animation: chonky-loading-placeholder 1.5s ease-in-out infinite;
+}
+
+.chonky-thumbnailLoading img {
+    opacity: 0;
+}
+
+.chonky-thumbnailError {
+    background-color: var(--chonky-placeholder);
+    color: var(--chonky-text-secondary);
+    font-size: 28px;
 }
 
 .chonky-gridFileEntryName {

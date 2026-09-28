@@ -33,8 +33,8 @@ export interface FileBrowserHandle {
      * Scrolls the file list to the given files and selects them, e.g. to show a file
      * the app looked up by its ID. Files that are not in `files` yet are revealed once
      * they show up, so this can be called before or after the app opens their folder.
-     * The request is dropped if `files` finishes loading (has no `null` placeholders)
-     * without them. The search is cleared if it hides any of the files.
+     * The request is dropped if `files` finishes loading without them: the list isn't
+     * empty, has no `null` placeholders, and `loading` is off. The search is cleared if it hides any of the files.
      * @param fileIds IDs of the files to reveal.
      * @param [select=true] Whether to replace the selection with the revealed files.
      */
@@ -159,6 +159,12 @@ export interface FileBrowserProps {
      * component for all Chonky instances, use the global config.
      */
     iconComponent?: ElementType<ChonkyIconProps>;
+
+    /**
+     * Shows that the current folder is loading: a progress bar runs along the top of
+     * the file list, and an empty list shows a spinner instead of "Nothing to show".
+     */
+    loading?: boolean;
 
     /**
      * Enables dark mode theme.

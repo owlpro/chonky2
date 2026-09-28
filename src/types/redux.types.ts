@@ -72,6 +72,8 @@ export type RootState = {
     doubleClickDelay: number;
     disableDragAndDrop: boolean;
     clearSelectionOnOutsideClick: boolean;
+    /** The app is loading the current folder (`loading` prop). */
+    loading: boolean;
 
     // State to use inside effects
     lastClick: Nullable<{ index: number; fileId: string }>;

@@ -21,7 +21,11 @@ export const GridEntry: React.FC<FileEntryProps> = React.memo(({ file, selected,
         >
             <div className="chonky-gridFileEntryPreview">
                 {entryState.thumbnailUrl ? (
-                    <FileThumbnail className="chonky-gridThumbnail" thumbnailUrl={entryState.thumbnailUrl} />
+                    <FileThumbnail
+                        key={entryState.thumbnailUrl}
+                        className="chonky-gridThumbnail"
+                        thumbnailUrl={entryState.thumbnailUrl}
+                    />
                 ) : (
                     <FileIcon file={file} entryState={entryState} size={GRID_ICON_SIZE} />
                 )}

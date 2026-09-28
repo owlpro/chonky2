@@ -15,7 +15,7 @@
     "files": [
         "dist"
     ],
-    "description": "A File Browser component for React",
+    "description": "A file explorer component for React: list and grid views, sidebar, drag and drop, copy and paste, rename and keyboard shortcuts, in a Windows 11 style. Works with any backend.",
     "license": "MIT",
     "engines": {
         "node": ">=18"
@@ -24,12 +24,13 @@
         "dev": "vite --config playground/vite.config.ts",
         "build": "vite build",
         "watch": "vite build --watch",
+        "watch:linked": "vite build --watch --mode linked",
         "size": "size-limit"
     },
     "size-limit": [
         {
             "path": "dist/index.es.js",
-            "limit": "60 kB"
+            "limit": "65 kB"
         }
     ],
     "dependencies": {
@@ -74,11 +75,17 @@
         "url": "https://github.com/owlpro/chonky2/issues"
     },
     "keywords": [
-        "file",
-        "chonky2",
-        "file-dialog",
+        "react",
+        "react-component",
         "file-browser",
-        "react-component"
+        "file-explorer",
+        "file-manager",
+        "file-picker",
+        "file-dialog",
+        "media-library",
+        "drag-and-drop",
+        "chonky",
+        "chonky2"
     ],
     "packageManager": "yarn@4.10.3"
 }

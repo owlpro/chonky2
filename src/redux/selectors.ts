@@ -96,6 +96,7 @@ export const selectIsFileCut = (fileId: Nullable<string>) => (state: RootState) 
     !!fileId && state.clipboard?.mode === 'cut' && !!state.clipboard.fileIds[fileId];
 export const selectClearSelectionOnOutsideClick = (state: RootState) =>
     state.clearSelectionOnOutsideClick;
+export const selectLoading = (state: RootState) => state.loading;
 
 export const selectContextMenuMounted = (state: RootState) => state.contextMenuMounted;
 export const selectContextMenuConfig = (state: RootState) => state.contextMenuConfig;

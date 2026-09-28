@@ -14,17 +14,27 @@ export interface FullFileBrowserProps extends FileBrowserProps {
     toolbarStart?: ReactNode;
     /** Rendered at the end of the toolbar, see `FileToolbar`'s `endContent`. */
     toolbarEnd?: ReactNode;
+    /** Navigation pane left of the file list, usually a `FileSidebar`. */
+    sidebar?: ReactNode;
 }
 
 export const FullFileBrowser = React.memo(
     React.forwardRef<FileBrowserHandle, FullFileBrowserProps>((props, ref) => {
-        const { onScroll, toolbarStart, toolbarEnd, ...fileBrowserProps } = props;
+        const { onScroll, toolbarStart, toolbarEnd, sidebar, ...fileBrowserProps } = props;
+        const fileList = <FileList onScroll={onScroll} />;
         return (
             <NoSsr>
                 <FileBrowser ref={ref} {...fileBrowserProps} onScroll={onScroll}>
                     <FileToolbar startContent={toolbarStart} endContent={toolbarEnd} />
                     <FileNavbar />
-                    <FileList onScroll={onScroll} />
+                    {sidebar ? (
+                        <div className="chonky-browserBody">
+                            {sidebar}
+                            {fileList}
+                        </div>
+                    ) : (
+                        fileList
+                    )}
                     <FileStatusBar />
                     <FileContextMenu />
                 </FileBrowser>

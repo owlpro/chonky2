@@ -6,6 +6,7 @@ import {
     selectClearSelectionOnOutsideClick,
     selectCurrentFolder,
     selectFileViewConfig,
+    selectLoading,
     selectors,
 } from '../../redux/selectors';
 import { FileViewMode } from '../../types/file-view.types';
@@ -26,6 +27,7 @@ export const FileList: React.FC<FileListProps> = React.memo((props: FileListProp
     const viewConfig = useSelector(selectFileViewConfig);
 
     const currentFolder = useSelector(selectCurrentFolder);
+    const loading = useSelector(selectLoading);
     const { drop, dndCanDrop, dndIsOver: dndIsOverCurrent } = useFileDrop({ file: currentFolder! });
     const { onScroll } = props;
 
@@ -51,7 +53,7 @@ export const FileList: React.FC<FileListProps> = React.memo((props: FileListProp
     let list: React.ReactNode = null;
     if (width > 0 && height > 0) {
         if (displayFileIds.length === 0) {
-            list = <FileListEmpty width={width} height={height} />;
+            list = <FileListEmpty width={width} height={height} loading={loading} />;
         } else if (viewConfig.mode === FileViewMode.List) {
             list = <ListContainer width={width} height={height} />;
         } else {
@@ -60,7 +62,15 @@ export const FileList: React.FC<FileListProps> = React.memo((props: FileListProp
     }
 
     return (
-        <div onScroll={onScroll} onClick={handleClick} ref={dropRef} className={c('chonky-fileListWrapper', getDndOverClasses({ dndIsOver: dndIsOverCurrent, dndCanDrop }))} role="list">
+        <div
+            onScroll={onScroll}
+            onClick={handleClick}
+            ref={dropRef}
+            className={c('chonky-fileListWrapper', getDndOverClasses({ dndIsOver: dndIsOverCurrent, dndCanDrop }))}
+            role="list"
+            aria-busy={loading}
+        >
+            {loading && <div className="chonky-loadingBar" />}
             {/* Zero-size box so the list doesn't affect the size it is measured from */}
             <div style={{ overflow: 'visible', width: 0, height: 0 }}>{list}</div>
         </div>

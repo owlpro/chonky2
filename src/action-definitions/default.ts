@@ -43,7 +43,7 @@ export const DefaultActions = {
      */
     SelectAllFiles: defineFileAction({
         id: 'select_all_files',
-        hotkeys: ['ctrl+a'],
+        hotkeys: ['ctrl+a', 'command+a'],
         button: {
             name: 'Select all files',
             toolbar: true,

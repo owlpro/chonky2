@@ -18,60 +18,141 @@
 
 # Chonky2
 
-**Chonky2** is a modernized and optimized fork of [Chonky](https://github.com/TimboKZ/Chonky) —
-a React file browser component that recreates the native file explorer experience in the browser.
+**A file explorer for React apps.** Chonky2 puts a complete, desktop-style file manager on a
+web page: folders and files in a list or grid, a sidebar, breadcrumbs, Back and Forward,
+search, multi-select, drag and drop, copy and paste, inline rename, a right-click menu and
+keyboard shortcuts. It looks and feels like the Windows 11 File Explorer.
 
-Users can **drag & drop**, **select multiple files**, **switch between list and grid views**,
-**navigate back and forward**, and use **keyboard shortcuts**. Chonky only renders the UI: your
-app supplies the files and decides what each action does, so it works with any backend or API.
+Chonky2 only draws the explorer and handles the user's interaction. It doesn't read a disk or
+call a server: your app gives it the files to show and decides what happens when the user
+opens, moves, renames, uploads or deletes something. That makes it fit any storage, whether
+it is a REST API, S3, Firebase, a CMS media library or data in memory.
 
 <p align="center">
-    <img src="./images/preview-light.png" alt="Chonky2 in light mode, list view" width="800" />
+    <img src="./images/preview-light.png" alt="Chonky2 in light mode: a sidebar with folders, and the Home folder in list view" width="800" />
 </p>
 
 <p align="center">
-    <img src="./images/preview-dark.png" alt="Chonky2 in dark mode, grid view with thumbnails" width="800" />
+    <img src="./images/preview-dark.png" alt="Chonky2 in dark mode: the Pictures folder in grid view with image thumbnails" width="800" />
 </p>
+
+## Contents
+
+- [What is Chonky2?](#what-is-chonky2)
+  - [How it works](#how-it-works)
+  - [Features](#features)
+  - [What's new in v7](#whats-new-in-v7)
+- [Getting started](#getting-started)
+  - [Installation](#installation)
+  - [Quick start](#quick-start)
+- [Guides](#guides)
+  - [Actions](#actions)
+  - [Creating and renaming](#creating-and-renaming)
+  - [Copy, cut and paste](#copy-cut-and-paste)
+  - [Drag and drop](#drag-and-drop)
+  - [Search](#search)
+  - [Sidebar](#sidebar)
+  - [Toolbar content](#toolbar-content)
+  - [Loading](#loading)
+  - [Keyboard and mouse](#keyboard-and-mouse)
+  - [Building your own layout](#building-your-own-layout)
+- [Reference](#reference)
+  - [Props](#props)
+  - [File fields](#file-fields)
+  - [Ref methods](#ref-methods)
+  - [Theming](#theming)
+  - [Custom icons](#custom-icons)
+  - [Translations](#translations)
+- [Playground](#playground)
+- [Upgrading](#upgrading)
+- [Development](#development)
+- [Changelog, license and links](#changelog-license-and-links)
 
 ---
 
-## 🚀 What's New in v7
+## What is Chonky2?
 
-### 🪟 Fluent Design
-- A new look modelled on the Windows 11 File Explorer: folder title and menu bar, an address bar with **Back**, **Forward** and **Up**, a list view with **sortable columns**, and a status bar.
-- Colour-coded file icons, image thumbnails in the grid view, and a built-in dark theme.
+Many web apps need to let users browse and manage files: an admin panel's media library, a
+cloud storage front end, an asset picker in a CMS, a document portal. Building that UI well
+takes a lot of work: selection with Shift and Ctrl, drag and drop, virtualized lists for
+thousands of files, keyboard navigation, context menus, thumbnails, sorting. Chonky2 is that
+UI, ready to drop into a React app.
 
-### 🎨 No UI Framework Required
-- Material UI, Emotion, styled-components and JSS are no longer needed.
-- Styles are plain CSS, injected automatically, and themed with CSS variables.
+It is a maintained and modernized fork of [Chonky](https://github.com/TimboKZ/Chonky), with a
+new Fluent design, no UI framework dependency and many new features.
 
-### 🪶 Light Dependencies
-- The only peer dependencies are `react` and `react-dom`.
+### How it works
+
+Chonky2 is a *controlled* component. It needs three things from your app:
+
+1. **`files`**: the files and folders in the folder being shown.
+2. **`folderChain`**: the path to that folder, from the root. It feeds the breadcrumbs,
+   the Up button and the sidebar highlight.
+3. **`onFileAction`**: a function Chonky calls for everything the user does. When the user
+   opens a folder, your app loads its files and passes them back in; when they rename or
+   delete something, your app calls its API and passes in the updated list.
+
+Everything that only affects the view (selection, sorting, list or grid view, search in the
+current folder, Back and Forward history) works on its own.
+
+### Features
+
+- **Two views:** a list with sortable Name, Type, Size and Date columns, and a grid with
+  image thumbnails. Both are virtualized, so folders with thousands of files stay fast.
+- **Navigation:** breadcrumbs, Back, Forward, Up, a sidebar, and the mouse's back and
+  forward buttons. After going up, the folder you came from is selected.
+- **Selection:** click, Ctrl+click, Shift+click and Ctrl+A.
+- **File operations:** create folder, upload, download, delete, inline rename (F2), and copy,
+  cut and paste (Ctrl+C, Ctrl+X, Ctrl+V), each opt-in.
+- **Drag and drop:** move files into folders, breadcrumbs and sidebar items, and upload files
+  dragged in from the computer.
+- **Search:** filters the current folder as you type; your app can search further.
+- **Context menu, toolbar menus and keyboard shortcuts** for every action, including your own.
+- **Loading state**, broken-thumbnail fallback, a dark theme, and theming with CSS variables.
+- **Translations** with ICU messages and the browser's `Intl` formatting.
+- **TypeScript** types included; works with Vite, ESM and CommonJS.
+
+### What's new in v7
+
+- A new look modelled on the Windows 11 File Explorer, with colour-coded file icons, a
+  sidebar and a built-in dark theme.
+- Material UI, Emotion, styled-components and JSS are gone. Styles are plain CSS, injected
+  automatically and themed with CSS variables. The only peer dependencies are `react` and
+  `react-dom`.
 - `react-intl` was replaced by a small formatter built on the browser's `Intl` APIs.
-- Chonky's cost in an app bundle dropped from about 139 KB to 55 KB (minified + brotli, all dependencies included).
-
-### 📦 Package Modernization
-- Works with **Vite**, **ESM** and **CommonJS** (`require('chonky2')`).
-- Dependencies are not bundled into the package, so apps that use the same libraries share one copy.
-
-Upgrading from 6.x? See **Upgrading from 6.x** below and the [changelog](./CHANGELOG.md).
+- Chonky's cost in an app bundle dropped from about 139 KB to about 60 KB (minified + brotli,
+  all dependencies included).
+- Inline rename, copy/cut/paste, drag-and-drop upload, a sidebar, a loading state and more.
+  See the [changelog](./CHANGELOG.md) for the full list, and [Upgrading](#upgrading) if you
+  use 6.x.
 
 ---
 
-## 📦 Installation
+## Getting started
+
+### Installation
 
 ```bash
 npm install chonky2
+# or
+yarn add chonky2
+# or
+pnpm add chonky2
 ```
 
-The only peer dependencies are `react` and `react-dom` (19 or newer).
+| Requirement | Version |
+|---|---|
+| React and React DOM | 19 or newer (peer dependencies) |
+| TypeScript | Optional; types are included |
+| Browsers | Current Chrome, Edge, Firefox and Safari |
 
----
+There is nothing else to set up: icons and styles are part of the package and are injected
+when Chonky renders.
 
-## ⚙️ Quick Start
+### Quick start
 
-Chonky is a controlled component: pass it the files of the current folder and the path
-to that folder, and handle `OpenFiles` to navigate.
+This example keeps two folders in memory. Opening a folder, the breadcrumbs, Up, Back and
+Forward all arrive as `OpenFiles`, so one handler covers navigation.
 
 ```tsx
 import { useState } from 'react';
@@ -112,69 +193,121 @@ export default function Explorer() {
 }
 ```
 
-No need to import icons or stylesheets — they are included automatically. **Back** and
-**Forward** work without extra code: Chonky remembers the visited folders and reopens them
-through the same `OpenFiles` action.
-
-### Building your own layout
-
-`FullFileBrowser` is a shortcut for the parts below. Use them directly to leave some out
-or to place your own layout, such as a sidebar, around them:
-
-```tsx
-import {
-  FileBrowser, FileContextMenu, FileList, FileNavbar, FileStatusBar, FileToolbar,
-} from 'chonky2';
-
-<FileBrowser files={files} folderChain={folderChain} onFileAction={handleFileAction}>
-  <FileToolbar />     {/* folder title, one menu per action group, action buttons */}
-  <FileNavbar />      {/* Back, Forward, Up, breadcrumbs and search */}
-  <FileList />        {/* list, grid or compact view */}
-  <FileStatusBar />   {/* item, selection and hidden-file counts */}
-  <FileContextMenu /> {/* right-click menu */}
-</FileBrowser>
-```
+Chonky fills the height of its container, so give the container a height. With a real
+backend, load the folder's files in the `OpenFiles` handler and pass [`loading`](#loading)
+while they load.
 
 ---
 
-## 🧰 Actions
+## Guides
 
-Everything the user does is an action, delivered to `onFileAction`. Built-in actions such
-as selection, sorting and view switching work on their own; the ones that change your data
-(open, move, delete, …) only tell you what the user wants.
+### Actions
+
+Everything the user does is an *action*, delivered to `onFileAction` with its `id`, a
+`payload` and the `state` (such as the selected files). Built-in actions such as selection,
+sorting and view switching work on their own; the ones that change your data only tell you
+what the user wants.
 
 | Action | When it fires | Payload / state |
 |---|---|---|
-| `OpenFiles` | Double click, Enter, breadcrumbs, Up, Back, Forward | `payload.targetFile`, `payload.files` |
+| `OpenFiles` | Double click, Enter, breadcrumbs, Up, Back, Forward, sidebar | `payload.targetFile`, `payload.files` |
 | `MoveFiles` | Files dropped onto a folder, or cut files pasted | `payload.files`, `payload.destination` |
 | `CopyFilesTo` | Copied files pasted | `payload.files`, `payload.destination` |
 | `ChangeFileName` | A new name confirmed in the inline rename field | `payload.file`, `payload.name` |
 | `ChangeSelection` | Selection changed | `payload.selection` (a `Set` of IDs) |
 | `ChangeSearch` | Search text changed (after typing stops, Enter, Esc, or cleared by navigating) | `payload.searchString` (trimmed) |
 | `DropFiles` | Files dragged in from the computer are dropped | `payload.files` (`File[]`), `payload.destination` |
-| `CreateFolder`, `UploadFiles`, `DownloadFiles`, `CopyFiles`, `CutFiles`, `DeleteFiles` | Their button, menu item or hotkey | `state.selectedFilesForAction` |
+| `CreateFolder`, `UploadFiles`, `DownloadFiles`, `CopyFiles`, `CutFiles`, `DeleteFiles` | Their button, menu item or shortcut | `state.selectedFilesForAction` |
 
 `CreateFolder`, `UploadFiles`, `DownloadFiles`, `CopyFiles`, `CutFiles`, `PasteFiles`,
-`RenameFile`, `DeleteFiles` and `DropFiles` are opt-in. Add the ones you support, and they
-appear in the toolbar, menus and context menu.
+`RenameFile`, `DeleteFiles` and `DropFiles` are opt-in: pass the ones your app supports in
+`fileActions`, and they appear in the toolbar, menus and context menu.
 
-- **Create and rename.** `RenameFile` (F2) turns the selected file's name into a text field.
-  After `CreateFolder`, the first folder that shows up in the current folder gets the same
-  field, with its name selected. Enter or clicking elsewhere confirms, Esc cancels. A
-  changed name reaches you as `ChangeFileName`.
-- **Copy, cut and paste.** `CopyFiles` (Ctrl+C) and `CutFiles` (Ctrl+X) put the selection
-  on Chonky's clipboard; cut files are shown faded. `PasteFiles` (Ctrl+V) pastes into the
-  current folder, or into the folder its context menu was opened on: copies arrive as
-  `CopyFilesTo`, cut files as `MoveFiles`.
-- **Upload by drag and drop.** `DropFiles` has no button: it makes the whole file browser a
-  drop target for files from the user's computer. They go to the current folder, or to the
-  folder entry or breadcrumb they are dropped on (`payload.destination`).
-- New files that show up in the current folder after `UploadFiles`, `DropFiles` or
-  `PasteFiles` are selected and scrolled into view.
-- **Search.** The search field filters the current folder: a file is shown when every word
-  typed is part of its `name` or its `searchText`. The search is cleared when the folder
-  changes, and files it hides are deselected. To find files outside the current folder,
-  handle `ChangeSearch`, open the folder the file is in, and reveal it with the ref:
+```tsx
+<FullFileBrowser
+  files={files}
+  folderChain={folderChain}
+  fileActions={[ChonkyActions.CreateFolder, ChonkyActions.UploadFiles, ChonkyActions.RenameFile, ChonkyActions.DeleteFiles]}
+  onFileAction={(data) => {
+    if (data.id === ChonkyActions.CreateFolder.id) {
+      api.createFolder(currentFolderId, 'New folder'); // the user renames it in place
+    } else if (data.id === ChonkyActions.UploadFiles.id) {
+      openYourUploadDialog();
+    } else if (data.id === ChonkyActions.DropFiles.id) {
+      api.upload(data.payload.files, data.payload.destination.id);
+    } else if (data.id === ChonkyActions.ChangeFileName.id) {
+      api.rename(data.payload.file.id, data.payload.name);
+    } else if (data.id === ChonkyActions.DeleteFiles.id) {
+      api.delete(data.state.selectedFilesForAction.map((file) => file.id));
+    }
+  }}
+/>
+```
+
+<p align="center">
+    <img src="./images/context-menu.png" alt="The context menu of a file, with Rename, Download, Copy, Cut, Paste, Delete and a custom Show info action" width="800" />
+</p>
+
+Custom actions are created with `defineFileAction`. Actions with a `button.group` appear in
+that group's toolbar menu (e.g. `Actions`, `Options`) and, with `button.contextMenu`, in the
+context menu; actions without a group get their own toolbar button:
+
+```tsx
+const ShowInfo = defineFileAction({
+  id: 'show_info',
+  requiresSelection: true,
+  button: { name: 'Show info', toolbar: true, contextMenu: true, group: 'Actions', icon: ChonkyIconName.info },
+});
+```
+
+### Creating and renaming
+
+`RenameFile` (F2) turns the selected file's name into a text field, with the name before the
+extension selected. Enter or clicking elsewhere confirms, Esc cancels, and a changed name
+reaches you as `ChangeFileName`. Files with `renamable: false` can't be renamed.
+
+After `CreateFolder`, create the folder in your backend and pass the new list in: the first
+new folder that shows up is selected and put into the same rename field, with its whole name
+selected. Files that show up after `UploadFiles`, `DropFiles` or `PasteFiles` are selected
+and scrolled into view.
+
+### Copy, cut and paste
+
+`CopyFiles` (Ctrl+C) and `CutFiles` (Ctrl+X) put the selection on Chonky's clipboard; cut
+files are shown faded. `PasteFiles` (Ctrl+V) pastes into the current folder, or into the
+folder its context menu was opened on. Copies arrive as `CopyFilesTo` and cut files as
+`MoveFiles`, both with `payload.files` and `payload.destination`.
+
+### Drag and drop
+
+- **Moving files.** Files dragged onto a folder in the list, a breadcrumb or a sidebar item
+  arrive as `MoveFiles`. Folders in the list open when a drag hovers over them.
+- **Uploading.** Files dragged in from the computer can be dropped anywhere on Chonky and
+  arrive as `DropFiles`, with the current folder, or the folder they were dropped on, as
+  `payload.destination`. `DropFiles` is added automatically when `UploadFiles` is registered,
+  so handle it along with `UploadFiles`.
+- **Your own drop targets.** `useFolderDropTarget(folder)` makes an element outside Chonky a
+  drop target for files dragged from Chonky; a drop there arrives as `MoveFiles`. It needs
+  Chonky and your app to share one react-dnd context:
+
+```tsx
+<DndProvider backend={HTML5Backend}>
+  <MyFolderTree />
+  <FullFileBrowser {...props} disableDragAndDropProvider />
+</DndProvider>
+
+const MyFolderItem = ({ folder }: { folder: FileData }) => {
+  const { dropRef, isOver, canDrop } = useFolderDropTarget(folder);
+  return <button ref={dropRef} className={isOver && canDrop ? 'drop-over' : ''}>{folder.name}</button>;
+};
+```
+
+### Search
+
+The search field filters the current folder: a file is shown when every word typed is part
+of its `name` or its `searchText`. The search is cleared when the folder changes, and files it
+hides are deselected. To find files outside the current folder, handle `ChangeSearch`, open
+the folder the file is in, and reveal it through the [ref](#ref-methods):
 
 ```tsx
 const browserRef = useRef<FileBrowserHandle>(null);
@@ -189,88 +322,132 @@ const handleAction: FileActionHandler = async (data) => {
 };
 ```
 
-```tsx
-<FullFileBrowser
-  files={files}
-  folderChain={folderChain}
-  fileActions={[ChonkyActions.CreateFolder, ChonkyActions.RenameFile, ChonkyActions.DropFiles, ChonkyActions.DeleteFiles]}
-  onFileAction={(data) => {
-    if (data.id === ChonkyActions.CreateFolder.id) {
-      api.createFolder(currentFolderId, 'New folder'); // the user renames it in place
-    } else if (data.id === ChonkyActions.ChangeFileName.id) {
-      api.rename(data.payload.file.id, data.payload.name);
-    } else if (data.id === ChonkyActions.DeleteFiles.id) {
-      api.delete(data.state.selectedFilesForAction.map((file) => file.id));
-    } else if (data.id === ChonkyActions.DropFiles.id) {
-      api.upload(data.payload.files, data.payload.destination.id);
-    }
-  }}
-/>
-```
+### Sidebar
 
-Custom actions are created with `defineFileAction`. Actions with a `button.group` appear
-in that group's menu in the toolbar (e.g. `Actions`, `Options`) and, with
-`button.contextMenu`, in the context menu; actions without a group get their own toolbar
-button:
-
-```tsx
-const ShowInfo = defineFileAction({
-  id: 'show_info',
-  requiresSelection: true,
-  button: { name: 'Show info', toolbar: true, contextMenu: true, group: 'Actions', icon: ChonkyIconName.info },
-});
-```
-
-### Toolbar content
-
-`FullFileBrowser` takes `toolbarStart` (before the menus) and `toolbarEnd` (after the view
-buttons, behind a divider) for your own elements. `ToolbarButton` looks like Chonky's
-buttons, and its `icon` can be a `ChonkyIconName` or any element:
+The `sidebar` prop puts a navigation pane left of the file list. Build it from
+`FileSidebar`, `FileSidebarSection` and `FileSidebarItem`:
 
 ```tsx
 <FullFileBrowser
   {...props}
-  toolbarEnd={<ToolbarButton icon={ChonkyIconName.close} iconOnly text="Close" onClick={closeDialog} />}
+  sidebar={
+    <FileSidebar>
+      <FileSidebarItem folder={home} icon={ChonkyIconName.home} />
+      <FileSidebarSection title="Folders">
+        {topFolders.map((folder) => <FileSidebarItem key={folder.id} folder={folder} />)}
+      </FileSidebarSection>
+    </FileSidebar>
+  }
 />
 ```
 
-With your own layout, pass the same content to `FileToolbar` as `startContent` and `endContent`.
+An item opens its `folder` with `OpenFiles`, like a breadcrumb, so your `OpenFiles` handler
+decides the new `folderChain`. Files dragged onto an item are moved into its folder, or
+uploaded into it when they come from the computer. An item is highlighted while its folder is
+the current folder or one of its ancestors (not counting the root); pass `active` to decide
+yourself, `label` and `icon` to override the folder's, or `onClick` to do something else. The
+sidebar hides when Chonky is narrower than 560px, and its width is `--chonky-sidebar-width`.
 
-### Dropping onto your own elements
+### Toolbar content
 
-`useFolderDropTarget(folder)` makes an element outside Chonky, such as a sidebar entry, a
-drop target for files dragged from Chonky; a drop there arrives as `MoveFiles`. It needs
-Chonky and your app to share one react-dnd context:
+`toolbarStart` (before the menus) and `toolbarEnd` (after the view buttons, behind a divider)
+take your own elements, such as a close button when Chonky is in a dialog. `ToolbarButton`
+looks like Chonky's buttons, and its `icon` can be a `ChonkyIconName` or any element:
 
 ```tsx
-<DndProvider backend={HTML5Backend}>
-  <Sidebar />
-  <FullFileBrowser {...props} disableDragAndDropProvider />
-</DndProvider>
-
-const SidebarItem = ({ folder }: { folder: FileData }) => {
-  const { dropRef, isOver, canDrop } = useFolderDropTarget(folder);
-  return <button ref={dropRef} className={isOver && canDrop ? 'drop-over' : ''}>{folder.name}</button>;
-};
+<FullFileBrowser
+  {...props}
+  toolbarEnd={<>
+    <ToolbarButton icon={ChonkyIconName.refresh} iconOnly text="Refresh" onClick={reload} />
+    <ToolbarButton icon={ChonkyIconName.close} iconOnly text="Close" onClick={closeDialog} />
+  </>}
+/>
 ```
 
-### Keyboard shortcuts
+### Loading
+
+Pass `loading` while you fetch a folder. A progress bar runs along the top of the file list,
+and an empty list shows a spinner and "Loading…" instead of "Nothing to show". Files already
+passed stay visible, so a refresh can keep the old list while it loads. For placeholders of a
+known size, pass `null` entries in `files`.
+
+### Keyboard and mouse
+
+Shortcuts apply while focus is inside Chonky (clicking anywhere in it puts it there), or on
+an element around it, such as a dialog that just opened with Chonky in it. They are left to
+the page while Chonky is hidden (e.g. in a closed dialog that stays mounted), when another
+Chonky is visible in the same place, or when the user has selected other text on the page.
+Each shortcut belongs to an action and only works when that action is registered;
+`disableDefaultFileActions` also turns off the default ones, such as Ctrl+A.
 
 | Keys | Action |
 |---|---|
 | Enter | Open the selection |
-| Ctrl+A | Select all files |
+| Ctrl+A (Cmd+A) | Select all files |
 | Esc | Clear the selection |
 | Backspace | Go up a folder |
-| Alt+← / Alt+→ | Back / Forward |
+| Alt+← / Alt+→, mouse back / forward buttons | Back / Forward |
 | Ctrl+F | Focus the search field |
 | Ctrl+H | Show or hide hidden files |
-| F2 | Rename the selected file (`RenameFile`, when added) |
-| Ctrl+C, Ctrl+X, Ctrl+V, Delete | `CopyFiles`, `CutFiles`, `PasteFiles`, `DeleteFiles` (when added) |
+| F2 | Rename the selected file (`RenameFile`) |
+| Ctrl+C, Ctrl+X, Ctrl+V (Cmd on macOS) | Copy, cut, paste (`CopyFiles`, `CutFiles`, `PasteFiles`) |
+| Delete | Delete the selection (`DeleteFiles`) |
+
+### Building your own layout
+
+`FullFileBrowser` is a shortcut for the parts below. Use them directly to leave some out or
+to arrange them yourself:
+
+```tsx
+import {
+  FileBrowser, FileContextMenu, FileList, FileNavbar, FileStatusBar, FileToolbar,
+} from 'chonky2';
+
+<FileBrowser files={files} folderChain={folderChain} onFileAction={handleFileAction}>
+  <FileToolbar />     {/* one menu per action group, action buttons, view buttons */}
+  <FileNavbar />      {/* Back, Forward, Up, breadcrumbs and search */}
+  <FileList />        {/* list, grid or compact view */}
+  <FileStatusBar />   {/* item, selection and hidden-file counts */}
+  <FileContextMenu /> {/* right-click menu */}
+</FileBrowser>
+```
+
+With your own layout, pass toolbar content to `FileToolbar` as `startContent` and `endContent`.
 
 ---
 
-## 🗂️ Files
+## Reference
+
+### Props
+
+`FullFileBrowser` and `FileBrowser` take these props. Only `files` is required.
+
+| Prop | Type | Description |
+|---|---|---|
+| `files` | `(FileData \| null)[]` | Files in the current folder. `null` entries show as loading placeholders. |
+| `folderChain` | `(FileData \| null)[]` | Path from the root to the current folder. |
+| `onFileAction` | `(data) => void` | Called for every [action](#actions). |
+| `fileActions` | `FileAction[]` | Extra actions, such as the opt-in ones or your own. |
+| `disableDefaultFileActions` | `boolean \| string[]` | Turns off all default actions (selection, views, sorting, …), or the ones with these IDs. |
+| `defaultFileViewActionId` | `string` | Starting view, e.g. `ChonkyActions.EnableListView.id`. |
+| `defaultSortActionId` | `string \| null` | Starting sort, e.g. `ChonkyActions.SortFilesByDate.id`. |
+| `loading` | `boolean` | Shows the [loading state](#loading). |
+| `darkMode` | `boolean` | Uses the dark theme. |
+| `sidebar` | `ReactNode` | [Sidebar](#sidebar) left of the file list (`FullFileBrowser` only). |
+| `toolbarStart`, `toolbarEnd` | `ReactNode` | [Toolbar content](#toolbar-content) (`FullFileBrowser` only). |
+| `thumbnailGenerator` | `(file) => string \| null \| Promise<…>` | Returns each file's thumbnail URL, instead of `thumbnailUrl`. |
+| `i18n` | `I18nConfig` | [Translations](#translations) and formatters. |
+| `iconComponent` | `ElementType` | Replaces Chonky's [icons](#custom-icons). |
+| `disableSelection` | `boolean` | Turns off selection. |
+| `disableDragAndDrop` | `boolean` | Turns off drag and drop. |
+| `disableDragAndDropProvider` | `boolean` | Uses your app's react-dnd `DndProvider` instead of Chonky's own. |
+| `clearSelectionOnOutsideClick` | `boolean` | Clears the selection on clicks outside Chonky or on empty list space (default `true`). |
+| `doubleClickDelay` | `number` | Longest gap between the clicks of a double click, in ms (default `300`). |
+| `onScroll` | `(event) => void` | Called when the file list scrolls. |
+
+Defaults for every Chonky on the page can be set once with `setChonkyDefaults({ ... })`.
+
+### File fields
 
 Each file is a plain object. Only `id` and `name` are required:
 
@@ -279,22 +456,32 @@ Each file is a plain object. Only `id` and `name` are required:
   id: 'report',
   name: 'Report.pdf',
   isDir: false,
-  size: 480_000,              // bytes, shown in the Size column
-  modDate: new Date(),        // Date modified column
-  childrenCount: 3,           // folders: shown as "3 items"
+  size: 480_000,                      // bytes, shown in the Size column
+  modDate: new Date(),                // Date modified column
+  childrenCount: 3,                   // folders: shown as "3 items"
   thumbnailUrl: '/thumbs/report.png', // shown in the grid view
-  isHidden: false,            // hidden unless "Show hidden files" is on
-  color: '#e53935',           // overrides the icon colour
+  color: '#e53935',                   // overrides the icon colour
+  isHidden: false,                    // hidden unless "Show hidden files" is on
+  renamable: true,                    // false: RenameFile is off for this file
   searchText: 'https://cdn.example.com/f/9f3c2e', // also matched by the search field
 }
 ```
 
-For thumbnails that have to be fetched, pass `thumbnailGenerator`, a function that takes a
-file and returns a URL (or a promise of one).
+A thumbnail pulses while its image loads, and shows a broken image icon if the image fails
+to load. Other fields, such as your own data, are kept and come back in action payloads.
 
----
+### Ref methods
 
-## 🎨 Theming
+Pass a `ref` to `FullFileBrowser` or `FileBrowser` to get a `FileBrowserHandle`:
+
+| Method | Description |
+|---|---|
+| `getFileSelection()` | The selected file IDs, as a `Set`. |
+| `setFileSelection(ids, reset = true)` | Selects these IDs, replacing or adding to the selection. |
+| `revealFiles(ids, select = true)` | Scrolls to the files and selects them. Files not listed yet are revealed when they show up. |
+| `requestFileAction(action, payload)` | Runs an action as if the user had triggered it. |
+
+### Theming
 
 Pass `darkMode` for the built-in dark theme. To change colours, fonts or sizes, override the
 CSS variables on `.chonky-theme` from your own stylesheet:
@@ -321,25 +508,26 @@ CSS variables on `.chonky-theme` from your own stylesheet:
 | `--chonky-selected-bg`, `--chonky-hover` | Row and tile states |
 | `--chonky-radius`, `--chonky-control-height` | Corners and button height |
 | `--chonky-list-type-width`, `--chonky-list-size-width`, `--chonky-list-date-width` | List column widths |
+| `--chonky-sidebar-width` | Sidebar width |
+| `--chonky-scrollbar-thumb` | Colour of the thin scrollbars |
+| `--chonky-menu-z-index` | Stacking order of the menus, which render on `<body>` (default `2000`, above most dialogs) |
 
-The full list is at the top of [`src/styles/chonky.css`](./src/styles/chonky.css). The root
-element also has a border and rounded corners; remove them with
-`.chonky-chonkyRoot { border: 0; border-radius: 0; }` when Chonky fills a window of your own.
+The full list is at the top of [`src/styles/chonky.css`](./src/styles/chonky.css). Chonky has
+a border and rounded corners; remove them with
+`.chonky-chonkyRoot { border: 0; border-radius: 0; }` when it fills a window of your own.
 
 ### Custom icons
 
-File icons are drawn by Chonky: a folder, or a page labelled with the file's extension in
-a colour per file type. Toolbar and menu icons come from [Lucide](https://lucide.dev/).
-To use your own icon set everywhere, pass `iconComponent`, a component that receives
+File icons are drawn by Chonky: a folder, or a page labelled with the file's extension in a
+colour per file type. Toolbar and menu icons come from [Lucide](https://lucide.dev/). To use
+your own icon set everywhere, pass `iconComponent`, a component that receives
 `{ icon, spin, className, style }` where `icon` is a `ChonkyIconName`.
 
----
+### Translations
 
-## 🌍 Translations
-
-Pass a locale and translated messages through `i18n`. Messages use ICU syntax
-(`{arg}`, `plural`, `select`, `selectordinal`, `#`); numbers, dates and plural rules come
-from the browser's `Intl` APIs.
+Pass a locale and translated messages through `i18n`. Messages use ICU syntax (`{arg}`,
+`plural`, `select`, `selectordinal`, `#`); numbers, dates and plural rules come from the
+browser's `Intl` APIs.
 
 ```tsx
 <FullFileBrowser
@@ -361,7 +549,7 @@ Message IDs follow the pattern `chonky.<area>.<name>`:
 | Area | IDs |
 |---|---|
 | `toolbar` | `searchPlaceholder`, `clearSearch`, `visibleFileCount`, `selectedFileCount`, `hiddenFileCount` |
-| `fileList` | `nothingToShow`, `nameColumn`, `typeColumn`, `sizeColumn`, `dateColumn` |
+| `fileList` | `nothingToShow`, `loading`, `nameColumn`, `typeColumn`, `sizeColumn`, `dateColumn` |
 | `fileEntry` | `folderType`, `fileType`, `genericFileType`, `folderItemCount` |
 | `contextMenu` | `browserMenuShortcut` |
 | `actions` | `<actionId>.button.name`, `<actionId>.button.tooltip` |
@@ -372,83 +560,116 @@ To change how dates, sizes or file types are written, pass `i18n.formatters` wit
 
 ---
 
-## ⬆️ Upgrading from 6.x
+## Playground
 
-- Uninstall `@mui/material`, `@mui/styled-engine-sc`, `@emotion/react`, `@emotion/styled` and `styled-components` if your app doesn't use them itself.
-- Style overrides that target MUI classes or the old `chonky-*` class names need to move to the new CSS variables.
-- The search field is now part of `FileNavbar`, and the item count moved to `FileStatusBar`. If you compose the parts yourself, add them.
-- `react-intl` options other than `locale`, `defaultLocale`, `messages` and `timeZone` are ignored, and custom formatters receive a `ChonkyIntl` object instead of `IntlShape`.
+The repository has a playground: a full explorer window with sample folders and pictures,
+where every feature works and every event Chonky sends is logged. It is the quickest way to
+see Chonky in action, and the place to try changes to Chonky itself.
+
+```bash
+git clone https://github.com/owlpro/chonky2.git
+cd chonky2
+yarn install
+yarn dev
+```
+
+Then open http://localhost:5173. `yarn dev` builds the library in watch mode and serves the
+playground against the build, so changes in `src/` show up after a reload.
+
+<p align="center">
+    <img src="./images/playground.png" alt="The playground: options at the top, the explorer window, a drop zone and the event log" width="800" />
+</p>
+
+What you can try:
+
+- Create, upload, rename, delete, copy, cut and paste files; drop files from your computer
+  onto the list, a folder or the sidebar.
+- **External DndProvider / Internal DndProvider** switch between Chonky's own drag-and-drop
+  context and an app-level one; with the external one, files can be dragged onto the drop
+  zone below the window (`useFolderDropTarget`).
+- **Dark mode** and **Loading** toggle the `darkMode` and `loading` props.
+- *Downloads* has a picture whose thumbnail is missing, to show the broken image icon.
+- The **Log** lists each action with its payload, e.g. `move_files: Report.pdf → Desktop`.
+
+The code is in [`playground/`](./playground): `main.tsx` shows how an app handles the
+actions, and `data.ts` holds the sample files.
+
+---
+
+## Upgrading
+
+### From Chonky2 6.x
+
+- Uninstall `@mui/material`, `@mui/styled-engine-sc`, `@emotion/react`, `@emotion/styled` and
+  `styled-components` if your app doesn't use them itself.
+- Style overrides that target MUI classes or the old `chonky-*` class names need to move to
+  the new CSS variables.
+- The search field is now part of `FileNavbar`, and the item count moved to `FileStatusBar`.
+  If you compose the parts yourself, add them.
+- `react-intl` options other than `locale`, `defaultLocale`, `messages` and `timeZone` are
+  ignored, and custom formatters receive a `ChonkyIntl` object instead of `IntlShape`.
+- Registering `UploadFiles` now also registers `DropFiles`; handle it to upload dropped files.
 
 The full list is in the [changelog](./CHANGELOG.md).
 
-## 🔁 Migration from Original Chonky
+### From the original Chonky
 
-1️⃣ Uninstall the old package:
-```bash
-npm uninstall chonky chonky-icon-fontawesome
-```
+1. Replace the packages:
 
-2️⃣ Install Chonky2:
-```bash
-npm install chonky2
-```
+   ```bash
+   npm uninstall chonky chonky-icon-fontawesome
+   npm install chonky2
+   ```
 
-3️⃣ Update your imports:
-```diff
-- import { FileBrowser } from 'chonky';
-+ import { FileBrowser } from 'chonky2';
-```
+2. Update your imports:
 
-4️⃣ Remove `setChonkyDefaults({ iconComponent: ChonkyIconFA })` and other FontAwesome setup — icons are built in.
+   ```diff
+   - import { FileBrowser } from 'chonky';
+   + import { FileBrowser } from 'chonky2';
+   ```
 
----
-
-## 🧩 Compatibility
-
-| Library | Version |
-|----------|----------|
-| React | 19 or newer |
-| TypeScript | Supported (types included) |
-| Browsers | Current Chrome, Edge, Firefox and Safari |
+3. Remove `setChonkyDefaults({ iconComponent: ChonkyIconFA })` and other FontAwesome setup;
+   icons are built in.
 
 ---
 
-## 🛠️ Development
+## Development
 
 ```bash
 yarn install
-yarn dev     # playground at http://localhost:5173, rebuilds the library on change
-yarn build   # builds dist/
-yarn size    # checks the bundle size limit
+yarn dev            # playground at http://localhost:5173, rebuilds the library on change
+yarn build          # builds dist/
+yarn size           # checks the bundle size limit
+yarn watch:linked   # builds dist-linked/ on every change, for testing in another app
+npx vitest run test/search.test.ts   # store tests
 ```
 
-The playground (`playground/`) is a full explorer window with a sidebar, sample folders,
-working create, upload and delete actions, a dark mode toggle and a log of every event.
+To try changes inside an app built with Vite, run `yarn watch:linked`. It rebuilds
+`dist-linked/index.es.js` on every change: unminified, with source maps and type
+declarations, and with every dependency except React bundled in, so the app's own versions
+of them can't be picked up instead. In the app:
+
+- alias `chonky2` to that file in `vite.config`, allow Vite to serve the chonky2 folder
+  (`server.fs.allow`) and exclude it from `@vitejs/plugin-react`;
+- map `chonky2` to `dist-linked/index.d.ts` in `tsconfig.json` `paths`, so the editor sees
+  the new types.
+
+Every change to published code gets an entry in [CHANGELOG.md](./CHANGELOG.md) under
+`[Unreleased]`.
 
 ---
 
-## 📝 Changelog
+## Changelog, license and links
 
-See [CHANGELOG.md](./CHANGELOG.md).
-
----
-
-## 🧾 License
+- Changelog: [CHANGELOG.md](./CHANGELOG.md)
+- npm: https://www.npmjs.com/package/chonky2
+- GitHub: https://github.com/owlpro/chonky2
+- Issues: https://github.com/owlpro/chonky2/issues
 
 MIT © [Tim Kuzhagaliyev](https://github.com/TimboKZ)  
 Maintained and upgraded by [Mahdi Amiri](https://github.com/owlpro)
 
----
-
-## 🔗 Useful Links
-
-- NPM: https://www.npmjs.com/package/chonky2  
-- GitHub: https://github.com/owlpro/chonky2  
-- Issues: https://github.com/owlpro/chonky2/issues
-
----
-
-## 💎 Sponsored by
+### Sponsored by
 
 <p align="center">
   <a href="https://vahdatoptic.com" target="_blank" style="text-decoration:none;">

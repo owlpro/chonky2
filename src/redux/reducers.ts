@@ -58,7 +58,8 @@ const showFiles = (state: RootState, fileIds: string[], select: boolean) => {
 
 /**
  * Reveals the files of `pendingReveal` once they are in `files`. After a files update,
- * gives up if the list has finished loading (no `null` placeholders) without them.
+ * gives up if the list has finished loading without them: it isn't empty, has no `null`
+ * placeholders and the `loading` prop is off. (Apps often clear the list while they load.)
  */
 const applyPendingReveal = (state: RootState, afterFilesUpdate: boolean) => {
     const pending = state.pendingReveal;
@@ -68,7 +69,7 @@ const applyPendingReveal = (state: RootState, afterFilesUpdate: boolean) => {
     if (presentIds.length > 0) {
         state.pendingReveal = null;
         showFiles(state, presentIds, pending.select);
-    } else if (afterFilesUpdate && !state.fileIds.includes(null)) {
+    } else if (afterFilesUpdate && !state.loading && state.fileIds.length > 0 && !state.fileIds.includes(null)) {
         state.pendingReveal = null;
     }
 };
@@ -100,7 +101,8 @@ const reducers = {
     setRawFolderChain(state: RootState, action: PayloadAction<FileArray | any>) {
         const rawFolderChain = action.payload;
         const { sanitizedArray: folderChain, errorMessages } = sanitizeInputArray('folderChain', rawFolderChain);
-        const previousFolderId = state.folderChain[state.folderChain.length - 1]?.id ?? null;
+        const previousChain = state.folderChain;
+        const previousFolderId = previousChain[previousChain.length - 1]?.id ?? null;
         state.rawFolderChain = rawFolderChain;
         state.folderChain = folderChain;
         state.folderChainErrorMessages = errorMessages;
@@ -114,6 +116,15 @@ const reducers = {
         // Files created before navigating away are not picked up in the new folder
         if (state.newFileWatch && state.newFileWatch.parentId !== (currentFolder?.id ?? null)) {
             state.newFileWatch = null;
+        }
+
+        // Going up to an ancestor (Back, Up, a breadcrumb) selects the folder the user came
+        // out of, like File Explorer, once it shows up in the list
+        const cameFrom = previousChain[folderChain.length];
+        const isAncestor = folderChain.length > 0 && folderChain.every((f, i) => f?.id === previousChain[i]?.id);
+        if (cameFrom && isAncestor) {
+            state.pendingReveal = { fileIds: [cameFrom.id], select: true };
+            applyPendingReveal(state, false);
         }
     },
     setNavigationHistoryPendingIndex(state: RootState, action: PayloadAction<Nullable<number>>) {
@@ -259,6 +270,9 @@ const reducers = {
     },
     setClearSelectionOnOutsideClick(state: RootState, action: PayloadAction<boolean>) {
         state.clearSelectionOnOutsideClick = action.payload;
+    },
+    setLoading(state: RootState, action: PayloadAction<boolean>) {
+        state.loading = action.payload;
     },
     setLastClickIndex(state: RootState, action: PayloadAction<Nullable<{ index: number; fileId: string }>>) {
         state.lastClick = action.payload;
