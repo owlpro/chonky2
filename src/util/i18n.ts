@@ -16,6 +16,7 @@ export enum I18nNamespace {
     FileList = 'fileList',
     FileEntry = 'fileEntry',
     FileContextMenu = 'contextMenu',
+    Sidebar = 'sidebar',
 
     FileActions = 'actions',
     FileActionGroups = 'actionGroups',

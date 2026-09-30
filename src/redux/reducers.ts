@@ -12,6 +12,7 @@ import { OptionMap } from '../types/options.types';
 import { ChonkyClipboard, NavigationHistory, NewFileWatch, RootState } from '../types/redux.types';
 import { SortOrder } from '../types/sort.types';
 import { ThumbnailGenerator } from '../types/thumbnails.types';
+import { ChonkyUserState, UserStateConfig } from '../types/user-state.types';
 import { FileHelper } from '../util/file-helper';
 import { getSearchTerms, isSearchMatch } from '../util/search';
 import { sanitizeInputArray } from './files-transforms';
@@ -282,6 +283,12 @@ const reducers = {
     },
     showContextMenu(state: RootState, action: PayloadAction<ContextMenuConfig>) {
         state.contextMenuConfig = action.payload;
+    },
+    setUserState(state: RootState, action: PayloadAction<ChonkyUserState>) {
+        state.userState = action.payload;
+    },
+    setUserStateConfig(state: RootState, action: PayloadAction<UserStateConfig>) {
+        state.userStateConfig = action.payload;
     },
     hideContextMenu(state: RootState) {
         if (!state.contextMenuConfig) return;

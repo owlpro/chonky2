@@ -5,8 +5,13 @@ export { FileBrowser } from './components/external/FileBrowser';
 export { FileNavbar } from './components/external/FileNavbar';
 export { FileToolbar } from './components/external/FileToolbar';
 export { FileStatusBar } from './components/external/FileStatusBar';
-export { FileSidebar, FileSidebarItem, FileSidebarSection } from './components/external/FileSidebar';
-export type { FileSidebarProps, FileSidebarItemProps, FileSidebarSectionProps } from './components/external/FileSidebar';
+export { FileSidebar, FileSidebarFavorites, FileSidebarItem, FileSidebarSection } from './components/external/FileSidebar';
+export type {
+    FileSidebarProps,
+    FileSidebarFavoritesProps,
+    FileSidebarItemProps,
+    FileSidebarSectionProps,
+} from './components/external/FileSidebar';
 export { FileList } from './components/file-list/FileList';
 export { FileContextMenu } from './components/external/FileContextMenu';
 export { FullFileBrowser } from './components/external/FullFileBrowser';
@@ -31,6 +36,7 @@ export type { ChangeFileNamePayload, ChangeSearchPayload, CopyFilesToPayload, Dr
 export { ChonkyIconName } from './types/icons.types';
 export type ChonkyIconProps = import('./types/icons.types').ChonkyIconProps;
 export type { FileBrowserHandle, FileBrowserProps } from './types/file-browser.types';
+export type { ChonkyUserState } from './types/user-state.types';
 export { FileViewMode } from './types/file-view.types';
 export type FileViewConfig = import('./types/file-view.types').FileViewConfig;
 export type FileViewConfigGrid = import('./types/file-view.types').FileViewConfigGrid;

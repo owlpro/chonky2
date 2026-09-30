@@ -62,24 +62,15 @@ export const initialFiles: PlaygroundFile[] = [
     { id: 'styles', name: 'styles.css', parentId: 'chonky', size: 18_300, modDate: date('2026-09-27T07:48:00') },
 ];
 
-export interface SidebarSection {
-    title: string;
-    items: { folderId: string; label: string }[];
-}
-
-export const sidebarSections: SidebarSection[] = [
-    {
-        title: 'Files',
-        items: [
-            { folderId: HOME_ID, label: 'Home' },
-            { folderId: 'desktop', label: 'Desktop' },
-            { folderId: 'downloads', label: 'Downloads' },
-            { folderId: 'documents', label: 'Documents' },
-            { folderId: 'pictures', label: 'Pictures' },
-        ],
-    },
-    {
-        title: 'Workspace',
-        items: [{ folderId: 'projects', label: 'Projects' }],
-    },
+// The sidebar's Folders section
+export const sidebarFolders: { folderId: string; label: string }[] = [
+    { folderId: HOME_ID, label: 'Home' },
+    { folderId: 'desktop', label: 'Desktop' },
+    { folderId: 'downloads', label: 'Downloads' },
+    { folderId: 'documents', label: 'Documents' },
+    { folderId: 'pictures', label: 'Pictures' },
+    { folderId: 'projects', label: 'Projects' },
 ];
+
+// Each one has its own favorites and collapsed sections, saved in localStorage
+export const users = ['Alice', 'Bob'];

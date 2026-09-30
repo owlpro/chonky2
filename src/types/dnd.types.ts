@@ -16,3 +16,10 @@ export type ChonkyDndFileEntryItem = DragObjectWithType & {
     payload: StartDragNDropPayload;
 };
 export const ChonkyDndFileEntryType = 'dnd-chonky-file-entry';
+
+/** A favorite dragged within the sidebar's Favorites section to reorder it. */
+export type ChonkyDndFavoriteItem = DragObjectWithType & {
+    instanceId: string;
+    fileId: string;
+};
+export const ChonkyDndFavoriteType = 'dnd-chonky-sidebar-favorite';

@@ -57,6 +57,8 @@ import {
     Monitor,
     PencilLine,
     Scissors,
+    Star,
+    StarOff,
 } from "lucide-react";
 
 import { ChonkyIconName, ChonkyIconProps } from "../../types/icons.types";
@@ -115,6 +117,9 @@ export const IconMap: { [iconName in ChonkyIconName]: any } = {
     [ChonkyIconName.folderChainSeparator]: ChevronRight,
     [ChonkyIconName.rename]: PencilLine,
     [ChonkyIconName.close]: X,
+    [ChonkyIconName.favorite]: Star,
+    [ChonkyIconName.unfavorite]: StarOff,
+    [ChonkyIconName.sectionToggle]: ChevronRight,
     [ChonkyIconName.download]: Download,
     [ChonkyIconName.upload]: Upload,
     [ChonkyIconName.trash]: Trash2,

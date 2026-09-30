@@ -1,6 +1,7 @@
 import { reduxActions } from '../redux/reducers';
 import { selectClipboard, selectCurrentFolder, selectInstanceId } from '../redux/selectors';
 import { thunkRequestFileAction } from '../redux/thunks/dispatchers.thunks';
+import { thunkAddFavorites, thunkRemoveFavorites } from '../redux/thunks/user-state.thunks';
 import { DropFilesPayload } from '../types/action-payloads.types';
 import { FileActionEffect } from '../types/action.types';
 import { ChonkyIconName } from '../types/icons.types';
@@ -197,6 +198,48 @@ export const ExtraActions = {
             if (payload.destination.id === selectCurrentFolder(getReduxState())?.id) {
                 reduxDispatch(reduxActions.watchForNewFiles('files'));
             }
+        }
+    ),
+    /**
+     * Action that adds the selected folders to the sidebar's Favorites section
+     * (`FileSidebarFavorites`). It is hidden when they all are favorites already.
+     */
+    AddToFavorites: defineFileAction(
+        {
+            id: 'add_to_favorites',
+            requiresSelection: true,
+            fileFilter: FileHelper.isDirectory,
+            button: {
+                name: 'Add to Favorites',
+                toolbar: true,
+                contextMenu: true,
+                group: 'Actions',
+                icon: ChonkyIconName.favorite,
+            },
+        } as const,
+        ({ state, reduxDispatch }) => {
+            reduxDispatch(thunkAddFavorites(state.selectedFilesForAction));
+        }
+    ),
+    /**
+     * Action that removes the selected folders from the sidebar's Favorites section.
+     * It is hidden when none of them is a favorite.
+     */
+    RemoveFromFavorites: defineFileAction(
+        {
+            id: 'remove_from_favorites',
+            requiresSelection: true,
+            fileFilter: FileHelper.isDirectory,
+            button: {
+                name: 'Remove from Favorites',
+                toolbar: true,
+                contextMenu: true,
+                group: 'Actions',
+                icon: ChonkyIconName.unfavorite,
+            },
+        } as const,
+        ({ state, reduxDispatch }) => {
+            reduxDispatch(thunkRemoveFavorites(state.selectedFilesForAction.map((f) => f.id)));
         }
     ),
     /**

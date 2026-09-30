@@ -9,6 +9,7 @@ import {
     selectClipboard,
     selectFileActionData,
     selectFileViewConfig,
+    selectIsFavoriteActionHidden,
     selectOptionValue,
     selectParentFolder,
     selectSelectedFilesForActionCount,
@@ -33,7 +34,7 @@ export const useFileActionTrigger = (fileActionId: string) => {
 
 export const useFileActionProps = (
     fileActionId: string
-): { icon: Nullable<ChonkyIconName | string>; active: boolean; disabled: boolean } => {
+): { icon: Nullable<ChonkyIconName | string>; active: boolean; disabled: boolean; hidden: boolean } => {
     const parentFolder = useSelector(selectParentFolder);
     const canGoBack = useSelector(selectCanGoBack);
     const canGoForward = useSelector(selectCanGoForward);
@@ -53,9 +54,10 @@ export const useFileActionProps = (
     );
 
     const actionSelectionEmpty = actionSelectionSize === 0;
+    const favoriteActionHidden = useParamSelector(selectIsFavoriteActionHidden, fileActionId);
 
     return useMemo(() => {
-        if (!action) return { icon: null, active: false, disabled: true };
+        if (!action) return { icon: null, active: false, disabled: true, hidden: false };
 
         let icon = action.button?.icon ?? null;
         if (action.sortKeySelector) {
@@ -106,7 +108,11 @@ export const useFileActionProps = (
             disabled = disabled || !hasClipboard;
         }
 
-        return { icon, active, disabled };
+        const hidden =
+            favoriteActionHidden ||
+            (action.customVisibility !== undefined && action.customVisibility() === CustomVisibilityState.Hidden);
+
+        return { icon, active, disabled, hidden };
     }, [
         parentFolder,
         canGoBack,
@@ -118,5 +124,6 @@ export const useFileActionProps = (
         action,
         optionValue,
         actionSelectionEmpty,
+        favoriteActionHidden,
     ]);
 };

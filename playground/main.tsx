@@ -9,17 +9,19 @@ import {
     ChonkyDndFileEntryType,
     ChonkyFileActionData,
     ChonkyIconName,
+    ChonkyUserState,
     defineFileAction,
     FileActionHandler,
     FileData,
     FileSidebar,
+    FileSidebarFavorites,
     FileSidebarItem,
     FileSidebarSection,
     FullFileBrowser,
     ToolbarButton,
 } from 'chonky2';
 
-import { HOME_ID, initialFiles, PlaygroundFile, sidebarSections } from './data';
+import { HOME_ID, initialFiles, PlaygroundFile, sidebarFolders, users } from './data';
 import './playground.css';
 
 type Mode = 'internal' | 'external';
@@ -41,6 +43,8 @@ const fileActions = [
     ChonkyActions.CutFiles,
     ChonkyActions.PasteFiles,
     ChonkyActions.DeleteFiles,
+    ChonkyActions.AddToFavorites,
+    ChonkyActions.RemoveFromFavorites,
     ShowInfo,
 ];
 
@@ -91,30 +95,36 @@ let nextFileId = 1;
 
 // Chonky's own navigation pane. Items open their folder with `OpenFiles`, and take
 // files dragged from the list (`MoveFiles`) or from the computer (`DropFiles`).
+// Favorites and collapsed sections are kept per user, see `userStateStorageKey`.
 const Sidebar = ({ files }: { files: PlaygroundFile[] }) => (
     <FileSidebar>
-        {sidebarSections.map((section) => (
-            <FileSidebarSection key={section.title} title={section.title}>
-                {section.items.map((item) => (
-                    <FileSidebarItem
-                        key={item.folderId}
-                        folder={files.find((f) => f.id === item.folderId) ?? null}
-                        label={item.label}
-                        icon={item.folderId === HOME_ID ? ChonkyIconName.home : undefined}
-                    />
-                ))}
-            </FileSidebarSection>
-        ))}
+        <FileSidebarFavorites />
+        <FileSidebarSection id="folders" title="Folders">
+            {sidebarFolders.map((item) => (
+                <FileSidebarItem
+                    key={item.folderId}
+                    folder={files.find((f) => f.id === item.folderId) ?? null}
+                    label={item.label}
+                    icon={item.folderId === HOME_ID ? ChonkyIconName.home : undefined}
+                />
+            ))}
+        </FileSidebarSection>
     </FileSidebar>
 );
 
+const describeUserState = (state: ChonkyUserState) =>
+    `user state: favorites [${state.favorites.map((f) => f.name).join(', ')}], ` +
+    `collapsed [${state.collapsedSidebarSections.join(', ')}]`;
+
 const Explorer = ({
     mode,
+    user,
     darkMode,
     loading,
     onLog,
 }: {
     mode: Mode;
+    user: string;
     darkMode: boolean;
     loading: boolean;
     onLog: (line: string) => void;
@@ -212,6 +222,8 @@ const Explorer = ({
         [addUploadedFiles, folderId, onLog]
     );
 
+    const handleUserStateChange = useCallback((state: ChonkyUserState) => onLog(describeUserState(state)), [onLog]);
+
     const handleUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
         addUploadedFiles(Array.from(event.target.files ?? []), folderId);
         event.target.value = '';
@@ -230,6 +242,8 @@ const Explorer = ({
                     darkMode={darkMode}
                     loading={loading}
                     sidebar={<Sidebar files={files} />}
+                    userStateStorageKey={`chonky-playground:${user}`}
+                    onUserStateChange={handleUserStateChange}
                     toolbarEnd={
                         <ToolbarButton
                             icon={ChonkyIconName.close}
@@ -272,6 +286,7 @@ const ExternalDropZone = ({ onLog }: { onLog: (line: string) => void }) => {
 
 const App = () => {
     const [mode, setMode] = useState<Mode>('external');
+    const [user, setUser] = useState(users[0]!);
     const [darkMode, setDarkMode] = useState(false);
     const [loading, setLoading] = useState(false);
     const [log, setLog] = useState<string[]>([]);
@@ -291,6 +306,14 @@ const App = () => {
                         Internal DndProvider
                     </label>
                     <label>
+                        User{' '}
+                        <select value={user} onChange={(e) => setUser(e.target.value)}>
+                            {users.map((name) => (
+                                <option key={name}>{name}</option>
+                            ))}
+                        </select>
+                    </label>
+                    <label>
                         <input type="checkbox" checked={darkMode} onChange={(e) => setDarkMode(e.target.checked)} />{' '}
                         Dark mode
                     </label>
@@ -302,10 +325,10 @@ const App = () => {
             </header>
 
             {mode === 'internal' ? (
-                <Explorer key="internal" mode="internal" darkMode={darkMode} loading={loading} onLog={addLog} />
+                <Explorer key="internal" mode="internal" user={user} darkMode={darkMode} loading={loading} onLog={addLog} />
             ) : (
                 <DndProvider key="external" backend={HTML5Backend}>
-                    <Explorer mode="external" darkMode={darkMode} loading={loading} onLog={addLog} />
+                    <Explorer mode="external" user={user} darkMode={darkMode} loading={loading} onLog={addLog} />
                     <ExternalDropZone onLog={addLog} />
                 </DndProvider>
             )}

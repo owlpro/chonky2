@@ -52,6 +52,7 @@ it is a REST API, S3, Firebase, a CMS media library or data in memory.
   - [Drag and drop](#drag-and-drop)
   - [Search](#search)
   - [Sidebar](#sidebar)
+  - [Favorites and user state](#favorites-and-user-state)
   - [Toolbar content](#toolbar-content)
   - [Loading](#loading)
   - [Keyboard and mouse](#keyboard-and-mouse)
@@ -218,9 +219,10 @@ what the user wants.
 | `ChangeSearch` | Search text changed (after typing stops, Enter, Esc, or cleared by navigating) | `payload.searchString` (trimmed) |
 | `DropFiles` | Files dragged in from the computer are dropped | `payload.files` (`File[]`), `payload.destination` |
 | `CreateFolder`, `UploadFiles`, `DownloadFiles`, `CopyFiles`, `CutFiles`, `DeleteFiles` | Their button, menu item or shortcut | `state.selectedFilesForAction` |
+| `AddToFavorites`, `RemoveFromFavorites` | Their menu item; Chonky updates the [user state](#favorites-and-user-state) itself | `state.selectedFilesForAction` (folders) |
 
 `CreateFolder`, `UploadFiles`, `DownloadFiles`, `CopyFiles`, `CutFiles`, `PasteFiles`,
-`RenameFile`, `DeleteFiles` and `DropFiles` are opt-in: pass the ones your app supports in
+`RenameFile`, `DeleteFiles`, `DropFiles`, `AddToFavorites` and `RemoveFromFavorites` are opt-in: pass the ones your app supports in
 `fileActions`, and they appear in the toolbar, menus and context menu.
 
 ```tsx
@@ -333,7 +335,8 @@ The `sidebar` prop puts a navigation pane left of the file list. Build it from
   sidebar={
     <FileSidebar>
       <FileSidebarItem folder={home} icon={ChonkyIconName.home} />
-      <FileSidebarSection title="Folders">
+      <FileSidebarFavorites />
+      <FileSidebarSection id="folders" title="Folders">
         {topFolders.map((folder) => <FileSidebarItem key={folder.id} folder={folder} />)}
       </FileSidebarSection>
     </FileSidebar>
@@ -347,6 +350,44 @@ uploaded into it when they come from the computer. An item is highlighted while 
 the current folder or one of its ancestors (not counting the root); pass `active` to decide
 yourself, `label` and `icon` to override the folder's, or `onClick` to do something else. The
 sidebar hides when Chonky is narrower than 560px, and its width is `--chonky-sidebar-width`.
+
+Sections with a title collapse when the title is clicked, like the views in VS Code's side
+bar: a collapsed section shows only its title, at the bottom of the sidebar. Open sections
+share the height (none grows past its content) and each scrolls on its own. The collapsed
+sections are remembered in the [user state](#favorites-and-user-state) under the section's
+`id` (its `title` when that is a string); pass `collapsible={false}` to keep a section open.
+
+### Favorites and user state
+
+`FileSidebarFavorites` is a sidebar section with the user's favorite folders. Folders are
+added by dropping them onto the section (while a folder is dragged, a "Drop folders here" box
+shows up in it, also when it is collapsed) or with the `AddToFavorites` action, reordered by
+dragging, and removed with their ✕ button or `RemoveFromFavorites`. Clicking a favorite opens
+it with `OpenFiles`, and files dropped onto it are moved into it.
+
+Favorites and collapsed sections make up the *user state* (`ChonkyUserState`). Chonky can
+keep it in the browser, or leave it to your app so it follows the user between devices:
+
+```tsx
+// In localStorage, one entry per user
+<FullFileBrowser {...props} userStateStorageKey={`files:${user.id}`} />
+
+// On your server: Chonky reports changes and shows them once you pass the new state back
+const [userState, setUserState] = useState(user.fileBrowserState);
+<FullFileBrowser
+  {...props}
+  userState={userState}
+  onUserStateChange={(next) => {
+    setUserState(next);
+    api.saveFileBrowserState(user.id, next);
+  }}
+/>
+```
+
+`onUserStateChange` is also called with `userStateStorageKey`, e.g. to log changes.
+Favorites are saved copies of the folders' `FileData`: a favorite is renamed when its folder
+shows up in `files` or `folderChain` with a new name, but a deleted folder stays until the
+user removes it (or your app drops it from `userState`).
 
 ### Toolbar content
 
@@ -434,6 +475,8 @@ With your own layout, pass toolbar content to `FileToolbar` as `startContent` an
 | `loading` | `boolean` | Shows the [loading state](#loading). |
 | `darkMode` | `boolean` | Uses the dark theme. |
 | `sidebar` | `ReactNode` | [Sidebar](#sidebar) left of the file list (`FullFileBrowser` only). |
+| `userState`, `onUserStateChange` | `Partial<ChonkyUserState>`, `(state) => void` | Favorites and collapsed sidebar sections, kept by your app. See [user state](#favorites-and-user-state). |
+| `userStateStorageKey` | `string` | Keeps the [user state](#favorites-and-user-state) in `localStorage` under this key when `userState` isn't passed. |
 | `toolbarStart`, `toolbarEnd` | `ReactNode` | [Toolbar content](#toolbar-content) (`FullFileBrowser` only). |
 | `thumbnailGenerator` | `(file) => string \| null \| Promise<…>` | Returns each file's thumbnail URL, instead of `thumbnailUrl`. |
 | `i18n` | `I18nConfig` | [Translations](#translations) and formatters. |
@@ -552,6 +595,7 @@ Message IDs follow the pattern `chonky.<area>.<name>`:
 | `fileList` | `nothingToShow`, `loading`, `nameColumn`, `typeColumn`, `sizeColumn`, `dateColumn` |
 | `fileEntry` | `folderType`, `fileType`, `genericFileType`, `folderItemCount` |
 | `contextMenu` | `browserMenuShortcut` |
+| `sidebar` | `favorites`, `favoritesDropHint`, `removeFavorite` |
 | `actions` | `<actionId>.button.name`, `<actionId>.button.tooltip` |
 | `actionGroups` | `<group name>`, e.g. `Actions`, `Options` |
 
@@ -588,6 +632,8 @@ What you can try:
   context and an app-level one; with the external one, files can be dragged onto the drop
   zone below the window (`useFolderDropTarget`).
 - **Dark mode** and **Loading** toggle the `darkMode` and `loading` props.
+- **User** switches between two users, each with their own favorites and collapsed sidebar
+  sections, kept in `localStorage` with `userStateStorageKey`.
 - *Downloads* has a picture whose thumbnail is missing, to show the broken image icon.
 - The **Log** lists each action with its payload, e.g. `move_files: Report.pdf → Desktop`.
 

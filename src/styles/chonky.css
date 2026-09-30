@@ -473,12 +473,11 @@
 .chonky-sidebar {
     display: flex;
     flex-direction: column;
-    gap: 12px;
     flex-shrink: 0;
     box-sizing: border-box;
     width: var(--chonky-sidebar-width);
-    padding: 8px 6px;
-    overflow-y: auto;
+    padding: 6px 0;
+    overflow: hidden;
     border-inline-end: 1px solid var(--chonky-divider);
 }
 
@@ -488,17 +487,205 @@
     }
 }
 
+/* Items placed straight in the sidebar, outside a section */
+.chonky-sidebar > .chonky-sidebarItem {
+    margin: 0 6px 2px;
+}
+
+/*
+ * Open sections share the height equally, like VS Code's views, but none grows past
+ * its content; each one scrolls on its own. The spacer takes what's left, and
+ * collapsed sections come after it, at the bottom.
+ */
 .chonky-sidebarSection {
     display: flex;
     flex-direction: column;
+    flex: 1000 1 0;
+    max-height: max-content;
+    min-height: 0;
+    order: 0;
+}
+
+.chonky-sidebarSection + .chonky-sidebarSection:not(.chonky-sidebarSectionCollapsed) {
+    margin-top: 6px;
+}
+
+.chonky-sidebarSpacer {
+    flex: 1 1 0;
+    order: 1;
+}
+
+.chonky-sidebarSectionCollapsed {
+    flex: none;
+    max-height: none;
+    order: 2;
+    border-top: 1px solid var(--chonky-divider);
+}
+
+.chonky-sidebarSectionBody {
+    display: flex;
+    flex-direction: column;
     gap: 2px;
+    min-height: 0;
+    padding: 0 6px 2px;
+    overflow-y: auto;
 }
 
 .chonky-sidebarSectionTitle {
-    padding: 0 10px 4px;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    flex-shrink: 0;
+    padding: 0 16px 4px;
     color: var(--chonky-text-secondary);
     font-size: 12px;
     font-weight: 600;
+}
+
+.chonky-sidebarSectionToggle {
+    height: 26px;
+    margin: 0 6px 2px;
+    padding: 0 8px 0 4px;
+    border: 0;
+    border-radius: var(--chonky-radius-control);
+    background: transparent;
+    font-family: inherit;
+    text-align: start;
+    cursor: pointer;
+}
+
+.chonky-sidebarSectionCollapsed > .chonky-sidebarSectionToggle {
+    margin-top: 2px;
+    margin-bottom: 0;
+}
+
+.chonky-sidebarSectionToggle:hover {
+    background-color: var(--chonky-hover);
+    color: var(--chonky-text);
+}
+
+.chonky-sidebarSectionToggle:focus-visible {
+    outline: 2px solid var(--chonky-focus-ring);
+    outline-offset: -2px;
+}
+
+.chonky-sidebarSectionArrow {
+    display: flex;
+    font-size: 13px;
+    transform: rotate(90deg);
+    transition: transform 0.12s ease;
+}
+
+.chonky-sidebarSectionCollapsed .chonky-sidebarSectionArrow {
+    transform: none;
+}
+
+[dir='rtl'] .chonky-sidebarSectionCollapsed .chonky-sidebarSectionArrow {
+    transform: scaleX(-1);
+}
+
+.chonky-sidebarSectionTitleText {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+/* Favorites (FileSidebarFavorites) */
+
+.chonky-sidebarFavoritesDropping {
+    background-color: var(--chonky-drop-bg);
+    box-shadow: inset 0 0 0 1px var(--chonky-drop-border);
+}
+
+.chonky-sidebarDropHint {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 0 6px 4px;
+    padding: 6px 10px 6px 14px;
+    border: 1px dashed var(--chonky-divider);
+    border-radius: var(--chonky-radius-control);
+    color: var(--chonky-text-secondary);
+    font-size: 12px;
+}
+
+.chonky-sidebarSectionBody > .chonky-sidebarDropHint {
+    margin: 0 0 4px;
+}
+
+.chonky-sidebarFavoritesDropping .chonky-sidebarDropHint {
+    border-color: var(--chonky-drop-border);
+    color: var(--chonky-text);
+}
+
+.chonky-sidebarFavorite {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+}
+
+.chonky-sidebarFavoriteDragging {
+    opacity: 0.5;
+}
+
+/* Where a dragged favorite will go */
+.chonky-sidebarFavoriteDropBefore::after,
+.chonky-sidebarFavoriteDropAfter::after {
+    content: '';
+    position: absolute;
+    inset-inline: 4px;
+    height: 2px;
+    border-radius: 1px;
+    background: var(--chonky-accent);
+    pointer-events: none;
+}
+
+.chonky-sidebarFavoriteDropBefore::after {
+    top: -2px;
+}
+
+.chonky-sidebarFavoriteDropAfter::after {
+    bottom: -2px;
+}
+
+.chonky-sidebarFavorite > .chonky-sidebarItem {
+    padding-inline-end: 30px;
+}
+
+.chonky-sidebarFavoriteRemove {
+    position: absolute;
+    inset-inline-end: 4px;
+    top: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 22px;
+    height: 22px;
+    padding: 0;
+    border: 0;
+    border-radius: var(--chonky-radius-control);
+    background: transparent;
+    color: var(--chonky-text-secondary);
+    font-size: 13px;
+    cursor: pointer;
+    opacity: 0;
+    transform: translateY(-50%);
+}
+
+.chonky-sidebarFavorite:hover > .chonky-sidebarFavoriteRemove,
+.chonky-sidebarFavoriteRemove:focus-visible {
+    opacity: 1;
+}
+
+.chonky-sidebarFavoriteRemove:hover {
+    background-color: var(--chonky-hover);
+    color: var(--chonky-text);
+}
+
+.chonky-sidebarFavoriteRemove:focus-visible {
+    outline: 2px solid var(--chonky-focus-ring);
+    outline-offset: -2px;
 }
 
 .chonky-sidebarItem {

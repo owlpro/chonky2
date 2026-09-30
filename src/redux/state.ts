@@ -56,4 +56,7 @@ export const initialRootState: RootState = {
     pendingReveal: null,
 
     clipboard: null,
+
+    userState: { favorites: [], collapsedSidebarSections: [] },
+    userStateConfig: { controlled: false, storageKey: null, onChange: null },
 };

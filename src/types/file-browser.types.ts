@@ -8,6 +8,7 @@ import { FileArray } from './file.types';
 import { I18nConfig } from './i18n.types';
 import { ChonkyIconProps } from './icons.types';
 import { ThumbnailGenerator } from './thumbnails.types';
+import { ChonkyUserState } from './user-state.types';
 
 /**
  * File browser methods exposed to developers via the `FileBrowser` ref.
@@ -177,6 +178,24 @@ export interface FileBrowserProps {
      * `selectordinal`, `select`, `number`, `date` and `time` arguments are supported.
      */
     i18n?: I18nConfig;
+
+    /**
+     * What Chonky remembers for the user: favorite folders and collapsed sidebar
+     * sections. When it is passed, Chonky reports changes with `onUserStateChange` and
+     * shows them once the app passes the new state back, so the app can keep it per
+     * user, e.g. on its server. When it isn't, Chonky keeps the state itself.
+     */
+    userState?: Nullable<Partial<ChonkyUserState>>;
+
+    /** Called with the new user state whenever the user changes it, e.g. adds a favorite. */
+    onUserStateChange?: Nullable<(userState: ChonkyUserState) => void>;
+
+    /**
+     * When `userState` isn't passed, Chonky saves the user state in `localStorage` under
+     * this key, e.g. `files:${userId}`, and loads it from there. Without a key the state
+     * lasts until Chonky unmounts.
+     */
+    userStateStorageKey?: Nullable<string>;
 
     /**
      * Define listener for on scroll events on file lists

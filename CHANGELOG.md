@@ -5,6 +5,26 @@ The project follows [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+### Added
+
+- User state: favorites and collapsed sidebar sections are remembered per user (`ChonkyUserState`). Pass `userStateStorageKey` to keep them in `localStorage`, or `userState` with `onUserStateChange` to keep them in the app, e.g. on its server. `onUserStateChange` is called on every change in both cases.
+- `FileSidebarFavorites`: a sidebar section with the user's favorite folders. Folders dropped onto it are added, favorites are reordered by dragging and removed with their ✕ button. While a folder that can be added is dragged, it shows a "Drop folders here" box, also when it is collapsed. Favorites are updated when their folder shows up in `files` or `folderChain` with a new name.
+- `ChonkyActions.AddToFavorites` and `ChonkyActions.RemoveFromFavorites` (opt-in, toolbar `Actions` menu and context menu) for the selected folders. Each is hidden when it doesn't apply to them.
+- Collapsible sidebar sections, like VS Code's side bar: clicking a `FileSidebarSection`'s title collapses it to its title at the bottom of the sidebar. Its new `id` prop (defaulting to a string `title`) remembers it in the user state, and `collapsible={false}` keeps it open.
+- `ChonkyIconName.favorite`, `ChonkyIconName.unfavorite` and `ChonkyIconName.sectionToggle`, and the `chonky.sidebar.favorites`, `chonky.sidebar.favoritesDropHint` and `chonky.sidebar.removeFavorite` messages.
+
+### Changed
+
+- Open sidebar sections share the sidebar's height, none growing past its content, and each one scrolls on its own; the sidebar as a whole no longer scrolls. Section titles are buttons with an arrow.
+
+### Fixed
+
+- Dragging a file that isn't selected while other files are selected moved the selected files instead of the dragged one.
+
+### Development
+
+- Playground: the sidebar has a Favorites and a Folders section, `AddToFavorites` and `RemoveFromFavorites` are registered, and a User switch shows the user state kept per user in `localStorage`.
+
 ## [7.0.0]
 
 ### Breaking

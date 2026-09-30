@@ -1,14 +1,27 @@
-import React, { ReactNode, useCallback, useContext, useRef } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
+import React, { ReactNode, Ref, useCallback, useContext, useId, useRef, useState } from 'react';
+import { XYCoord } from 'react-dnd';
+import { useDispatch, useSelector, useStore } from 'react-redux';
 
 import { ChonkyActions } from '../../action-definitions/index';
-import { selectFolderChain } from '../../redux/selectors';
+import {
+    selectFavorites, selectFolderChain, selectInstanceId, selectIsDnDDisabled, selectIsSidebarSectionCollapsed
+} from '../../redux/selectors';
+import { useParamSelector } from '../../redux/store';
 import { thunkRequestFileAction } from '../../redux/thunks/dispatchers.thunks';
+import {
+    thunkAddFavorites, thunkMoveFavorite, thunkRemoveFavorites, thunkToggleSidebarSection
+} from '../../redux/thunks/user-state.thunks';
+import {
+    ChonkyDndFavoriteItem, ChonkyDndFavoriteType, ChonkyDndFileEntryItem, ChonkyDndFileEntryType
+} from '../../types/dnd.types';
 import { FileData } from '../../types/file.types';
 import { ChonkyIconName } from '../../types/icons.types';
+import { RootState } from '../../types/redux.types';
 import { Nullable } from '../../types/util.types';
 import { useFileDrop } from '../../util/dnd';
+import { useDragIfAvailable, useDropIfAvailable } from '../../util/dnd-fallback';
 import { FileHelper } from '../../util/file-helper';
+import { getI18nId, I18nNamespace, useIntl } from '../../util/i18n';
 import { ChonkyIconContext } from '../../util/icon-helper';
 import { c, getDndOverClasses } from '../../util/styles';
 import { FileIcon } from '../file-list/FileEntryIcon';
@@ -20,25 +33,97 @@ export interface FileSidebarProps {
 
 /**
  * Navigation pane on the left of the file list, like File Explorer's. Pass it to
- * `FullFileBrowser`'s `sidebar` prop, filled with `FileSidebarSection`s and
- * `FileSidebarItem`s.
+ * `FullFileBrowser`'s `sidebar` prop, filled with `FileSidebarSection`s,
+ * `FileSidebarItem`s and a `FileSidebarFavorites`.
  */
 export const FileSidebar: React.FC<FileSidebarProps> = React.memo(({ className, children }) => (
-    <nav className={c('chonky-sidebar', className)}>{children}</nav>
+    <nav className={c('chonky-sidebar', className)}>
+        {children}
+        {/* Takes the free space, so collapsed sections sit at the bottom like in VS Code */}
+        <div className="chonky-sidebarSpacer" />
+    </nav>
 ));
 FileSidebar.displayName = 'FileSidebar';
 
 export interface FileSidebarSectionProps {
+    /**
+     * Identifies the section in the user state (`ChonkyUserState.collapsedSidebarSections`),
+     * so it stays collapsed. Defaults to `title` when that is a string.
+     */
+    id?: string;
     title?: ReactNode;
+    /**
+     * Whether clicking the title collapses the section. A collapsed section shows only
+     * its title, at the bottom of the sidebar. Defaults to `true` for sections with a
+     * title and an ID.
+     */
+    collapsible?: boolean;
     children?: ReactNode;
 }
 
-/** A group of sidebar items under an optional title. */
-export const FileSidebarSection: React.FC<FileSidebarSectionProps> = React.memo(({ title, children }) => (
-    <div className="chonky-sidebarSection">
-        {title && <div className="chonky-sidebarSectionTitle">{title}</div>}
-        {children}
-    </div>
+interface SidebarSectionFrameProps extends FileSidebarSectionProps {
+    className?: string;
+    rootRef?: Ref<HTMLElement>;
+    /** Shown under the title while the section is collapsed. */
+    collapsedContent?: ReactNode;
+}
+
+const SidebarSectionFrame: React.FC<SidebarSectionFrameProps> = (props) => {
+    const { id, title, collapsible, className, rootRef, collapsedContent, children } = props;
+    const dispatch = useDispatch<any>();
+    const ChonkyIcon = useContext(ChonkyIconContext);
+    const bodyId = useId();
+
+    const sectionId = id ?? (typeof title === 'string' ? title : null);
+    const canCollapse = !!title && !!sectionId && (collapsible ?? true);
+    const collapsed = useParamSelector(selectIsSidebarSectionCollapsed, sectionId) && canCollapse;
+    const toggle = useCallback(() => {
+        if (sectionId) dispatch(thunkToggleSidebarSection(sectionId));
+    }, [dispatch, sectionId]);
+
+    let header: ReactNode = null;
+    if (title && canCollapse) {
+        header = (
+            <button
+                type="button"
+                className="chonky-sidebarSectionTitle chonky-sidebarSectionToggle"
+                aria-expanded={!collapsed}
+                aria-controls={collapsed ? undefined : bodyId}
+                onClick={toggle}
+            >
+                <span className="chonky-sidebarSectionArrow">
+                    <ChonkyIcon icon={ChonkyIconName.sectionToggle} />
+                </span>
+                <span className="chonky-sidebarSectionTitleText">{title}</span>
+            </button>
+        );
+    } else if (title) {
+        header = <div className="chonky-sidebarSectionTitle">{title}</div>;
+    }
+
+    return (
+        <section
+            ref={rootRef as Ref<HTMLElement>}
+            className={c('chonky-sidebarSection', className, { 'chonky-sidebarSectionCollapsed': collapsed })}
+        >
+            {header}
+            {collapsed ? (
+                collapsedContent
+            ) : (
+                <div id={bodyId} className="chonky-sidebarSectionBody">
+                    {children}
+                </div>
+            )}
+        </section>
+    );
+};
+
+/**
+ * A group of sidebar items under an optional title. Clicking the title collapses the
+ * section, and the user state remembers it (see `FileBrowserProps.userState`).
+ */
+export const FileSidebarSection: React.FC<FileSidebarSectionProps> = React.memo((props) => (
+    <SidebarSectionFrame {...props} />
 ));
 FileSidebarSection.displayName = 'FileSidebarSection';
 
@@ -106,3 +191,181 @@ export const FileSidebarItem: React.FC<FileSidebarItemProps> = React.memo((props
     );
 });
 FileSidebarItem.displayName = 'FileSidebarItem';
+
+/** The folders a drag from the file list carries, like `EndDragNDrop` computes them. */
+const getDraggedFolders = (item: ChonkyDndFileEntryItem) => {
+    const { draggedFile, selectedFiles } = item.payload;
+    return (selectedFiles.length > 0 ? selectedFiles : [draggedFile]).filter(FileHelper.isDirectory);
+};
+
+const canAddFavorites = (state: RootState, item: ChonkyDndFileEntryItem) => {
+    const favoriteIds = new Set(selectFavorites(state).map((f) => f.id));
+    return getDraggedFolders(item).some((f) => !favoriteIds.has(f.id));
+};
+
+/** Whether the pointer is in the top or the bottom half of an element. */
+const getDropSide = (element: Nullable<HTMLElement>, offset: Nullable<XYCoord>) => {
+    if (!element || !offset) return null;
+    const rect = element.getBoundingClientRect();
+    return offset.y < rect.top + rect.height / 2 ? 'before' : 'after';
+};
+
+const FavoriteItem: React.FC<{ folder: FileData; index: number }> = React.memo(({ folder, index }) => {
+    const dispatch = useDispatch<any>();
+    const intl = useIntl();
+    const ChonkyIcon = useContext(ChonkyIconContext);
+    const instanceId = useSelector(selectInstanceId);
+    const dndDisabled = useSelector(selectIsDnDDisabled);
+    const rootRef = useRef<HTMLDivElement | null>(null);
+    const [dropSide, setDropSide] = useState<'before' | 'after' | null>(null);
+
+    const [{ isDragging }, drag] = useDragIfAvailable(
+        () => ({
+            type: ChonkyDndFavoriteType,
+            item: (): ChonkyDndFavoriteItem => ({ type: ChonkyDndFavoriteType, instanceId, fileId: folder.id }),
+            canDrag: () => !dndDisabled,
+            collect: (monitor) => ({ isDragging: monitor.isDragging() }),
+        }),
+        [instanceId, folder.id, dndDisabled]
+    );
+
+    const [{ isOver }, drop] = useDropIfAvailable(
+        () => ({
+            accept: ChonkyDndFavoriteType,
+            canDrop: (item: ChonkyDndFavoriteItem) => item.instanceId === instanceId && item.fileId !== folder.id,
+            hover: (_item, monitor) => {
+                setDropSide(monitor.canDrop() ? getDropSide(rootRef.current, monitor.getClientOffset()) : null);
+            },
+            drop: (item: ChonkyDndFavoriteItem, monitor) => {
+                const side = getDropSide(rootRef.current, monitor.getClientOffset());
+                dispatch(thunkMoveFavorite(item.fileId, side === 'before' ? index : index + 1));
+                return {};
+            },
+            collect: (monitor) => ({ isOver: monitor.isOver() && monitor.canDrop() }),
+        }),
+        [instanceId, folder.id, index, dispatch]
+    );
+
+    const setRootRef = (node: HTMLDivElement | null) => {
+        rootRef.current = node;
+        drag(drop(node));
+    };
+
+    const removeLabel = intl.formatMessage({
+        id: getI18nId(I18nNamespace.Sidebar, 'removeFavorite'),
+        defaultMessage: 'Remove from Favorites',
+    });
+    const side = isOver ? dropSide : null;
+    return (
+        <div
+            ref={setRootRef}
+            className={c('chonky-sidebarFavorite', {
+                'chonky-sidebarFavoriteDragging': isDragging,
+                'chonky-sidebarFavoriteDropBefore': side === 'before',
+                'chonky-sidebarFavoriteDropAfter': side === 'after',
+            })}
+        >
+            <FileSidebarItem folder={folder} />
+            <button
+                type="button"
+                className="chonky-sidebarFavoriteRemove"
+                title={removeLabel}
+                aria-label={removeLabel}
+                onClick={() => dispatch(thunkRemoveFavorites([folder.id]))}
+            >
+                <ChonkyIcon icon={ChonkyIconName.close} />
+            </button>
+        </div>
+    );
+});
+FavoriteItem.displayName = 'FavoriteItem';
+
+export interface FileSidebarFavoritesProps {
+    /** Defaults to the `chonky.sidebar.favorites` message, "Favorites". */
+    title?: ReactNode;
+    /** Identifies the section in the user state, see `FileSidebarSection`. Defaults to `favorites`. */
+    id?: string;
+}
+
+/**
+ * A sidebar section with the user's favorite folders, kept in the user state (see
+ * `FileBrowserProps.userState`). Folders are added by dropping them onto the section
+ * or with `ChonkyActions.AddToFavorites`, reordered by dragging, and removed with the
+ * ✕ button or `ChonkyActions.RemoveFromFavorites`. Clicking a favorite opens it.
+ */
+export const FileSidebarFavorites: React.FC<FileSidebarFavoritesProps> = React.memo((props) => {
+    const { id = 'favorites' } = props;
+    const dispatch = useDispatch<any>();
+    const store = useStore<RootState>();
+    const intl = useIntl();
+    const ChonkyIcon = useContext(ChonkyIconContext);
+    const favorites = useSelector(selectFavorites);
+    const instanceId = useSelector(selectInstanceId);
+    const dndDisabled = useSelector(selectIsDnDDisabled);
+    const collapsed = useParamSelector(selectIsSidebarSectionCollapsed, id);
+
+    // Folders dragged from the list are added, favorites dragged here go to the end
+    const [{ isOver, canDrop, isFolderDrag }, drop] = useDropIfAvailable(
+        () => ({
+            accept: [ChonkyDndFileEntryType, ChonkyDndFavoriteType],
+            canDrop: (item: ChonkyDndFileEntryItem | ChonkyDndFavoriteItem, monitor) => {
+                if (dndDisabled) return false;
+                if (monitor.getItemType() === ChonkyDndFavoriteType) {
+                    return (item as ChonkyDndFavoriteItem).instanceId === instanceId;
+                }
+                return canAddFavorites(store.getState(), item as ChonkyDndFileEntryItem);
+            },
+            drop: (item: ChonkyDndFileEntryItem | ChonkyDndFavoriteItem, monitor) => {
+                // A favorite took the drop: a move into its folder, or a reorder
+                if (monitor.didDrop()) return;
+                if (monitor.getItemType() === ChonkyDndFavoriteType) {
+                    const favoriteCount = selectFavorites(store.getState()).length;
+                    dispatch(thunkMoveFavorite((item as ChonkyDndFavoriteItem).fileId, favoriteCount));
+                } else {
+                    dispatch(thunkAddFavorites(getDraggedFolders(item as ChonkyDndFileEntryItem)));
+                }
+                // No `dropTarget`, so the files aren't moved anywhere
+                return {};
+            },
+            collect: (monitor) => ({
+                isOver: monitor.isOver({ shallow: true }),
+                canDrop: monitor.canDrop(),
+                isFolderDrag: monitor.getItemType() === ChonkyDndFileEntryType,
+            }),
+        }),
+        [dndDisabled, instanceId, store, dispatch]
+    );
+
+    const title =
+        props.title ??
+        intl.formatMessage({ id: getI18nId(I18nNamespace.Sidebar, 'favorites'), defaultMessage: 'Favorites' });
+    const dropHint = (
+        <div className="chonky-sidebarDropHint">
+            <ChonkyIcon icon={ChonkyIconName.favorite} />
+            <span>
+                {intl.formatMessage({
+                    id: getI18nId(I18nNamespace.Sidebar, 'favoritesDropHint'),
+                    defaultMessage: 'Drop folders here',
+                })}
+            </span>
+        </div>
+    );
+
+    return (
+        <SidebarSectionFrame
+            id={id}
+            title={title}
+            rootRef={drop as unknown as Ref<HTMLElement>}
+            className={c('chonky-sidebarFavorites', { 'chonky-sidebarFavoritesDropping': isOver && canDrop })}
+            // While collapsed, the hint shows up when a folder that can be added is dragged
+            collapsedContent={collapsed && canDrop && isFolderDrag ? dropHint : null}
+        >
+            {favorites.map((folder, index) => (
+                <FavoriteItem key={folder.id} folder={folder} index={index} />
+            ))}
+            {/* Favorites take drops into their folder, so the hint gives adding a place of its own */}
+            {(favorites.length === 0 || (canDrop && isFolderDrag)) && dropHint}
+        </SidebarSectionFrame>
+    );
+});
+FileSidebarFavorites.displayName = 'FileSidebarFavorites';

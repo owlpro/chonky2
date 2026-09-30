@@ -43,6 +43,10 @@ export enum ChonkyIconName {
     folderChainSeparator = 'folderChainSeparator',
     rename = 'rename',
     close = 'close',
+    favorite = 'favorite',
+    unfavorite = 'unfavorite',
+    /** The arrow of a collapsible sidebar section; points right, and down when open */
+    sectionToggle = 'sectionToggle',
     download = 'download',
     upload = 'upload',
     trash = 'trash',

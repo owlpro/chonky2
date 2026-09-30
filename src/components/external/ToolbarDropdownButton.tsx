@@ -10,7 +10,6 @@ import { Nullable } from '../../types/util.types';
 import { selectFileActionData } from '../../redux/selectors';
 import { useParamSelector } from '../../redux/store';
 import { ChonkyIconName } from '../../types/icons.types';
-import { CustomVisibilityState } from '../../types/action.types';
 import { useFileActionProps, useFileActionTrigger } from '../../util/file-actions';
 import { useLocalizedFileActionStrings } from '../../util/i18n';
 import { ChonkyIconContext } from '../../util/icon-helper';
@@ -61,7 +60,7 @@ export const SmartToolbarDropdownButton = React.forwardRef(
 
         const action = useParamSelector(selectFileActionData, fileActionId) ?? null;
         const triggerAction = useFileActionTrigger(fileActionId);
-        const { icon, active, disabled } = useFileActionProps(fileActionId);
+        const { icon, active, disabled, hidden } = useFileActionProps(fileActionId);
         const { buttonName } = useLocalizedFileActionStrings(action);
 
         // Combine external click handler with internal one
@@ -73,7 +72,7 @@ export const SmartToolbarDropdownButton = React.forwardRef(
         if (!action) return null;
         const { button } = action;
         if (!button) return null;
-        if (action.customVisibility !== undefined && action.customVisibility() === CustomVisibilityState.Hidden) return null;
+        if (hidden) return null;
 
         return (
             <ToolbarDropdownButton

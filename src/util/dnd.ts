@@ -42,11 +42,15 @@ export const useFileDrag = (file: Nullable<FileData>) => {
 
     const getDndStartPayload = useCallback<() => StartDragNDropPayload>(() => {
         const reduxState = store.getState();
+        const draggedFile = fileRef.current!;
+        const selectedFiles = selectSelectedFiles(reduxState).filter(Boolean) as FileData[];
         return {
             sourceInstanceId: selectInstanceId(reduxState),
             source: selectCurrentFolder(reduxState) ?? null,
-            draggedFile: fileRef.current!,
-            selectedFiles: selectSelectedFiles(reduxState).filter(Boolean) as FileData[],
+            draggedFile,
+            // Dragging a file outside the selection drags only that file; `StartDragNDrop`
+            // then selects it
+            selectedFiles: selectedFiles.some((f) => f.id === draggedFile.id) ? selectedFiles : [draggedFile],
         };
     }, [store, fileRef]);
 

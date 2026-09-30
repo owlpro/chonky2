@@ -92,6 +92,23 @@ export const selectIsDnDDisabled = (state: RootState) => state.disableDragAndDro
 export const selectRenamingFileId = (state: RootState) => state.renamingFileId;
 export const selectRevealFileIds = (state: RootState) => state.revealFileIds;
 export const selectClipboard = (state: RootState) => state.clipboard;
+
+export const selectUserState = (state: RootState) => state.userState;
+export const selectFavorites = (state: RootState) => state.userState.favorites;
+export const selectIsSidebarSectionCollapsed = (sectionId: Nullable<string>) => (state: RootState) =>
+    !!sectionId && state.userState.collapsedSidebarSections.includes(sectionId);
+/**
+ * `AddToFavorites` is hidden when all the folders it applies to are favorites already,
+ * `RemoveFromFavorites` when none of them is.
+ */
+export const selectIsFavoriteActionHidden = (fileActionId: string) => (state: RootState) => {
+    const adding = fileActionId === 'add_to_favorites';
+    if (!adding && fileActionId !== 'remove_from_favorites') return false;
+    const folders = getSelectedFilesForAction(state, fileActionId) ?? [];
+    const favoriteIds = new Set(state.userState.favorites.map((f) => f.id));
+    const favoriteCount = folders.filter((f) => favoriteIds.has(f.id)).length;
+    return adding ? folders.length > 0 && favoriteCount === folders.length : favoriteCount === 0;
+};
 export const selectIsFileCut = (fileId: Nullable<string>) => (state: RootState) =>
     !!fileId && state.clipboard?.mode === 'cut' && !!state.clipboard.fileIds[fileId];
 export const selectClearSelectionOnOutsideClick = (state: RootState) =>

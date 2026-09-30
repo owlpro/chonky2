@@ -12,6 +12,7 @@ import { OptionMap } from './options.types';
 import { FileSelection } from './selection.types';
 import { SortOrder } from './sort.types';
 import { ThumbnailGenerator } from './thumbnails.types';
+import { ChonkyUserState, UserStateConfig } from './user-state.types';
 
 /**
  * Folders the user has visited, for the Back and Forward buttons. `pendingIndex` is
@@ -102,6 +103,10 @@ export type RootState = {
 
     /** Files copied or cut with `CopyFiles` / `CutFiles`, for `PasteFiles`. */
     clipboard: Nullable<ChonkyClipboard>;
+
+    /** Favorites and other things remembered for the user, see `ChonkyUserState`. */
+    userState: ChonkyUserState;
+    userStateConfig: UserStateConfig;
 };
 
 export interface ChonkyClipboard {
