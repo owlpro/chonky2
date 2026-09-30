@@ -352,7 +352,9 @@ yourself, `label` and `icon` to override the folder's, or `onClick` to do someth
 sidebar hides when Chonky is narrower than 560px, and its width is `--chonky-sidebar-width`.
 
 Sections with a title collapse when the title is clicked, like the views in VS Code's side
-bar: a collapsed section shows only its title, at the bottom of the sidebar. Open sections
+bar: a collapsed section shows only its title. Sections keep their order, so a collapsed
+section stays at the top when no open section comes before it and goes to the bottom
+otherwise. Open sections
 share the height (none grows past its content) and each scrolls on its own. The collapsed
 sections are remembered in the [user state](#favorites-and-user-state) under the section's
 `id` (its `title` when that is a string); pass `collapsible={false}` to keep a section open.

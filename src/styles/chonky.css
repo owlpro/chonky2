@@ -509,32 +509,35 @@
 
 /*
  * Open sections share the height equally, like VS Code's views, but none grows past
- * its content; each one scrolls on its own. The spacer takes what's left, and
- * collapsed sections come after it, at the bottom.
+ * its content; each one scrolls on its own. The sections keep their order: the last
+ * open one leaves the free space below it, so collapsed sections after it sit at the
+ * bottom and those before it stay at the top.
  */
 .chonky-sidebarSection {
     display: flex;
     flex-direction: column;
-    flex: 1000 1 0;
+    flex: 1 1 0;
     max-height: max-content;
     min-height: 0;
-    order: 0;
+}
+
+.chonky-sidebarSection:not(.chonky-sidebarSectionCollapsed):not(
+        :has(~ .chonky-sidebarSection:not(.chonky-sidebarSectionCollapsed))
+    ) {
+    margin-bottom: auto;
 }
 
 .chonky-sidebarSection + .chonky-sidebarSection:not(.chonky-sidebarSectionCollapsed) {
     margin-top: 6px;
 }
 
-.chonky-sidebarSpacer {
-    flex: 1 1 0;
-    order: 1;
-}
-
 .chonky-sidebarSectionCollapsed {
     flex: none;
     max-height: none;
-    order: 2;
-    border-top: 1px solid var(--chonky-divider);
+    /* Slides over the other sections on its way up or down */
+    position: relative;
+    z-index: 1;
+    background-color: var(--chonky-bg);
 }
 
 .chonky-sidebarSectionBody {
@@ -559,7 +562,8 @@
 
 .chonky-sidebarSectionToggle {
     height: 26px;
-    margin: 0 6px 2px;
+    /* The same in both states, so the title stays put when the section collapses */
+    margin: 3px 6px 2px;
     padding: 0 8px 0 4px;
     border: 0;
     border-radius: var(--chonky-radius-control);
@@ -567,11 +571,6 @@
     font-family: inherit;
     text-align: start;
     cursor: pointer;
-}
-
-.chonky-sidebarSectionCollapsed > .chonky-sidebarSectionToggle {
-    margin-top: 2px;
-    margin-bottom: 0;
 }
 
 .chonky-sidebarSectionToggle:hover {

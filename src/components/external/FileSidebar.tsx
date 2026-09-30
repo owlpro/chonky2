@@ -85,8 +85,6 @@ export const FileSidebar: React.FC<FileSidebarProps> = React.memo(({ className, 
         <SidebarLayoutContext.Provider value={recordPositions}>
             <nav ref={navRef} className={c('chonky-sidebar', className)}>
                 {children}
-                {/* Takes the free space, so collapsed sections sit at the bottom like in VS Code */}
-                <div className="chonky-sidebarSpacer" />
             </nav>
         </SidebarLayoutContext.Provider>
     );
@@ -102,8 +100,9 @@ export interface FileSidebarSectionProps {
     title?: ReactNode;
     /**
      * Whether clicking the title collapses the section. A collapsed section shows only
-     * its title, at the bottom of the sidebar. Defaults to `true` for sections with a
-     * title and an ID.
+     * its title: at the top of the sidebar when no open section comes before it,
+     * otherwise at the bottom, like VS Code's views. Defaults to `true` for sections
+     * with a title and an ID.
      */
     collapsible?: boolean;
     children?: ReactNode;
