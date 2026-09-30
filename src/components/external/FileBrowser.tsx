@@ -10,6 +10,7 @@ import { getValueOrFallback } from '../../util/helpers';
 import { useStaticValue } from '../../util/hooks-helpers';
 import { ChonkyFormattersContext, ChonkyIntlContext, defaultFormatters } from '../../util/i18n';
 import { createChonkyIntl } from '../../util/intl';
+import { normalizeUserState, readStoredUserState } from '../../util/user-state';
 import { ChonkyIconContext } from '../../util/icon-helper';
 import { ChonkyDarkModeContext, useChonkyStyles } from '../../util/styles';
 import { ChonkyBusinessLogic } from '../internal/ChonkyBusinessLogic';
@@ -54,7 +55,11 @@ export const FileBrowser = React.forwardRef<
 
     const generatedInstanceId = useId();
     const chonkyInstanceId = useStaticValue(() => instanceId ?? generatedInstanceId);
-    const store = useChonkyStore(chonkyInstanceId);
+    const store = useChonkyStore(chonkyInstanceId, () =>
+        props.userState != null
+            ? normalizeUserState(props.userState)
+            : readStoredUserState(props.userStateStorageKey ?? null)
+    );
 
     useChonkyStyles();
 

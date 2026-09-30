@@ -4,16 +4,22 @@ import { useDispatch, useSelector } from 'react-redux';
 import { configureStore } from '@reduxjs/toolkit';
 
 import { RootState } from '../types/redux.types';
+import { ChonkyUserState } from '../types/user-state.types';
 import { useStaticValue } from '../util/hooks-helpers';
 import { rootReducer } from './reducers';
 import { initialRootState } from './state';
 import { useStoreWatchers } from './watchers';
 
-export const useChonkyStore = (chonkyInstanceId: string) => {
+/**
+ * @param getUserState Returns the user state to start with, so saved favorites and
+ * collapsed sections show from the first render instead of popping in after it.
+ */
+export const useChonkyStore = (chonkyInstanceId: string, getUserState?: () => ChonkyUserState) => {
     const store = useStaticValue(() => {
         const preloadedState: RootState = {
             ...initialRootState,
             instanceId: chonkyInstanceId,
+            userState: getUserState?.() ?? initialRootState.userState,
         };
 
         return configureStore({

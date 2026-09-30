@@ -28,6 +28,7 @@ The project follows [Semantic Versioning](https://semver.org/).
 
 - A drop zone that holds folders (the file browser for files from the computer, the file list) no longer lights up for an instant while the pointer crosses the gap between two folders.
 - Dragging a file that isn't selected while other files are selected moved the selected files instead of the dragged one.
+- Saved favorites and collapsed sections showed up only after the first render, so sections opened and then collapsed on page load with their arrows turning. The user state is now read before the first render; `useChonkyStore` takes it as a new optional argument.
 
 ### Development
 
