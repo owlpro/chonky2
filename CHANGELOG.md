@@ -5,6 +5,8 @@ The project follows [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [7.1.0]
+
 ### Added
 
 - User state: favorites and collapsed sidebar sections are remembered per user (`ChonkyUserState`). Pass `userStateStorageKey` to keep them in `localStorage`, or `userState` with `onUserStateChange` to keep them in the app, e.g. on its server. `onUserStateChange` is called on every change in both cases.
