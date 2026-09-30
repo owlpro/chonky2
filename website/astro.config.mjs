@@ -7,7 +7,18 @@ export default defineConfig({
   integrations: [
     starlight({
       title: 'Chonky2',
-      sidebar: [{ label: 'Documentation', items: [{ slug: 'docs' }] }],
+      sidebar: [
+        {
+          label: 'Getting started',
+          items: [
+            { slug: 'docs' },
+            { slug: 'docs/installation' },
+            { slug: 'docs/first-explorer' },
+            { slug: 'docs/connect-backend' },
+            { slug: 'docs/core-props' },
+          ],
+        },
+      ],
     }),
     react(),
   ],

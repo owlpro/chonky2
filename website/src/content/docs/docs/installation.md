@@ -1,0 +1,52 @@
+---
+title: Installation
+description: Install Chonky2 in a React 19 or newer project and check the package requirements.
+---
+
+## Requirements
+
+- React and React DOM **19 or newer** are peer dependencies.
+- TypeScript is optional; types are included.
+- A current Chrome, Edge, Firefox, or Safari browser is supported.
+
+Install with your package manager:
+
+```bash
+npm install chonky2
+```
+
+```bash
+yarn add chonky2
+```
+
+```bash
+pnpm add chonky2
+```
+
+Run **one** of these commands. Your app must already have matching `react` and `react-dom` dependencies.
+
+## What comes with the package
+
+Chonky2 includes its icons and styles. They are injected when the component renders, so there is no separate CSS import or icon setup. You can import the component and its types directly:
+
+```tsx
+import { FullFileBrowser, type FileData } from 'chonky2';
+```
+
+Give the explorer a parent with a set height. It fills the available height:
+
+```tsx
+const files: FileData[] = [
+  { id: 'readme', name: 'README.md', size: 2048 },
+];
+
+export function FilePanel() {
+  return (
+    <div style={{ height: 500 }}>
+      <FullFileBrowser files={files} />
+    </div>
+  );
+}
+```
+
+This renders a static folder. For working folder navigation, continue with [your first explorer](/docs/first-explorer/).

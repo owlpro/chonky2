@@ -1,0 +1,63 @@
+---
+title: Core props
+description: Understand files, folderChain, and onFileAction in Chonky2 v7.
+---
+
+`FullFileBrowser` can render with only `files`. To let people move through folders, your app also supplies `folderChain` and handles `onFileAction`.
+
+| Prop | Type | Role |
+| --- | --- | --- |
+| `files` | `(FileData \| null)[]` | Entries in the **current** folder. This is the only required prop. |
+| `folderChain` | `(FileData \| null)[]` | Path from the root folder to the current folder. |
+| `onFileAction` | `FileActionHandler` | Receives user actions so your app can navigate or update stored files. |
+
+## files
+
+Each file needs an `id` and a `name`. Mark folders with `isDir: true`. Other fields add details such as size, modified date, child count, or a thumbnail:
+
+```tsx
+import type { FileData } from 'chonky2';
+
+const files: FileData[] = [
+  { id: 'docs', name: 'Documents', isDir: true, childrenCount: 3 },
+  { id: 'report', name: 'Report.pdf', size: 480_000, modDate: '2026-09-21' },
+  { id: 'photo', name: 'Photo.png', thumbnailUrl: '/thumbnails/photo.png' },
+];
+```
+
+Use an array even for an empty folder: `files={[]}`. A `null` entry can represent a loading placeholder. Set `loading` when the whole folder is being fetched. Keep IDs stable across renders and unique within your file data.
+
+## folderChain
+
+The first entry is the top-level folder; the last is the folder whose contents are in `files`:
+
+```tsx
+const folderChain: FileData[] = [
+  { id: 'home', name: 'Home', isDir: true },
+  { id: 'docs', name: 'Documents', isDir: true },
+];
+```
+
+With this chain, `files` must contain the contents of **Documents**, not the contents of Home. Chonky2 uses the chain for breadcrumbs and the Up button. Your app updates both props after a folder change.
+
+## onFileAction
+
+Actions arrive with an `id`, a `payload`, and `state`. For navigation, handle `ChonkyActions.OpenFiles` and use its target folder:
+
+```tsx
+import { ChonkyActions, type FileActionHandler } from 'chonky2';
+
+const handleFileAction: FileActionHandler = (data) => {
+  if (data.id !== ChonkyActions.OpenFiles.id) return;
+
+  const target = data.payload.targetFile ?? data.payload.files[0];
+  if (!target?.isDir) return;
+
+  // Update your current folder, then pass its files and path back in.
+  openFolder(target.id);
+};
+```
+
+`openFolder` here stands for your app's navigation function. Use the full working handler in [Your first explorer](/docs/first-explorer/) or [Connect a backend](/docs/connect-backend/).
+
+Selection, sorting, searching the current folder, and switching views work inside Chonky2. Operations that change stored data need your handler and an updated `files` array. Extra operations are opt-in through `fileActions`; the [repository README](https://github.com/owlpro/chonky2#readme) has the broader reference.
