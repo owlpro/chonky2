@@ -2,7 +2,7 @@ import { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 
 import { reduxActions } from '../redux/reducers';
-import { selectFavorites, selectFileMap, selectFolderChain } from '../redux/selectors';
+import { selectFavorites, selectFileMap, selectFolderChain, selectRecent } from '../redux/selectors';
 import { thunkUpdateUserState } from '../redux/thunks/user-state.thunks';
 import { FileData } from '../types/file.types';
 import { ChonkyUserState } from '../types/user-state.types';
@@ -29,27 +29,29 @@ export const useUserStateProps = (
 };
 
 /**
- * Favorites are saved copies of the folders, so a renamed folder would keep its old
- * name in the sidebar. This updates a favorite whenever its folder shows up in `files`
- * or `folderChain` with a different name.
+ * Favorites and recent files are saved copies of the files, so a renamed file would
+ * keep its old name in the sidebar. This updates a saved copy whenever its file shows
+ * up in `files` or `folderChain` with a different name.
  */
-export const useFavoriteRefresh = () => {
+export const useSavedFileRefresh = () => {
     const dispatch = useDispatch<any>();
     const favorites = useSelector(selectFavorites);
+    const recent = useSelector(selectRecent);
     const fileMap = useSelector(selectFileMap);
     const folderChain = useSelector(selectFolderChain);
 
     useEffect(() => {
-        const findChanged = (favorite: FileData) => {
-            const current = fileMap[favorite.id] ?? folderChain.find((f) => f?.id === favorite.id);
-            return current && current.name !== favorite.name ? current : null;
+        const findChanged = (saved: FileData) => {
+            const current = fileMap[saved.id] ?? folderChain.find((f) => f?.id === saved.id);
+            return current && current.name !== saved.name ? current : null;
         };
-        if (!favorites.some(findChanged)) return;
+        if (!favorites.some(findChanged) && !recent.some(findChanged)) return;
         dispatch(
             thunkUpdateUserState((state) => ({
                 ...state,
-                favorites: state.favorites.map((favorite) => findChanged(favorite) ?? favorite),
+                favorites: state.favorites.map((saved) => findChanged(saved) ?? saved),
+                recent: state.recent.map((saved) => findChanged(saved) ?? saved),
             }))
         );
-    }, [dispatch, favorites, fileMap, folderChain]);
+    }, [dispatch, favorites, recent, fileMap, folderChain]);
 };

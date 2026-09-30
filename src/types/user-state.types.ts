@@ -8,6 +8,11 @@ import { FileData } from './file.types';
 export interface ChonkyUserState {
     /** Folders in the sidebar's Favorites section (`FileSidebarFavorites`), in order. */
     favorites: FileData[];
+    /**
+     * Files the user opened last (not folders), newest first, for the sidebar's Recent
+     * section (`FileSidebarRecent`). Only kept while that section is shown.
+     */
+    recent: FileData[];
     /** IDs of the sidebar sections the user collapsed. */
     collapsedSidebarSections: string[];
 }

@@ -58,6 +58,7 @@ export const initialRootState: RootState = {
 
     clipboard: null,
 
-    userState: { favorites: [], collapsedSidebarSections: [] },
+    userState: { favorites: [], recent: [], collapsedSidebarSections: [] },
+    recentLimit: 0,
     userStateConfig: { controlled: false, storageKey: null, onChange: null },
 };

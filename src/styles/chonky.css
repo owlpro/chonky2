@@ -647,10 +647,18 @@
     color: var(--chonky-text);
 }
 
-.chonky-sidebarFavorite {
+/* A sidebar item with a ✕ button, in Favorites and Recent */
+.chonky-sidebarRemovableItem {
     position: relative;
     display: flex;
     flex-direction: column;
+}
+
+.chonky-sidebarEmpty {
+    padding-block: 4px 6px;
+    padding-inline: 24px 10px;
+    color: var(--chonky-text-secondary);
+    font-size: 12px;
 }
 
 .chonky-sidebarFavoriteDragging {
@@ -677,11 +685,11 @@
     bottom: -2px;
 }
 
-.chonky-sidebarFavorite > .chonky-sidebarItem {
+.chonky-sidebarRemovableItem > .chonky-sidebarItem {
     padding-inline-end: 30px;
 }
 
-.chonky-sidebarFavoriteRemove {
+.chonky-sidebarItemRemove {
     position: absolute;
     inset-inline-end: 4px;
     top: 50%;
@@ -701,17 +709,17 @@
     transform: translateY(-50%);
 }
 
-.chonky-sidebarFavorite:hover > .chonky-sidebarFavoriteRemove,
-.chonky-sidebarFavoriteRemove:focus-visible {
+.chonky-sidebarRemovableItem:hover > .chonky-sidebarItemRemove,
+.chonky-sidebarItemRemove:focus-visible {
     opacity: 1;
 }
 
-.chonky-sidebarFavoriteRemove:hover {
+.chonky-sidebarItemRemove:hover {
     background-color: var(--chonky-hover);
     color: var(--chonky-text);
 }
 
-.chonky-sidebarFavoriteRemove:focus-visible {
+.chonky-sidebarItemRemove:focus-visible {
     outline: 2px solid var(--chonky-focus-ring);
     outline-offset: -2px;
 }
@@ -764,9 +772,9 @@
     transform: translateY(-50%);
 }
 
-/* The ✕ button of a favorite takes the dot's place on hover */
-.chonky-sidebarFavorite:hover > .chonky-sidebarItemActive::after,
-.chonky-sidebarItemActive:has(~ .chonky-sidebarFavoriteRemove:focus-visible)::after {
+/* The ✕ button of Favorites and Recent takes the dot's place on hover */
+.chonky-sidebarRemovableItem:hover > .chonky-sidebarItemActive::after,
+.chonky-sidebarItemActive:has(~ .chonky-sidebarItemRemove:focus-visible)::after {
     opacity: 0;
 }
 

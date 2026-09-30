@@ -1,5 +1,5 @@
 import React, {
-    createContext, ReactNode, Ref, useCallback, useContext, useId, useLayoutEffect, useRef, useState
+    createContext, ReactNode, Ref, useCallback, useContext, useEffect, useId, useLayoutEffect, useRef, useState
 } from 'react';
 import { XYCoord } from 'react-dnd';
 import { useDispatch, useSelector, useStore } from 'react-redux';
@@ -7,12 +7,13 @@ import { useDispatch, useSelector, useStore } from 'react-redux';
 import { ChonkyActions } from '../../action-definitions/index';
 import {
     selectCollapsedSidebarSections, selectFavorites, selectFolderChain, selectInstanceId, selectIsDnDDisabled,
-    selectIsSidebarSectionCollapsed
+    selectIsSidebarSectionCollapsed, selectRecent
 } from '../../redux/selectors';
+import { reduxActions } from '../../redux/reducers';
 import { useParamSelector } from '../../redux/store';
 import { thunkRequestFileAction } from '../../redux/thunks/dispatchers.thunks';
 import {
-    thunkAddFavorites, thunkMoveFavorite, thunkRemoveFavorites, thunkToggleSidebarSection
+    thunkAddFavorites, thunkMoveFavorite, thunkRemoveFavorites, thunkRemoveRecent, thunkToggleSidebarSection
 } from '../../redux/thunks/user-state.thunks';
 import {
     ChonkyDndFavoriteItem, ChonkyDndFavoriteType, ChonkyDndFileEntryItem, ChonkyDndFileEntryType
@@ -299,10 +300,19 @@ const getDropSide = (element: Nullable<HTMLElement>, offset: Nullable<XYCoord>) 
     return offset.y < rect.top + rect.height / 2 ? 'before' : 'after';
 };
 
+/** The ✕ button shown over a sidebar item on hover, e.g. to remove a favorite. */
+const SidebarItemRemoveButton: React.FC<{ label: string; onClick: () => void }> = ({ label, onClick }) => {
+    const ChonkyIcon = useContext(ChonkyIconContext);
+    return (
+        <button type="button" className="chonky-sidebarItemRemove" title={label} aria-label={label} onClick={onClick}>
+            <ChonkyIcon icon={ChonkyIconName.close} />
+        </button>
+    );
+};
+
 const FavoriteItem: React.FC<{ folder: FileData; index: number }> = React.memo(({ folder, index }) => {
     const dispatch = useDispatch<any>();
     const intl = useIntl();
-    const ChonkyIcon = useContext(ChonkyIconContext);
     const instanceId = useSelector(selectInstanceId);
     const dndDisabled = useSelector(selectIsDnDDisabled);
     const rootRef = useRef<HTMLDivElement | null>(null);
@@ -340,30 +350,24 @@ const FavoriteItem: React.FC<{ folder: FileData; index: number }> = React.memo((
         drag(drop(node));
     };
 
-    const removeLabel = intl.formatMessage({
-        id: getI18nId(I18nNamespace.Sidebar, 'removeFavorite'),
-        defaultMessage: 'Remove from Favorites',
-    });
     const side = isOver ? dropSide : null;
     return (
         <div
             ref={setRootRef}
-            className={c('chonky-sidebarFavorite', {
+            className={c('chonky-sidebarRemovableItem', 'chonky-sidebarFavorite', {
                 'chonky-sidebarFavoriteDragging': isDragging,
                 'chonky-sidebarFavoriteDropBefore': side === 'before',
                 'chonky-sidebarFavoriteDropAfter': side === 'after',
             })}
         >
             <FileSidebarItem folder={folder} />
-            <button
-                type="button"
-                className="chonky-sidebarFavoriteRemove"
-                title={removeLabel}
-                aria-label={removeLabel}
+            <SidebarItemRemoveButton
+                label={intl.formatMessage({
+                    id: getI18nId(I18nNamespace.Sidebar, 'removeFavorite'),
+                    defaultMessage: 'Remove from Favorites',
+                })}
                 onClick={() => dispatch(thunkRemoveFavorites([folder.id]))}
-            >
-                <ChonkyIcon icon={ChonkyIconName.close} />
-            </button>
+            />
         </div>
     );
 });
@@ -461,3 +465,61 @@ export const FileSidebarFavorites: React.FC<FileSidebarFavoritesProps> = React.m
     );
 });
 FileSidebarFavorites.displayName = 'FileSidebarFavorites';
+
+export interface FileSidebarRecentProps {
+    /** Defaults to the `chonky.sidebar.recent` message, "Recent". */
+    title?: ReactNode;
+    /** Identifies the section in the user state, see `FileSidebarSection`. Defaults to `recent`. */
+    id?: string;
+    /** Shown before the title, see `FileSidebarSection`. Defaults to a clock; `null` hides it. */
+    icon?: Nullable<ChonkyIconName | string | React.ReactElement>;
+    /** How many files to keep. Defaults to 10. */
+    limit?: number;
+}
+
+/**
+ * A sidebar section with the files the user opened last (`OpenFiles`), newest first,
+ * kept in the user state (see `FileBrowserProps.userState`). Folders aren't listed.
+ * Clicking an entry opens it again, and its ✕ button removes it. Opened files are only
+ * recorded while this section is shown.
+ */
+export const FileSidebarRecent: React.FC<FileSidebarRecentProps> = React.memo((props) => {
+    const { id = 'recent', icon = ChonkyIconName.recent, limit = 10 } = props;
+    const dispatch = useDispatch<any>();
+    const intl = useIntl();
+    const recent = useSelector(selectRecent);
+
+    useEffect(() => {
+        dispatch(reduxActions.setRecentLimit(limit));
+        return () => {
+            dispatch(reduxActions.setRecentLimit(0));
+        };
+    }, [dispatch, limit]);
+
+    const title =
+        props.title ?? intl.formatMessage({ id: getI18nId(I18nNamespace.Sidebar, 'recent'), defaultMessage: 'Recent' });
+    const removeLabel = intl.formatMessage({
+        id: getI18nId(I18nNamespace.Sidebar, 'removeRecent'),
+        defaultMessage: 'Remove from Recent',
+    });
+
+    return (
+        <SidebarSectionFrame id={id} title={title} icon={icon} className="chonky-sidebarRecent">
+            {recent.slice(0, limit).map((file) => (
+                <div key={file.id} className="chonky-sidebarRemovableItem">
+                    <FileSidebarItem folder={file} />
+                    <SidebarItemRemoveButton label={removeLabel} onClick={() => dispatch(thunkRemoveRecent([file.id]))} />
+                </div>
+            ))}
+            {recent.length === 0 && (
+                <div className="chonky-sidebarEmpty">
+                    {intl.formatMessage({
+                        id: getI18nId(I18nNamespace.Sidebar, 'recentEmpty'),
+                        defaultMessage: 'Files you open show up here',
+                    })}
+                </div>
+            )}
+        </SidebarSectionFrame>
+    );
+});
+FileSidebarRecent.displayName = 'FileSidebarRecent';

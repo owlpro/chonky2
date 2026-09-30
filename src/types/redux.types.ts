@@ -108,6 +108,8 @@ export type RootState = {
     /** Favorites and other things remembered for the user, see `ChonkyUserState`. */
     userState: ChonkyUserState;
     userStateConfig: UserStateConfig;
+    /** How many opened files `FileSidebarRecent` keeps; `0` while none is shown. */
+    recentLimit: number;
 };
 
 export interface ChonkyClipboard {

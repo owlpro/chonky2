@@ -16,7 +16,7 @@ import { FileBrowserHandle, FileBrowserProps } from '../../types/file-browser.ty
 import { defaultConfig } from '../../util/default-config';
 import { useFileBrowserHandle } from '../../util/file-browser-handle';
 import { getValueOrFallback } from '../../util/helpers';
-import { useFavoriteRefresh, useUserStateProps } from '../../util/user-state-hooks';
+import { useSavedFileRefresh, useUserStateProps } from '../../util/user-state-hooks';
 
 export const ChonkyBusinessLogicInner = React.memo(
     React.forwardRef<FileBrowserHandle, FileBrowserProps>((props, ref) => {
@@ -73,7 +73,7 @@ export const ChonkyBusinessLogicInner = React.memo(
         );
 
         useUserStateProps(props.userState, props.onUserStateChange, props.userStateStorageKey);
-        useFavoriteRefresh();
+        useSavedFileRefresh();
 
         // ==== Setup the imperative handle for external use
         useFileBrowserHandle(ref);

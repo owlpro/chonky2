@@ -5,11 +5,18 @@ export { FileBrowser } from './components/external/FileBrowser';
 export { FileNavbar } from './components/external/FileNavbar';
 export { FileToolbar } from './components/external/FileToolbar';
 export { FileStatusBar } from './components/external/FileStatusBar';
-export { FileSidebar, FileSidebarFavorites, FileSidebarItem, FileSidebarSection } from './components/external/FileSidebar';
+export {
+    FileSidebar,
+    FileSidebarFavorites,
+    FileSidebarItem,
+    FileSidebarRecent,
+    FileSidebarSection,
+} from './components/external/FileSidebar';
 export type {
     FileSidebarProps,
     FileSidebarFavoritesProps,
     FileSidebarItemProps,
+    FileSidebarRecentProps,
     FileSidebarSectionProps,
 } from './components/external/FileSidebar';
 export { FileList } from './components/file-list/FileList';

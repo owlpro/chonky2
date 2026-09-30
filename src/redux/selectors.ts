@@ -96,6 +96,7 @@ export const selectClipboard = (state: RootState) => state.clipboard;
 
 export const selectUserState = (state: RootState) => state.userState;
 export const selectFavorites = (state: RootState) => state.userState.favorites;
+export const selectRecent = (state: RootState) => state.userState.recent;
 export const selectCollapsedSidebarSections = (state: RootState) => state.userState.collapsedSidebarSections;
 export const selectIsSidebarSectionCollapsed = (sectionId: Nullable<string>) => (state: RootState) =>
     !!sectionId && state.userState.collapsedSidebarSections.includes(sectionId);

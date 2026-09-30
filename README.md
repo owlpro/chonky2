@@ -52,7 +52,7 @@ it is a REST API, S3, Firebase, a CMS media library or data in memory.
   - [Drag and drop](#drag-and-drop)
   - [Search](#search)
   - [Sidebar](#sidebar)
-  - [Favorites and user state](#favorites-and-user-state)
+  - [Favorites, Recent and user state](#favorites-recent-and-user-state)
   - [Toolbar content](#toolbar-content)
   - [Loading](#loading)
   - [Keyboard and mouse](#keyboard-and-mouse)
@@ -219,7 +219,7 @@ what the user wants.
 | `ChangeSearch` | Search text changed (after typing stops, Enter, Esc, or cleared by navigating) | `payload.searchString` (trimmed) |
 | `DropFiles` | Files dragged in from the computer are dropped | `payload.files` (`File[]`), `payload.destination` |
 | `CreateFolder`, `UploadFiles`, `DownloadFiles`, `CopyFiles`, `CutFiles`, `DeleteFiles` | Their button, menu item or shortcut | `state.selectedFilesForAction` |
-| `AddToFavorites`, `RemoveFromFavorites` | Their menu item; Chonky updates the [user state](#favorites-and-user-state) itself | `state.selectedFilesForAction` (folders) |
+| `AddToFavorites`, `RemoveFromFavorites` | Their menu item; Chonky updates the [user state](#favorites-recent-and-user-state) itself | `state.selectedFilesForAction` (folders) |
 
 `CreateFolder`, `UploadFiles`, `DownloadFiles`, `CopyFiles`, `CutFiles`, `PasteFiles`,
 `RenameFile`, `DeleteFiles`, `DropFiles`, `AddToFavorites` and `RemoveFromFavorites` are opt-in: pass the ones your app supports in
@@ -356,11 +356,11 @@ bar: a collapsed section shows only its title. Sections keep their order, so a c
 section stays at the top when no open section comes before it and goes to the bottom
 otherwise. Open sections
 share the height (none grows past its content) and each scrolls on its own. The collapsed
-sections are remembered in the [user state](#favorites-and-user-state) under the section's
+sections are remembered in the [user state](#favorites-recent-and-user-state) under the section's
 `id` (its `title` when that is a string); pass `collapsible={false}` to keep a section open,
 and `icon` to show an icon before the title.
 
-### Favorites and user state
+### Favorites, Recent and user state
 
 `FileSidebarFavorites` is a sidebar section with the user's favorite folders. Folders are
 added by dropping them onto the section (while a folder is dragged, a "Drop folders here" box
@@ -368,7 +368,11 @@ shows up in it, also when it is collapsed) or with the `AddToFavorites` action, 
 dragging, and removed with their ✕ button or `RemoveFromFavorites`. Clicking a favorite opens
 it with `OpenFiles`, and files dropped onto it are moved into it.
 
-Favorites and collapsed sections make up the *user state* (`ChonkyUserState`). Chonky can
+`FileSidebarRecent` lists the files the user opened last (`OpenFiles`), newest first; folders
+aren't listed. Clicking one opens it again and its ✕ button removes it. It keeps `limit` files
+(default 10), and opened files are only recorded while the section is shown.
+
+Favorites, recent files and collapsed sections make up the *user state* (`ChonkyUserState`). Chonky can
 keep it in the browser, or leave it to your app so it follows the user between devices:
 
 ```tsx
@@ -479,8 +483,8 @@ With your own layout, pass toolbar content to `FileToolbar` as `startContent` an
 | `darkMode` | `boolean` | Uses the dark theme. |
 | `disableAnimations` | `boolean` | Turns off Chonky's animations (menus, sidebar sections); loading indicators keep moving. Also off when the system asks for reduced motion. |
 | `sidebar` | `ReactNode` | [Sidebar](#sidebar) left of the file list (`FullFileBrowser` only). |
-| `userState`, `onUserStateChange` | `Partial<ChonkyUserState>`, `(state) => void` | Favorites and collapsed sidebar sections, kept by your app. See [user state](#favorites-and-user-state). |
-| `userStateStorageKey` | `string` | Keeps the [user state](#favorites-and-user-state) in `localStorage` under this key when `userState` isn't passed. |
+| `userState`, `onUserStateChange` | `Partial<ChonkyUserState>`, `(state) => void` | Favorites and collapsed sidebar sections, kept by your app. See [user state](#favorites-recent-and-user-state). |
+| `userStateStorageKey` | `string` | Keeps the [user state](#favorites-recent-and-user-state) in `localStorage` under this key when `userState` isn't passed. |
 | `toolbarStart`, `toolbarEnd` | `ReactNode` | [Toolbar content](#toolbar-content) (`FullFileBrowser` only). |
 | `thumbnailGenerator` | `(file) => string \| null \| Promise<…>` | Returns each file's thumbnail URL, instead of `thumbnailUrl`. |
 | `i18n` | `I18nConfig` | [Translations](#translations) and formatters. |
@@ -599,7 +603,7 @@ Message IDs follow the pattern `chonky.<area>.<name>`:
 | `fileList` | `nothingToShow`, `loading`, `nameColumn`, `typeColumn`, `sizeColumn`, `dateColumn` |
 | `fileEntry` | `folderType`, `fileType`, `genericFileType`, `folderItemCount` |
 | `contextMenu` | `browserMenuShortcut` |
-| `sidebar` | `favorites`, `favoritesDropHint`, `removeFavorite` |
+| `sidebar` | `favorites`, `favoritesDropHint`, `removeFavorite`, `recent`, `recentEmpty`, `removeRecent` |
 | `actions` | `<actionId>.button.name`, `<actionId>.button.tooltip` |
 | `actionGroups` | `<group name>`, e.g. `Actions`, `Options` |
 
@@ -637,7 +641,7 @@ What you can try:
   zone below the window (`useFolderDropTarget`).
 - **Dark mode**, **Disable animations** and **Loading** toggle the `darkMode`,
   `disableAnimations` and `loading` props.
-- **User** switches between two users, each with their own favorites and collapsed sidebar
+- **User** switches between two users, each with their own favorites, recent files and collapsed sidebar
   sections, kept in `localStorage` with `userStateStorageKey`.
 - *Downloads* has a picture whose thumbnail is missing, to show the broken image icon.
 - The **Log** lists each action with its payload, e.g. `move_files: Report.pdf → Desktop`.

@@ -51,6 +51,35 @@ export const thunkMoveFavorite = (folderId: string, index: number): ChonkyThunk 
         return { ...userState, favorites };
     });
 
+/**
+ * Puts opened files (not folders) at the top of the recent ones, keeping `recentLimit`
+ * of them. Does nothing while no `FileSidebarRecent` is shown.
+ */
+export const thunkRecordRecent =
+    (openedFiles: FileData[]): ChonkyThunk =>
+    (dispatch, getState) => {
+        const limit = getState().recentLimit;
+        const files = openedFiles.filter((f) => !f.isDir);
+        if (limit <= 0 || files.length === 0) return;
+        dispatch(
+            thunkUpdateUserState((userState) => {
+                const openedIds = new Set(files.map((f) => f.id));
+                const opened = files.filter((f, i) => files.findIndex((o) => o.id === f.id) === i);
+                const recent = [...opened, ...userState.recent.filter((f) => !openedIds.has(f.id))].slice(0, limit);
+                const unchanged =
+                    recent.length === userState.recent.length &&
+                    recent.every((f, i) => f === userState.recent[i]);
+                return unchanged ? userState : { ...userState, recent };
+            })
+        );
+    };
+
+export const thunkRemoveRecent = (fileIds: string[]): ChonkyThunk =>
+    thunkUpdateUserState((userState) => {
+        const recent = userState.recent.filter((f) => !fileIds.includes(f.id));
+        return recent.length === userState.recent.length ? userState : { ...userState, recent };
+    });
+
 export const thunkToggleSidebarSection = (sectionId: string): ChonkyThunk =>
     thunkUpdateUserState((userState) => {
         const collapsed = userState.collapsedSidebarSections;

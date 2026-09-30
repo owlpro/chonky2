@@ -6,6 +6,7 @@ import {
 import { reduxThunks } from '../redux/thunks';
 import { thunkNavigateHistory } from '../redux/thunks/file-actions.thunks';
 import { thunkRequestFileAction } from '../redux/thunks/dispatchers.thunks';
+import { thunkRecordRecent } from '../redux/thunks/user-state.thunks';
 import {
     ChangeFileNamePayload, ChangeSearchPayload, ChangeSelectionPayload, CopyFilesToPayload, EndDragNDropPayload, KeyboardClickFilePayload, MouseClickFilePayload,
     MoveFilesPayload, OpenFileContextMenuPayload, OpenFilesPayload, StartDragNDropPayload
@@ -246,10 +247,15 @@ export const EssentialActions = {
      * Action that is dispatched when user wants to open some files. This action is
      * often triggered by other actions.
      */
-    OpenFiles: defineFileAction({
-        id: 'open_files',
-        __payloadType: {} as OpenFilesPayload,
-    } as const),
+    OpenFiles: defineFileAction(
+        {
+            id: 'open_files',
+            __payloadType: {} as OpenFilesPayload,
+        } as const,
+        ({ payload, reduxDispatch }) => {
+            reduxDispatch(thunkRecordRecent(payload.targetFile ? [payload.targetFile] : payload.files));
+        }
+    ),
     /**
      * Action that is triggered when user wants to go up a directory.
      */

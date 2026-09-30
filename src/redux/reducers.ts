@@ -293,6 +293,9 @@ const reducers = {
     setUserStateConfig(state: RootState, action: PayloadAction<UserStateConfig>) {
         state.userStateConfig = action.payload;
     },
+    setRecentLimit(state: RootState, action: PayloadAction<number>) {
+        state.recentLimit = action.payload;
+    },
     hideContextMenu(state: RootState) {
         if (!state.contextMenuConfig) return;
         state.contextMenuConfig = null;

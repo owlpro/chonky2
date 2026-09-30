@@ -16,6 +16,7 @@ import {
     FileSidebar,
     FileSidebarFavorites,
     FileSidebarItem,
+    FileSidebarRecent,
     FileSidebarSection,
     FullFileBrowser,
     ToolbarButton,
@@ -99,6 +100,7 @@ let nextFileId = 1;
 const Sidebar = ({ files }: { files: PlaygroundFile[] }) => (
     <FileSidebar>
         <FileSidebarFavorites />
+        <FileSidebarRecent limit={5} />
         <FileSidebarSection id="folders" title="Folders" icon={ChonkyIconName.folder}>
             {sidebarFolders.map((item) => (
                 <FileSidebarItem
@@ -114,6 +116,7 @@ const Sidebar = ({ files }: { files: PlaygroundFile[] }) => (
 
 const describeUserState = (state: ChonkyUserState) =>
     `user state: favorites [${state.favorites.map((f) => f.name).join(', ')}], ` +
+    `recent [${state.recent.map((f) => f.name).join(', ')}], ` +
     `collapsed [${state.collapsedSidebarSections.join(', ')}]`;
 
 const Explorer = ({

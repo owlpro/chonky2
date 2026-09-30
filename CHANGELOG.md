@@ -13,6 +13,8 @@ The project follows [Semantic Versioning](https://semver.org/).
 - Collapsible sidebar sections, like VS Code's side bar: clicking a `FileSidebarSection`'s title collapses it to its title. Sections keep their order: a collapsed section stays at the top when no open section comes before it, otherwise it goes to the bottom. Its new `id` prop (defaulting to a string `title`) remembers it in the user state, and `collapsible={false}` keeps it open.
 - `disableAnimations` prop (also for `setChonkyDefaults`): turns off menu fade-ins, transitions and the sidebar animations. Loading indicators keep moving. Animations are also off when the system asks for reduced motion (`prefers-reduced-motion`).
 - Collapsing or opening a sidebar section slides the sections to their new places, and its arrow turns. Only the user's clicks animate, not the saved state loading.
+- `FileSidebarRecent`: a sidebar section with the files the user opened last (`OpenFiles`), newest first, kept in the user state (`ChonkyUserState.recent`). Folders aren't listed. Clicking one opens it again and its ✕ button removes it; `limit` sets how many are kept (default 10). Opened files are only recorded while the section is shown, and renamed files are updated like favorites.
+- `ChonkyIconName.recent`, and the `chonky.sidebar.recent`, `chonky.sidebar.recentEmpty` and `chonky.sidebar.removeRecent` messages.
 - `icon` prop on `FileSidebarSection` and `FileSidebarFavorites`: an icon before the section title. Favorites show a star by default.
 - `ChonkyIconName.favorite`, `ChonkyIconName.unfavorite` and `ChonkyIconName.sectionToggle`, and the `chonky.sidebar.favorites`, `chonky.sidebar.favoritesDropHint` and `chonky.sidebar.removeFavorite` messages.
 
@@ -28,6 +30,7 @@ The project follows [Semantic Versioning](https://semver.org/).
 ### Development
 
 - Playground: a Disable animations switch.
+- Playground: a Recent section in the sidebar.
 - Playground: the sidebar has a Favorites and a Folders section, `AddToFavorites` and `RemoveFromFavorites` are registered, and a User switch shows the user state kept per user in `localStorage`.
 
 ## [7.0.0]

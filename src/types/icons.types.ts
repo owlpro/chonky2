@@ -45,6 +45,7 @@ export enum ChonkyIconName {
     close = 'close',
     favorite = 'favorite',
     unfavorite = 'unfavorite',
+    recent = 'recent',
     /** The arrow of a collapsible sidebar section; points right, and down when open */
     sectionToggle = 'sectionToggle',
     download = 'download',
