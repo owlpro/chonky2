@@ -10,8 +10,8 @@ import {
     selectors,
 } from '../../redux/selectors';
 import { FileViewMode } from '../../types/file-view.types';
-import { useFileDrop } from '../../util/dnd';
-import { useElementSize } from '../../util/hooks-helpers';
+import { ENCLOSING_ZONE_DELAY, useFileDrop } from '../../util/dnd';
+import { useDelayedTrue, useElementSize } from '../../util/hooks-helpers';
 import { c, getDndOverClasses } from '../../util/styles';
 import { findClosestChonkyFileId } from '../external/FileContextMenu-hooks';
 import { FileListEmpty } from './FileListEmpty';
@@ -28,7 +28,9 @@ export const FileList: React.FC<FileListProps> = React.memo((props: FileListProp
 
     const currentFolder = useSelector(selectCurrentFolder);
     const loading = useSelector(selectLoading);
-    const { drop, dndCanDrop, dndIsOver: dndIsOverCurrent } = useFileDrop({ file: currentFolder! });
+    const { drop, dndCanDrop, dndIsOver } = useFileDrop({ file: currentFolder! });
+    // The folders in the list take their own drops, see `useDelayedTrue`
+    const dndIsOverCurrent = useDelayedTrue(dndIsOver, ENCLOSING_ZONE_DELAY);
     const { onScroll } = props;
 
     const dropRef = useRef<HTMLDivElement | null>(null);

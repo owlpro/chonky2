@@ -642,6 +642,15 @@
     margin: 0 0 4px;
 }
 
+/* A drop would add favorites: the star in the title turns into a yellow one */
+.chonky-sidebarFavoritesDropping .chonky-sidebarSectionIcon {
+    color: #f5b700;
+}
+
+.chonky-sidebarFavoritesDropping .chonky-sidebarSectionIcon svg {
+    fill: currentColor;
+}
+
 .chonky-sidebarFavoritesDropping .chonky-sidebarDropHint {
     border-color: var(--chonky-drop-border);
     color: var(--chonky-text);

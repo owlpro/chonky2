@@ -8,7 +8,7 @@ The project follows [Semantic Versioning](https://semver.org/).
 ### Added
 
 - User state: favorites and collapsed sidebar sections are remembered per user (`ChonkyUserState`). Pass `userStateStorageKey` to keep them in `localStorage`, or `userState` with `onUserStateChange` to keep them in the app, e.g. on its server. `onUserStateChange` is called on every change in both cases.
-- `FileSidebarFavorites`: a sidebar section with the user's favorite folders. Folders dropped onto it are added, favorites are reordered by dragging and removed with their ✕ button. While a folder that can be added is dragged, it shows a "Drop folders here" box, also when it is collapsed. Favorites are updated when their folder shows up in `files` or `folderChain` with a new name.
+- `FileSidebarFavorites`: a sidebar section with the user's favorite folders. Folders dropped onto it or its title are added (a collapsed section then opens), and the star in its title turns yellow while a drop would add them. Favorites are reordered by dragging and removed with their ✕ button. Without favorites it shows a "Drop folders here" box, also when collapsed while a folder is dragged. Favorites are updated when their folder shows up in `files` or `folderChain` with a new name.
 - `ChonkyActions.AddToFavorites` and `ChonkyActions.RemoveFromFavorites` (opt-in, toolbar `Actions` menu and context menu) for the selected folders. Each is hidden when it doesn't apply to them.
 - Collapsible sidebar sections, like VS Code's side bar: clicking a `FileSidebarSection`'s title collapses it to its title. Sections keep their order: a collapsed section stays at the top when no open section comes before it, otherwise it goes to the bottom. Its new `id` prop (defaulting to a string `title`) remembers it in the user state, and `collapsible={false}` keeps it open.
 - `disableAnimations` prop (also for `setChonkyDefaults`): turns off menu fade-ins, transitions and the sidebar animations. Loading indicators keep moving. Animations are also off when the system asks for reduced motion (`prefers-reduced-motion`).
@@ -21,10 +21,12 @@ The project follows [Semantic Versioning](https://semver.org/).
 ### Changed
 
 - The active sidebar item shows an accent dot at its end instead of a bar at its start, and sidebar items sit deeper than the section titles, like a tree.
+- Files are no longer drop targets, so they don't turn red while something is dragged over them. Files from the computer dropped on a file still go to the current folder.
 - Open sidebar sections share the sidebar's height, none growing past its content, and each one scrolls on its own; the sidebar as a whole no longer scrolls. Section titles are buttons with an arrow.
 
 ### Fixed
 
+- A drop zone that holds folders (the file browser for files from the computer, the file list) no longer lights up for an instant while the pointer crosses the gap between two folders.
 - Dragging a file that isn't selected while other files are selected moved the selected files instead of the dragged one.
 
 ### Development

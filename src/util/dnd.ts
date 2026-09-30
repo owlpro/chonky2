@@ -26,10 +26,13 @@ import { DndEntryState } from '../types/file-list.types';
 import { FileData } from '../types/file.types';
 import { FileHelper } from './file-helper';
 import { useDropIfAvailable } from './dnd-fallback';
-import { useInstanceVariable } from './hooks-helpers';
+import { useDelayedTrue, useInstanceVariable } from './hooks-helpers';
 import { RootState } from '../types/redux.types';
 
 type NativeFileItem = { files: File[] };
+
+/** How long the pointer must stay over a drop zone that encloses other drop targets before it lights up. */
+export const ENCLOSING_ZONE_DELAY = 100;
 
 /** Files dragged in from the OS are accepted only when the app registered `DropFiles`. */
 const selectCanDropNativeFiles = (state: RootState) =>
@@ -129,11 +132,8 @@ export const useFileDrop = ({
     // file list, its breadcrumb) fall through to the zone on the Chonky root, see
     // `useNativeFileDrop`.
     const currentFolderId = useSelector(selectCurrentFolder)?.id;
-    const acceptNativeFiles =
-        useSelector(selectCanDropNativeFiles) &&
-        !forceDisableDrop &&
-        FileHelper.isDroppable(file) &&
-        file.id !== currentFolderId;
+    const droppable = !forceDisableDrop && FileHelper.isDroppable(file);
+    const acceptNativeFiles = useSelector(selectCanDropNativeFiles) && droppable && file.id !== currentFolderId;
 
     const onDrop = useCallback(
         (item: ChonkyDndFileEntryItem | NativeFileItem, monitor: any) => {
@@ -186,7 +186,9 @@ export const useFileDrop = ({
     // e.g. a breadcrumb that started out as the current folder would never accept drops.
     const [{ isOver, canDrop: dndCanDrop }, drop] = useDrop(
         () => ({
-            accept: acceptNativeFiles ? [ChonkyDndFileEntryType, NativeTypes.FILE] : ChonkyDndFileEntryType,
+            // Files (and folders that take no drops) aren't drop targets at all, so they don't
+            // light up while something is dragged over them
+            accept: !droppable ? [] : acceptNativeFiles ? [ChonkyDndFileEntryType, NativeTypes.FILE] : ChonkyDndFileEntryType,
             drop: onDrop,
             canDrop,
             collect: (monitor) => ({
@@ -194,7 +196,7 @@ export const useFileDrop = ({
                 canDrop: monitor.canDrop(),
             }),
         }),
-        [acceptNativeFiles, onDrop, canDrop]
+        [droppable, acceptNativeFiles, onDrop, canDrop]
     );
 
     return {
@@ -235,7 +237,10 @@ export const useNativeFileDrop = () => {
         [enabled, store, dispatch]
     );
 
-    return { nativeFileDropIsOver: !!isOver, nativeFileDrop: drop };
+    // The folders inside take their own drops, so crossing the gap between two of them
+    // would light the whole zone for an instant
+    const nativeFileDropIsOver = useDelayedTrue(!!isOver, ENCLOSING_ZONE_DELAY);
+    return { nativeFileDropIsOver, nativeFileDrop: drop };
 };
 
 /**

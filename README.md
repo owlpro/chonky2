@@ -363,8 +363,8 @@ and `icon` to show an icon before the title.
 ### Favorites, Recent and user state
 
 `FileSidebarFavorites` is a sidebar section with the user's favorite folders. Folders are
-added by dropping them onto the section (while a folder is dragged, a "Drop folders here" box
-shows up in it, also when it is collapsed) or with the `AddToFavorites` action, reordered by
+added by dropping them onto the section or its title (the star turns yellow while a drop would
+add them, and a collapsed section opens) or with the `AddToFavorites` action, reordered by
 dragging, and removed with their ✕ button or `RemoveFromFavorites`. Clicking a favorite opens
 it with `OpenFiles`, and files dropped onto it are moved into it.
 
@@ -483,7 +483,7 @@ With your own layout, pass toolbar content to `FileToolbar` as `startContent` an
 | `darkMode` | `boolean` | Uses the dark theme. |
 | `disableAnimations` | `boolean` | Turns off Chonky's animations (menus, sidebar sections); loading indicators keep moving. Also off when the system asks for reduced motion. |
 | `sidebar` | `ReactNode` | [Sidebar](#sidebar) left of the file list (`FullFileBrowser` only). |
-| `userState`, `onUserStateChange` | `Partial<ChonkyUserState>`, `(state) => void` | Favorites and collapsed sidebar sections, kept by your app. See [user state](#favorites-recent-and-user-state). |
+| `userState`, `onUserStateChange` | `Partial<ChonkyUserState>`, `(state) => void` | Favorites, recent files and collapsed sidebar sections, kept by your app. See [user state](#favorites-recent-and-user-state). |
 | `userStateStorageKey` | `string` | Keeps the [user state](#favorites-recent-and-user-state) in `localStorage` under this key when `userState` isn't passed. |
 | `toolbarStart`, `toolbarEnd` | `ReactNode` | [Toolbar content](#toolbar-content) (`FullFileBrowser` only). |
 | `thumbnailGenerator` | `(file) => string \| null \| Promise<…>` | Returns each file's thumbnail URL, instead of `thumbnailUrl`. |

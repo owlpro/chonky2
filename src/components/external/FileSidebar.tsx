@@ -23,9 +23,10 @@ import { ChonkyIconName } from '../../types/icons.types';
 import { RootState } from '../../types/redux.types';
 import { Nullable } from '../../types/util.types';
 import { useAnimationsEnabled } from '../../util/animations';
-import { useFileDrop } from '../../util/dnd';
+import { ENCLOSING_ZONE_DELAY, useFileDrop } from '../../util/dnd';
 import { useDragIfAvailable, useDropIfAvailable } from '../../util/dnd-fallback';
 import { FileHelper } from '../../util/file-helper';
+import { useDelayedTrue } from '../../util/hooks-helpers';
 import { getI18nId, I18nNamespace, useIntl } from '../../util/i18n';
 import { ChonkyIconContext } from '../../util/icon-helper';
 import { c, getDndOverClasses } from '../../util/styles';
@@ -398,8 +399,10 @@ export const FileSidebarFavorites: React.FC<FileSidebarFavoritesProps> = React.m
     const instanceId = useSelector(selectInstanceId);
     const dndDisabled = useSelector(selectIsDnDDisabled);
     const collapsed = useParamSelector(selectIsSidebarSectionCollapsed, id);
+    const recordPositions = useContext(SidebarLayoutContext);
 
-    // Folders dragged from the list are added, favorites dragged here go to the end
+    // Folders dragged from the list onto the section or its title are added, favorites
+    // dragged here go to the end
     const [{ isOver, canDrop, isFolderDrag }, drop] = useDropIfAvailable(
         () => ({
             accept: [ChonkyDndFileEntryType, ChonkyDndFavoriteType],
@@ -418,6 +421,11 @@ export const FileSidebarFavorites: React.FC<FileSidebarFavoritesProps> = React.m
                     dispatch(thunkMoveFavorite((item as ChonkyDndFavoriteItem).fileId, favoriteCount));
                 } else {
                     dispatch(thunkAddFavorites(getDraggedFolders(item as ChonkyDndFileEntryItem)));
+                    // Opens a collapsed section, so the user sees the new favorite
+                    if (selectIsSidebarSectionCollapsed(id)(store.getState())) {
+                        recordPositions?.();
+                        dispatch(thunkToggleSidebarSection(id));
+                    }
                 }
                 // No `dropTarget`, so the files aren't moved anywhere
                 return {};
@@ -428,8 +436,12 @@ export const FileSidebarFavorites: React.FC<FileSidebarFavoritesProps> = React.m
                 isFolderDrag: monitor.getItemType() === ChonkyDndFileEntryType,
             }),
         }),
-        [dndDisabled, instanceId, store, dispatch]
+        [dndDisabled, instanceId, store, dispatch, id, recordPositions]
     );
+
+    // The favorites inside take their own drops, see `useDelayedTrue`. While a drop
+    // would add favorites, the star in the title lights up.
+    const dropping = useDelayedTrue(isOver && canDrop, ENCLOSING_ZONE_DELAY);
 
     const title =
         props.title ??
@@ -452,15 +464,15 @@ export const FileSidebarFavorites: React.FC<FileSidebarFavoritesProps> = React.m
             title={title}
             icon={icon}
             rootRef={drop as unknown as Ref<HTMLElement>}
-            className={c('chonky-sidebarFavorites', { 'chonky-sidebarFavoritesDropping': isOver && canDrop })}
-            // While collapsed, the hint shows up when a folder that can be added is dragged
-            collapsedContent={collapsed && canDrop && isFolderDrag ? dropHint : null}
+            className={c('chonky-sidebarFavorites', { 'chonky-sidebarFavoritesDropping': dropping })}
+            // Without favorites, a collapsed section shows the hint while a folder that can
+            // be added is dragged
+            collapsedContent={collapsed && favorites.length === 0 && canDrop && isFolderDrag ? dropHint : null}
         >
             {favorites.map((folder, index) => (
                 <FavoriteItem key={folder.id} folder={folder} index={index} />
             ))}
-            {/* Favorites take drops into their folder, so the hint gives adding a place of its own */}
-            {(favorites.length === 0 || (canDrop && isFolderDrag)) && dropHint}
+            {favorites.length === 0 && dropHint}
         </SidebarSectionFrame>
     );
 });

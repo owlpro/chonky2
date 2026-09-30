@@ -19,6 +19,26 @@ export const useDebounce = <T>(
     return [debouncedValue, setDebouncedValue];
 };
 
+/**
+ * `value`, but it only turns `true` once it has stayed `true` for `delay` ms; it turns
+ * `false` right away. Keeps a drop zone that encloses other drop targets from lighting
+ * up for an instant while the pointer crosses the gap between two of them.
+ */
+export const useDelayedTrue = (value: boolean, delay: number) => {
+    const [delayedValue, setDelayedValue] = useState(false);
+
+    useEffect(() => {
+        if (!value) {
+            setDelayedValue(false);
+            return;
+        }
+        const handler = setTimeout(() => setDelayedValue(true), delay);
+        return () => clearTimeout(handler);
+    }, [value, delay]);
+
+    return value && delayedValue;
+};
+
 const UNINITIALIZED_SENTINEL = {};
 export const useStaticValue = <T>(factory: () => T): T => {
     const valueRef = useRef<T>(UNINITIALIZED_SENTINEL as T);
