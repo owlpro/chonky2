@@ -16,10 +16,10 @@ jobs:
       - name: Enable Corepack
         run: corepack enable
 
-      - name: Use Node 20
+      - name: Use Node 22
         uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 22
           cache: yarn
 
       - name: Install deps
@@ -30,3 +30,9 @@ jobs:
 
       - name: Check bundle size
         run: yarn size
+
+      - name: Check website
+        run: yarn workspace @chonky2/website check
+
+      - name: Build website
+        run: yarn workspace @chonky2/website build

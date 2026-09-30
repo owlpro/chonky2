@@ -20,9 +20,15 @@
     "engines": {
         "node": ">=18"
     },
+    "workspaces": [
+        "website"
+    ],
     "scripts": {
         "dev": "vite --config playground/vite.config.ts",
         "build": "vite build",
+        "site:dev": "yarn build && yarn workspace @chonky2/website dev",
+        "site:build": "yarn build && yarn workspace @chonky2/website build",
+        "site:check": "yarn build && yarn workspace @chonky2/website check",
         "watch": "vite build --watch",
         "watch:linked": "vite build --watch --mode linked",
         "size": "size-limit"
@@ -55,7 +61,8 @@
         "typescript": "^5.9.3",
         "vite": "^6.3.6",
         "vite-plugin-dts": "^4.5.4",
-        "vitest": "^3.2.4"
+        "vitest": "^3.2.4",
+        "wrangler": "^4.145.0"
     },
     "peerDependencies": {
         "react": ">=19",

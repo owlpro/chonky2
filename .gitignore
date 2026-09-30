@@ -12,3 +12,6 @@ dist-linked
 !.yarn/releases
 !.yarn/sdks
 !.yarn/versions
+
+website/.astro
+website/dist

@@ -1,0 +1,31 @@
+---
+import '../styles/global.css';
+import PackagePreview from '../components/PackagePreview';
+import { buttonVariants } from '../components/ui/button';
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content="Chonky2 is a React file browser component. Explore the documentation and examples." />
+    <title>Chonky2 — React File Browser</title>
+  </head>
+  <body class="min-h-screen bg-background text-foreground">
+    <main class="mx-auto flex min-h-screen max-w-5xl flex-col justify-center gap-6 px-6 py-16">
+      <p class="text-sm font-semibold uppercase tracking-widest text-muted-foreground">Chonky2</p>
+      <h1 class="text-4xl font-bold tracking-tight sm:text-6xl">A file browser for React</h1>
+      <p class="max-w-2xl text-lg text-muted-foreground">
+        The project website is being built. The documentation and package source are available now.
+      </p>
+      <nav class="flex flex-wrap gap-3" aria-label="Primary navigation">
+        <a class={buttonVariants({ size: 'lg' })} href="/docs/">Documentation</a>
+        <a class={buttonVariants({ variant: 'outline', size: 'lg' })} href="https://github.com/owlpro/chonky2">GitHub</a>
+      </nav>
+      <section aria-label="Local package preview" class="h-[420px] overflow-hidden rounded-xl border border-border bg-white shadow-sm">
+        <PackagePreview client:only="react" />
+      </section>
+    </main>
+  </body>
+</html>
