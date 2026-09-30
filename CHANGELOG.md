@@ -11,6 +11,8 @@ The project follows [Semantic Versioning](https://semver.org/).
 - `FileSidebarFavorites`: a sidebar section with the user's favorite folders. Folders dropped onto it are added, favorites are reordered by dragging and removed with their ✕ button. While a folder that can be added is dragged, it shows a "Drop folders here" box, also when it is collapsed. Favorites are updated when their folder shows up in `files` or `folderChain` with a new name.
 - `ChonkyActions.AddToFavorites` and `ChonkyActions.RemoveFromFavorites` (opt-in, toolbar `Actions` menu and context menu) for the selected folders. Each is hidden when it doesn't apply to them.
 - Collapsible sidebar sections, like VS Code's side bar: clicking a `FileSidebarSection`'s title collapses it to its title at the bottom of the sidebar. Its new `id` prop (defaulting to a string `title`) remembers it in the user state, and `collapsible={false}` keeps it open.
+- `disableAnimations` prop (also for `setChonkyDefaults`): turns off menu fade-ins, transitions and the sidebar animations. Loading indicators keep moving. Animations are also off when the system asks for reduced motion (`prefers-reduced-motion`).
+- Collapsing or opening a sidebar section slides the sections to their new places, and its arrow turns. Only the user's clicks animate, not the saved state loading.
 - `ChonkyIconName.favorite`, `ChonkyIconName.unfavorite` and `ChonkyIconName.sectionToggle`, and the `chonky.sidebar.favorites`, `chonky.sidebar.favoritesDropHint` and `chonky.sidebar.removeFavorite` messages.
 
 ### Changed
@@ -23,6 +25,7 @@ The project follows [Semantic Versioning](https://semver.org/).
 
 ### Development
 
+- Playground: a Disable animations switch.
 - Playground: the sidebar has a Favorites and a Folders section, `AddToFavorites` and `RemoveFromFavorites` are registered, and a User switch shows the user state kept per user in `localStorage`.
 
 ## [7.0.0]

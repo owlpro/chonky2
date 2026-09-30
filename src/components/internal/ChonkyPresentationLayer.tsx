@@ -15,6 +15,7 @@ import {
 } from '../../redux/selectors';
 import { thunkRequestFileAction } from '../../redux/thunks/dispatchers.thunks';
 import { useNativeFileDrop } from '../../util/dnd';
+import { useAnimationsEnabled } from '../../util/animations';
 import { useDndContextAvailable } from '../../util/dnd-fallback';
 import { elementIsInsideButton } from '../../util/helpers';
 import { c, ChonkyDarkModeContext, getThemeClassName } from '../../util/styles';
@@ -89,11 +90,12 @@ export const ChonkyPresentationLayer: React.FC<ChonkyPresentationLayerProps> = (
     nativeFileDrop(rootRef);
 
     const darkMode = useContext(ChonkyDarkModeContext);
+    const animationsEnabled = useAnimationsEnabled();
     return (
         <ClickAwayListener onClickAway={handleClickAway}>
             <div
                 ref={rootRef}
-                className={c('chonky-chonkyRoot', getThemeClassName(darkMode), {
+                className={c('chonky-chonkyRoot', getThemeClassName(darkMode, !animationsEnabled), {
                     'chonky-nativeFileDropOver': nativeFileDropIsOver,
                 })}
                 onContextMenu={showContextMenu}

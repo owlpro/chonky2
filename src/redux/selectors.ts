@@ -89,12 +89,14 @@ export const selectOptionValue = (optionId: string) => (state: RootState) =>
 export const selectThumbnailGenerator = (state: RootState) => state.thumbnailGenerator;
 export const selectDoubleClickDelay = (state: RootState) => state.doubleClickDelay;
 export const selectIsDnDDisabled = (state: RootState) => state.disableDragAndDrop;
+export const selectAnimationsDisabled = (state: RootState) => state.disableAnimations;
 export const selectRenamingFileId = (state: RootState) => state.renamingFileId;
 export const selectRevealFileIds = (state: RootState) => state.revealFileIds;
 export const selectClipboard = (state: RootState) => state.clipboard;
 
 export const selectUserState = (state: RootState) => state.userState;
 export const selectFavorites = (state: RootState) => state.userState.favorites;
+export const selectCollapsedSidebarSections = (state: RootState) => state.userState.collapsedSidebarSections;
 export const selectIsSidebarSectionCollapsed = (sectionId: Nullable<string>) => (state: RootState) =>
     !!sectionId && state.userState.collapsedSidebarSections.includes(sectionId);
 /**

@@ -1,10 +1,13 @@
-import React, { ReactNode, Ref, useCallback, useContext, useId, useRef, useState } from 'react';
+import React, {
+    createContext, ReactNode, Ref, useCallback, useContext, useId, useLayoutEffect, useRef, useState
+} from 'react';
 import { XYCoord } from 'react-dnd';
 import { useDispatch, useSelector, useStore } from 'react-redux';
 
 import { ChonkyActions } from '../../action-definitions/index';
 import {
-    selectFavorites, selectFolderChain, selectInstanceId, selectIsDnDDisabled, selectIsSidebarSectionCollapsed
+    selectCollapsedSidebarSections, selectFavorites, selectFolderChain, selectInstanceId, selectIsDnDDisabled,
+    selectIsSidebarSectionCollapsed
 } from '../../redux/selectors';
 import { useParamSelector } from '../../redux/store';
 import { thunkRequestFileAction } from '../../redux/thunks/dispatchers.thunks';
@@ -18,6 +21,7 @@ import { FileData } from '../../types/file.types';
 import { ChonkyIconName } from '../../types/icons.types';
 import { RootState } from '../../types/redux.types';
 import { Nullable } from '../../types/util.types';
+import { useAnimationsEnabled } from '../../util/animations';
 import { useFileDrop } from '../../util/dnd';
 import { useDragIfAvailable, useDropIfAvailable } from '../../util/dnd-fallback';
 import { FileHelper } from '../../util/file-helper';
@@ -31,18 +35,62 @@ export interface FileSidebarProps {
     children?: ReactNode;
 }
 
+const SLIDE_ANIMATION = { duration: 220, easing: 'cubic-bezier(0.2, 0, 0, 1)' };
+
+/** Where a section's title is (the section itself when it has none), to slide it from there. */
+const getSectionTop = (section: Element) =>
+    (section.querySelector(':scope > .chonky-sidebarSectionTitle') ?? section).getBoundingClientRect().top;
+
+/** Lets a section record where the sections are before it collapses or expands. */
+const SidebarLayoutContext = createContext<Nullable<() => void>>(null);
+
 /**
  * Navigation pane on the left of the file list, like File Explorer's. Pass it to
  * `FullFileBrowser`'s `sidebar` prop, filled with `FileSidebarSection`s,
  * `FileSidebarItem`s and a `FileSidebarFavorites`.
  */
-export const FileSidebar: React.FC<FileSidebarProps> = React.memo(({ className, children }) => (
-    <nav className={c('chonky-sidebar', className)}>
-        {children}
-        {/* Takes the free space, so collapsed sections sit at the bottom like in VS Code */}
-        <div className="chonky-sidebarSpacer" />
-    </nav>
-));
+export const FileSidebar: React.FC<FileSidebarProps> = React.memo(({ className, children }) => {
+    const navRef = useRef<HTMLElement | null>(null);
+    const animationsEnabled = useAnimationsEnabled();
+    const collapsedSections = useSelector(selectCollapsedSidebarSections);
+    const positionsRef = useRef<Nullable<Map<Element, number>>>(null);
+
+    // Records the sections' positions before a section collapses or expands, so each one
+    // can slide from there to its new place
+    const recordPositions = useCallback(() => {
+        if (!animationsEnabled || !navRef.current) return;
+        const positions = new Map<Element, number>();
+        navRef.current
+            .querySelectorAll('.chonky-sidebarSection')
+            .forEach((section) => positions.set(section, getSectionTop(section)));
+        positionsRef.current = positions;
+        // With a controlled `userState` the change may never come
+        setTimeout(() => {
+            if (positionsRef.current === positions) positionsRef.current = null;
+        }, 500);
+    }, [animationsEnabled]);
+
+    useLayoutEffect(() => {
+        const positions = positionsRef.current;
+        positionsRef.current = null;
+        positions?.forEach((top, section) => {
+            if (!section.isConnected) return;
+            const offset = top - getSectionTop(section);
+            if (Math.abs(offset) < 1) return;
+            section.animate([{ transform: `translateY(${offset}px)` }, { transform: 'none' }], SLIDE_ANIMATION);
+        });
+    }, [collapsedSections]);
+
+    return (
+        <SidebarLayoutContext.Provider value={recordPositions}>
+            <nav ref={navRef} className={c('chonky-sidebar', className)}>
+                {children}
+                {/* Takes the free space, so collapsed sections sit at the bottom like in VS Code */}
+                <div className="chonky-sidebarSpacer" />
+            </nav>
+        </SidebarLayoutContext.Provider>
+    );
+});
 FileSidebar.displayName = 'FileSidebar';
 
 export interface FileSidebarSectionProps {
@@ -73,13 +121,40 @@ const SidebarSectionFrame: React.FC<SidebarSectionFrameProps> = (props) => {
     const dispatch = useDispatch<any>();
     const ChonkyIcon = useContext(ChonkyIconContext);
     const bodyId = useId();
+    const recordPositions = useContext(SidebarLayoutContext);
+    const animationsEnabled = useAnimationsEnabled();
+    const sectionRef = useRef<HTMLElement | null>(null);
+    const bodyRef = useRef<HTMLDivElement | null>(null);
+    // Set by a click, so only the user's toggles animate (not the saved state loading)
+    const fadeInBodyRef = useRef(false);
+    const [turningArrow, setTurningArrow] = useState(false);
 
     const sectionId = id ?? (typeof title === 'string' ? title : null);
     const canCollapse = !!title && !!sectionId && (collapsible ?? true);
     const collapsed = useParamSelector(selectIsSidebarSectionCollapsed, sectionId) && canCollapse;
+
     const toggle = useCallback(() => {
-        if (sectionId) dispatch(thunkToggleSidebarSection(sectionId));
-    }, [dispatch, sectionId]);
+        if (!sectionId) return;
+        recordPositions?.();
+        fadeInBodyRef.current = animationsEnabled && collapsed;
+        setTurningArrow(animationsEnabled);
+        dispatch(thunkToggleSidebarSection(sectionId));
+    }, [dispatch, sectionId, collapsed, animationsEnabled, recordPositions]);
+
+    useLayoutEffect(() => {
+        if (!fadeInBodyRef.current || collapsed) return;
+        fadeInBodyRef.current = false;
+        bodyRef.current?.animate([{ opacity: 0 }, { opacity: 1 }], SLIDE_ANIMATION);
+    }, [collapsed]);
+
+    const setSectionRef = useCallback(
+        (node: HTMLElement | null) => {
+            sectionRef.current = node;
+            if (typeof rootRef === 'function') rootRef(node);
+            else if (rootRef) (rootRef as React.MutableRefObject<HTMLElement | null>).current = node;
+        },
+        [rootRef]
+    );
 
     let header: ReactNode = null;
     if (title && canCollapse) {
@@ -91,7 +166,10 @@ const SidebarSectionFrame: React.FC<SidebarSectionFrameProps> = (props) => {
                 aria-controls={collapsed ? undefined : bodyId}
                 onClick={toggle}
             >
-                <span className="chonky-sidebarSectionArrow">
+                <span
+                    className={c('chonky-sidebarSectionArrow', { 'chonky-sidebarSectionArrowTurning': turningArrow })}
+                    onTransitionEnd={() => setTurningArrow(false)}
+                >
                     <ChonkyIcon icon={ChonkyIconName.sectionToggle} />
                 </span>
                 <span className="chonky-sidebarSectionTitleText">{title}</span>
@@ -103,14 +181,14 @@ const SidebarSectionFrame: React.FC<SidebarSectionFrameProps> = (props) => {
 
     return (
         <section
-            ref={rootRef as Ref<HTMLElement>}
+            ref={setSectionRef}
             className={c('chonky-sidebarSection', className, { 'chonky-sidebarSectionCollapsed': collapsed })}
         >
             {header}
             {collapsed ? (
                 collapsedContent
             ) : (
-                <div id={bodyId} className="chonky-sidebarSectionBody">
+                <div ref={bodyRef} id={bodyId} className="chonky-sidebarSectionBody">
                     {children}
                 </div>
             )}

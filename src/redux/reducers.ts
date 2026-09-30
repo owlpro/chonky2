@@ -272,6 +272,9 @@ const reducers = {
     setClearSelectionOnOutsideClick(state: RootState, action: PayloadAction<boolean>) {
         state.clearSelectionOnOutsideClick = action.payload;
     },
+    setDisableAnimations(state: RootState, action: PayloadAction<boolean>) {
+        state.disableAnimations = action.payload;
+    },
     setLoading(state: RootState, action: PayloadAction<boolean>) {
         state.loading = action.payload;
     },

@@ -19,7 +19,8 @@ export const useChonkyStyles = () => {
     }, []);
 };
 
-export const getThemeClassName = (darkMode: boolean) => c('chonky-theme', { 'chonky-dark': darkMode });
+export const getThemeClassName = (darkMode: boolean, animationsDisabled = false) =>
+    c('chonky-theme', { 'chonky-dark': darkMode, 'chonky-noAnimations': animationsDisabled });
 
 /**
  * Lets content rendered outside the Chonky root (menus in a portal) pick up the theme.

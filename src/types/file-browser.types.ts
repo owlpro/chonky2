@@ -168,6 +168,13 @@ export interface FileBrowserProps {
     loading?: boolean;
 
     /**
+     * Turns off Chonky's animations, such as menus fading in and sidebar sections
+     * sliding open and closed. Loading indicators keep moving. Animations are also off
+     * when the user's system asks for reduced motion (`prefers-reduced-motion`).
+     */
+    disableAnimations?: boolean;
+
+    /**
      * Enables dark mode theme.
      */
     darkMode?: boolean;

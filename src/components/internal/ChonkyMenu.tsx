@@ -2,6 +2,7 @@ import React, { ReactNode, useCallback, useContext, useEffect, useLayoutEffect, 
 import { createPortal } from 'react-dom';
 
 import { Nullable } from '../../types/util.types';
+import { useAnimationsEnabled } from '../../util/animations';
 import { c, ChonkyDarkModeContext, getThemeClassName } from '../../util/styles';
 
 export interface MenuAnchorPosition {
@@ -32,6 +33,7 @@ const getMenuItems = (menu: HTMLElement) =>
 
 const MenuSurface: React.FC<ChonkyMenuProps> = ({ onClose, anchorEl, anchorPosition, className, children }) => {
     const darkMode = useContext(ChonkyDarkModeContext);
+    const animationsEnabled = useAnimationsEnabled();
     const menuRef = useRef<HTMLDivElement>(null);
     const [position, setPosition] = useState<Nullable<MenuAnchorPosition>>(null);
 
@@ -140,7 +142,7 @@ const MenuSurface: React.FC<ChonkyMenuProps> = ({ onClose, anchorEl, anchorPosit
     }, []);
 
     return createPortal(
-        <div className={getThemeClassName(darkMode)}>
+        <div className={getThemeClassName(darkMode, !animationsEnabled)}>
             <div
                 ref={menuRef}
                 role="menu"

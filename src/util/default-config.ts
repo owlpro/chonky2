@@ -17,6 +17,7 @@ export type ChonkyConfig = Pick<
     | 'clearSelectionOnOutsideClick'
     | 'iconComponent'
     | 'darkMode'
+    | 'disableAnimations'
     | 'i18n'
 >;
 
@@ -34,6 +35,7 @@ export const defaultConfig: ChonkyConfig = {
     clearSelectionOnOutsideClick: true,
     iconComponent: ChonkyIconLucide,
     darkMode: false,
+    disableAnimations: false,
     i18n: {},
 };
 

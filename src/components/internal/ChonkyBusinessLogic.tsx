@@ -60,6 +60,10 @@ export const ChonkyBusinessLogicInner = React.memo(
             getValueOrFallback(props.disableDragAndDrop, defaultConfig.disableDragAndDrop, 'boolean')
         );
         useDTE(
+            reduxActions.setDisableAnimations,
+            getValueOrFallback(props.disableAnimations, defaultConfig.disableAnimations, 'boolean')
+        );
+        useDTE(
             reduxActions.setClearSelectionOnOutsideClick,
             getValueOrFallback(
                 props.clearSelectionOnOutsideClick,

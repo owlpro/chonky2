@@ -135,6 +135,21 @@
     animation: chonky-spin 1s linear infinite;
 }
 
+/*
+ * `disableAnimations`, or a system that asks for reduced motion: no transitions or
+ * decorative animations. Loading indicators (spinner, progress bar, pulsing
+ * placeholders) keep moving. Sidebar sections animate from JS and check this too.
+ */
+.chonky-noAnimations *,
+.chonky-noAnimations *::before,
+.chonky-noAnimations *::after {
+    transition: none !important;
+}
+
+.chonky-noAnimations .chonky-menu {
+    animation: none;
+}
+
 /* Thin scrollbars everywhere in Chonky (keep in sync with getScrollbarWidth in GridContainer.tsx) */
 .chonky-theme,
 .chonky-theme * {
@@ -573,6 +588,10 @@
     display: flex;
     font-size: 13px;
     transform: rotate(90deg);
+}
+
+/* Only a click turns the arrow smoothly, not the saved state loading */
+.chonky-sidebarSectionArrowTurning {
     transition: transform 0.12s ease;
 }
 

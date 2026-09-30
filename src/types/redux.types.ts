@@ -73,6 +73,7 @@ export type RootState = {
     doubleClickDelay: number;
     disableDragAndDrop: boolean;
     clearSelectionOnOutsideClick: boolean;
+    disableAnimations: boolean;
     /** The app is loading the current folder (`loading` prop). */
     loading: boolean;
 

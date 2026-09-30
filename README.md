@@ -474,6 +474,7 @@ With your own layout, pass toolbar content to `FileToolbar` as `startContent` an
 | `defaultSortActionId` | `string \| null` | Starting sort, e.g. `ChonkyActions.SortFilesByDate.id`. |
 | `loading` | `boolean` | Shows the [loading state](#loading). |
 | `darkMode` | `boolean` | Uses the dark theme. |
+| `disableAnimations` | `boolean` | Turns off Chonky's animations (menus, sidebar sections); loading indicators keep moving. Also off when the system asks for reduced motion. |
 | `sidebar` | `ReactNode` | [Sidebar](#sidebar) left of the file list (`FullFileBrowser` only). |
 | `userState`, `onUserStateChange` | `Partial<ChonkyUserState>`, `(state) => void` | Favorites and collapsed sidebar sections, kept by your app. See [user state](#favorites-and-user-state). |
 | `userStateStorageKey` | `string` | Keeps the [user state](#favorites-and-user-state) in `localStorage` under this key when `userState` isn't passed. |
@@ -631,7 +632,8 @@ What you can try:
 - **External DndProvider / Internal DndProvider** switch between Chonky's own drag-and-drop
   context and an app-level one; with the external one, files can be dragged onto the drop
   zone below the window (`useFolderDropTarget`).
-- **Dark mode** and **Loading** toggle the `darkMode` and `loading` props.
+- **Dark mode**, **Disable animations** and **Loading** toggle the `darkMode`,
+  `disableAnimations` and `loading` props.
 - **User** switches between two users, each with their own favorites and collapsed sidebar
   sections, kept in `localStorage` with `userStateStorageKey`.
 - *Downloads* has a picture whose thumbnail is missing, to show the broken image icon.

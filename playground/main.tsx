@@ -120,12 +120,14 @@ const Explorer = ({
     mode,
     user,
     darkMode,
+    disableAnimations,
     loading,
     onLog,
 }: {
     mode: Mode;
     user: string;
     darkMode: boolean;
+    disableAnimations: boolean;
     loading: boolean;
     onLog: (line: string) => void;
 }) => {
@@ -240,6 +242,7 @@ const Explorer = ({
                     defaultFileViewActionId={ChonkyActions.EnableListView.id}
                     disableDragAndDropProvider={mode === 'external'}
                     darkMode={darkMode}
+                    disableAnimations={disableAnimations}
                     loading={loading}
                     sidebar={<Sidebar files={files} />}
                     userStateStorageKey={`chonky-playground:${user}`}
@@ -288,6 +291,7 @@ const App = () => {
     const [mode, setMode] = useState<Mode>('external');
     const [user, setUser] = useState(users[0]!);
     const [darkMode, setDarkMode] = useState(false);
+    const [disableAnimations, setDisableAnimations] = useState(false);
     const [loading, setLoading] = useState(false);
     const [log, setLog] = useState<string[]>([]);
     const addLog = useCallback((line: string) => setLog((prev) => [line, ...prev].slice(0, 50)), []);
@@ -318,6 +322,14 @@ const App = () => {
                         Dark mode
                     </label>
                     <label>
+                        <input
+                            type="checkbox"
+                            checked={disableAnimations}
+                            onChange={(e) => setDisableAnimations(e.target.checked)}
+                        />{' '}
+                        Disable animations
+                    </label>
+                    <label>
                         <input type="checkbox" checked={loading} onChange={(e) => setLoading(e.target.checked)} />{' '}
                         Loading
                     </label>
@@ -325,10 +337,10 @@ const App = () => {
             </header>
 
             {mode === 'internal' ? (
-                <Explorer key="internal" mode="internal" user={user} darkMode={darkMode} loading={loading} onLog={addLog} />
+                <Explorer key="internal" mode="internal" user={user} darkMode={darkMode} disableAnimations={disableAnimations} loading={loading} onLog={addLog} />
             ) : (
                 <DndProvider key="external" backend={HTML5Backend}>
-                    <Explorer mode="external" user={user} darkMode={darkMode} loading={loading} onLog={addLog} />
+                    <Explorer mode="external" user={user} darkMode={darkMode} disableAnimations={disableAnimations} loading={loading} onLog={addLog} />
                     <ExternalDropZone onLog={addLog} />
                 </DndProvider>
             )}
