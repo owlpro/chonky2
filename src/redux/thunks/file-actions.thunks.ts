@@ -134,12 +134,14 @@ export const thunkActivateSortAction = (fileActionId: Nilable<string>): ChonkyTh
     const action = fileActionMap[fileActionId];
     if (!action || !action.sortKeySelector) return;
 
-    let order = oldOrder === SortOrder.ASC ? SortOrder.DESC : SortOrder.ASC;
+    // Ascending, then descending, then back to the order of `files`
     if (oldActionId !== fileActionId) {
-        order = SortOrder.ASC;
+        dispatch(reduxActions.setSort({ actionId: fileActionId, order: SortOrder.ASC }));
+    } else if (oldOrder === SortOrder.ASC) {
+        dispatch(reduxActions.setSort({ actionId: fileActionId, order: SortOrder.DESC }));
+    } else {
+        dispatch(reduxActions.setSort({ actionId: null, order: SortOrder.ASC }));
     }
-
-    dispatch(reduxActions.setSort({ actionId: fileActionId, order: order }));
 };
 
 export const thunkApplySelectionTransform = (action: FileAction): ChonkyThunk => (dispatch, getState) => {

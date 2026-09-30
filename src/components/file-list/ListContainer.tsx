@@ -43,8 +43,8 @@ const listColumns = [
 ];
 
 /**
- * Column headings for the list view. Clicking a heading sorts by that column, or
- * flips the order when it is already the sort column.
+ * Column headings for the list view. Clicking a heading sorts by that column, a second
+ * click reverses the order, and a third one goes back to the order of `files`.
  */
 const ListHeader: React.FC = React.memo(() => {
     const intl = useIntl();

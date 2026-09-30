@@ -21,6 +21,7 @@ The project follows [Semantic Versioning](https://semver.org/).
 ### Changed
 
 - The active sidebar item shows an accent dot at its end instead of a bar at its start, and sidebar items sit deeper than the section titles, like a tree.
+- Clicking a list column heading a third time removes the sort, so files show in the order of `files` (ascending, descending, unsorted). The toolbar's sort options cycle the same way.
 - Files are no longer drop targets, so they don't turn red while something is dragged over them. Files from the computer dropped on a file still go to the current folder.
 - Open sidebar sections share the sidebar's height, none growing past its content, and each one scrolls on its own; the sidebar as a whole no longer scrolls. Section titles are buttons with an arrow.
 

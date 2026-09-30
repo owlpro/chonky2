@@ -247,7 +247,7 @@ const reducers = {
     setFileViewConfig(state: RootState, action: PayloadAction<FileViewConfig>) {
         state.fileViewConfig = action.payload;
     },
-    setSort(state: RootState, action: PayloadAction<{ actionId: string; order: SortOrder }>) {
+    setSort(state: RootState, action: PayloadAction<{ actionId: Nullable<string>; order: SortOrder }>) {
         state.sortActionId = action.payload.actionId;
         state.sortOrder = action.payload.order;
     },
