@@ -22,6 +22,7 @@ The project follows [Semantic Versioning](https://semver.org/).
 
 - The active sidebar item shows an accent dot at its end instead of a bar at its start, and sidebar items sit deeper than the section titles, like a tree.
 - Clicking a list column heading a third time removes the sort, so files show in the order of `files` (ascending, descending, unsorted). The toolbar's sort options cycle the same way.
+- The list view shows the modification time in 24-hour format (`09:12`), in its own column at the end of the date cell, with digits of equal width so dates and times line up from row to row. It comes from the new `formatFileModTime` formatter, and `formatFileModDate` now returns only the date. An app that passes its own `formatFileModDate` without `formatFileModTime` gets no separate time.
 - Files are no longer drop targets, so they don't turn red while something is dragged over them. Files from the computer dropped on a file still go to the current folder.
 - Open sidebar sections share the sidebar's height, none growing past its content, and each one scrolls on its own; the sidebar as a whole no longer scrolls. Section titles are buttons with an arrow.
 

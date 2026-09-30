@@ -13,7 +13,7 @@ const LIST_ICON_SIZE = 20;
 
 export const ListEntry: React.FC<FileEntryProps> = React.memo(({ file, selected, focused, dndState }) => {
     const entryState = useFileEntryState(file, selected, focused);
-    const { fileModDateString, fileSizeString, fileTypeString } = useLocalizedFileEntryStrings(file);
+    const { fileModDateString, fileModTimeString, fileSizeString, fileTypeString } = useLocalizedFileEntryStrings(file);
     const fileEntryHtmlProps = useFileEntryHtmlProps(file);
 
     const renderProperty = (value: string | null, placeholderLength: [number, number]) =>
@@ -31,7 +31,16 @@ export const ListEntry: React.FC<FileEntryProps> = React.memo(({ file, selected,
             </div>
             <div className="chonky-listCell chonky-listColumnType">{renderProperty(fileTypeString, [5, 10])}</div>
             <div className="chonky-listCell chonky-listColumnSize">{renderProperty(fileSizeString, [4, 8])}</div>
-            <div className="chonky-listCell chonky-listColumnDate">{renderProperty(fileModDateString, [10, 18])}</div>
+            <div className="chonky-listCell chonky-listColumnDate">
+                {file ? (
+                    <>
+                        <span className="chonky-listDate">{fileModDateString ?? ''}</span>
+                        {fileModTimeString && <span className="chonky-listTime">{fileModTimeString}</span>}
+                    </>
+                ) : (
+                    <TextPlaceholder minLength={10} maxLength={18} />
+                )}
+            </div>
         </div>
     );
 });

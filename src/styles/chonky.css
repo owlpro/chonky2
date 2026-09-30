@@ -1176,6 +1176,10 @@
 .chonky-listFileEntry .chonky-listColumnType,
 .chonky-listFileEntry .chonky-listColumnSize,
 .chonky-listFileEntry .chonky-listColumnDate {
+    display: flex;
+    gap: 8px;
+    /* Digits of equal width, so dates and times line up from row to row */
+    font-variant-numeric: tabular-nums;
     overflow-x: clip;
     overflow-y: visible;
     color: var(--chonky-text-secondary);
@@ -1183,6 +1187,13 @@
     /* Same line as the trimmed name */
     line-height: 1;
     text-box: trim-both cap alphabetic;
+}
+
+/* The time at the end of the column, so the times of all rows sit in one column */
+.chonky-listTime {
+    flex-shrink: 0;
+    margin-inline-start: auto;
+    padding-inline-end: 12px;
 }
 
 .chonky-listHeaderCell {

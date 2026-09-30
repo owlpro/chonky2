@@ -13,9 +13,10 @@ const COMPACT_ICON_SIZE = 32;
 
 export const CompactEntry: React.FC<FileEntryProps> = React.memo(({ file, selected, focused, dndState }) => {
     const entryState = useFileEntryState(file, selected, focused);
-    const { fileModDateString, fileSizeString } = useLocalizedFileEntryStrings(file);
+    const { fileModDateString, fileModTimeString, fileSizeString } = useLocalizedFileEntryStrings(file);
     const fileEntryHtmlProps = useFileEntryHtmlProps(file);
-    const details = [fileSizeString, fileModDateString].filter(Boolean).join(' · ');
+    const modified = [fileModDateString, fileModTimeString].filter(Boolean).join(' ');
+    const details = [fileSizeString, modified].filter(Boolean).join(' · ');
 
     return (
         <div

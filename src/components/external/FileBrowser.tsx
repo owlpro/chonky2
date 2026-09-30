@@ -39,7 +39,12 @@ export const FileBrowser = React.forwardRef<
     );
     const i18n = getValueOrFallback(props.i18n, defaultConfig.i18n);
     const formatters = useMemo(
-        () => ({ ...defaultFormatters, ...i18n?.formatters }),
+        () => ({
+            ...defaultFormatters,
+            // An app's own date text may already have the time in it
+            ...(i18n?.formatters?.formatFileModDate ? { formatFileModTime: () => null } : {}),
+            ...i18n?.formatters,
+        }),
         [i18n]
     );
     const intl = useMemo(

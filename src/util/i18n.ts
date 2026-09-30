@@ -86,6 +86,7 @@ export const useLocalizedFileEntryStrings = (file: Nullable<FileData>) => {
         }
         return {
             fileModDateString: formatters.formatFileModDate(intl, file),
+            fileModTimeString: formatters.formatFileModTime(intl, file),
             fileSizeString,
             fileTypeString: formatters.formatFileType(intl, file),
         };
@@ -118,14 +119,11 @@ export const defaultFormatters: ChonkyFormatters = {
         file: Nullable<FileData>
     ): Nullable<string> => {
         const safeModDate = FileHelper.getModDate(file);
-        if (safeModDate) {
-            return intl.formatDate(safeModDate, {
-                dateStyle: 'medium',
-                timeStyle: 'short',
-            });
-        } else {
-            return null;
-        }
+        return safeModDate ? intl.formatDate(safeModDate, { dateStyle: 'medium' }) : null;
+    },
+    formatFileModTime: (intl: ChonkyIntl, file: Nullable<FileData>): Nullable<string> => {
+        const safeModDate = FileHelper.getModDate(file);
+        return safeModDate ? intl.formatDate(safeModDate, { hour: '2-digit', minute: '2-digit', hourCycle: 'h23' }) : null;
     },
     formatFileSize: (_intl: ChonkyIntl, file: Nullable<FileData>): Nullable<string> => {
         if (!file || typeof file.size !== 'number') return null;

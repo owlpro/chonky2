@@ -608,7 +608,7 @@ Message IDs follow the pattern `chonky.<area>.<name>`:
 | `actionGroups` | `<group name>`, e.g. `Actions`, `Options` |
 
 To change how dates, sizes or file types are written, pass `i18n.formatters` with any of
-`formatFileModDate`, `formatFileSize` and `formatFileType`.
+`formatFileModDate`, `formatFileModTime`, `formatFileSize` and `formatFileType`.
 
 ---
 
