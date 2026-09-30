@@ -564,7 +564,8 @@
     height: 26px;
     /* The same in both states, so the title stays put when the section collapses */
     margin: 3px 6px 2px;
-    padding: 0 8px 0 4px;
+    padding: 0;
+    padding-inline: 0 8px;
     border: 0;
     border-radius: var(--chonky-radius-control);
     background: transparent;
@@ -602,6 +603,13 @@
     transform: scaleX(-1);
 }
 
+.chonky-sidebarSectionIcon {
+    display: flex;
+    flex-shrink: 0;
+    margin-inline-end: 2px;
+    font-size: 14px;
+}
+
 .chonky-sidebarSectionTitleText {
     min-width: 0;
     overflow: hidden;
@@ -621,7 +629,9 @@
     align-items: center;
     gap: 8px;
     margin: 0 6px 4px;
-    padding: 6px 10px 6px 14px;
+    padding-block: 6px;
+    /* Its icon in line with the sidebar items' icons */
+    padding-inline: 23px 10px;
     border: 1px dashed var(--chonky-divider);
     border-radius: var(--chonky-radius-control);
     color: var(--chonky-text-secondary);
@@ -713,7 +723,9 @@
     gap: 8px;
     flex-shrink: 0;
     height: var(--chonky-control-height);
-    padding: 0 10px 0 14px;
+    padding: 0;
+    /* Deeper than the icons of the section titles, like a tree */
+    padding-inline: 24px 10px;
     border: 0;
     border-radius: var(--chonky-radius-control);
     background: transparent;
@@ -734,21 +746,28 @@
 }
 
 .chonky-sidebarItemActive {
+    padding-inline-end: 26px;
     background-color: var(--chonky-pressed);
     font-weight: 600;
 }
 
-/* Accent mark of the active item, like File Explorer's navigation pane */
-.chonky-sidebarItemActive::before {
+/* Accent dot at the end of the active item */
+.chonky-sidebarItemActive::after {
     content: '';
     position: absolute;
-    inset-inline-start: 3px;
+    inset-inline-end: 12px;
     top: 50%;
-    width: 3px;
-    height: 14px;
-    border-radius: 2px;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
     background: var(--chonky-accent);
     transform: translateY(-50%);
+}
+
+/* The ✕ button of a favorite takes the dot's place on hover */
+.chonky-sidebarFavorite:hover > .chonky-sidebarItemActive::after,
+.chonky-sidebarItemActive:has(~ .chonky-sidebarFavoriteRemove:focus-visible)::after {
+    opacity: 0;
 }
 
 .chonky-sidebarItem.chonky-dnd-over-can {

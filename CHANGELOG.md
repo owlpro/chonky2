@@ -13,10 +13,12 @@ The project follows [Semantic Versioning](https://semver.org/).
 - Collapsible sidebar sections, like VS Code's side bar: clicking a `FileSidebarSection`'s title collapses it to its title. Sections keep their order: a collapsed section stays at the top when no open section comes before it, otherwise it goes to the bottom. Its new `id` prop (defaulting to a string `title`) remembers it in the user state, and `collapsible={false}` keeps it open.
 - `disableAnimations` prop (also for `setChonkyDefaults`): turns off menu fade-ins, transitions and the sidebar animations. Loading indicators keep moving. Animations are also off when the system asks for reduced motion (`prefers-reduced-motion`).
 - Collapsing or opening a sidebar section slides the sections to their new places, and its arrow turns. Only the user's clicks animate, not the saved state loading.
+- `icon` prop on `FileSidebarSection` and `FileSidebarFavorites`: an icon before the section title. Favorites show a star by default.
 - `ChonkyIconName.favorite`, `ChonkyIconName.unfavorite` and `ChonkyIconName.sectionToggle`, and the `chonky.sidebar.favorites`, `chonky.sidebar.favoritesDropHint` and `chonky.sidebar.removeFavorite` messages.
 
 ### Changed
 
+- The active sidebar item shows an accent dot at its end instead of a bar at its start, and sidebar items sit deeper than the section titles, like a tree.
 - Open sidebar sections share the sidebar's height, none growing past its content, and each one scrolls on its own; the sidebar as a whole no longer scrolls. Section titles are buttons with an arrow.
 
 ### Fixed

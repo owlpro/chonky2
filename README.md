@@ -357,7 +357,8 @@ section stays at the top when no open section comes before it and goes to the bo
 otherwise. Open sections
 share the height (none grows past its content) and each scrolls on its own. The collapsed
 sections are remembered in the [user state](#favorites-and-user-state) under the section's
-`id` (its `title` when that is a string); pass `collapsible={false}` to keep a section open.
+`id` (its `title` when that is a string); pass `collapsible={false}` to keep a section open,
+and `icon` to show an icon before the title.
 
 ### Favorites and user state
 

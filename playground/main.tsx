@@ -99,7 +99,7 @@ let nextFileId = 1;
 const Sidebar = ({ files }: { files: PlaygroundFile[] }) => (
     <FileSidebar>
         <FileSidebarFavorites />
-        <FileSidebarSection id="folders" title="Folders">
+        <FileSidebarSection id="folders" title="Folders" icon={ChonkyIconName.folder}>
             {sidebarFolders.map((item) => (
                 <FileSidebarItem
                     key={item.folderId}

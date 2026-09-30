@@ -98,6 +98,8 @@ export interface FileSidebarSectionProps {
      */
     id?: string;
     title?: ReactNode;
+    /** Shown before the title: a `ChonkyIconName`, an icon name the `iconComponent` knows, or any element. */
+    icon?: Nullable<ChonkyIconName | string | React.ReactElement>;
     /**
      * Whether clicking the title collapses the section. A collapsed section shows only
      * its title: at the top of the sidebar when no open section comes before it,
@@ -116,7 +118,7 @@ interface SidebarSectionFrameProps extends FileSidebarSectionProps {
 }
 
 const SidebarSectionFrame: React.FC<SidebarSectionFrameProps> = (props) => {
-    const { id, title, collapsible, className, rootRef, collapsedContent, children } = props;
+    const { id, title, icon, collapsible, className, rootRef, collapsedContent, children } = props;
     const dispatch = useDispatch<any>();
     const ChonkyIcon = useContext(ChonkyIconContext);
     const bodyId = useId();
@@ -155,6 +157,16 @@ const SidebarSectionFrame: React.FC<SidebarSectionFrameProps> = (props) => {
         [rootRef]
     );
 
+    let iconComponent: ReactNode = null;
+    if (React.isValidElement(icon)) iconComponent = icon;
+    else if (icon) iconComponent = <ChonkyIcon icon={icon} />;
+    const titleContent = (
+        <>
+            {iconComponent && <span className="chonky-sidebarSectionIcon">{iconComponent}</span>}
+            <span className="chonky-sidebarSectionTitleText">{title}</span>
+        </>
+    );
+
     let header: ReactNode = null;
     if (title && canCollapse) {
         header = (
@@ -171,11 +183,11 @@ const SidebarSectionFrame: React.FC<SidebarSectionFrameProps> = (props) => {
                 >
                     <ChonkyIcon icon={ChonkyIconName.sectionToggle} />
                 </span>
-                <span className="chonky-sidebarSectionTitleText">{title}</span>
+                {titleContent}
             </button>
         );
     } else if (title) {
-        header = <div className="chonky-sidebarSectionTitle">{title}</div>;
+        header = <div className="chonky-sidebarSectionTitle">{titleContent}</div>;
     }
 
     return (
@@ -362,6 +374,8 @@ export interface FileSidebarFavoritesProps {
     title?: ReactNode;
     /** Identifies the section in the user state, see `FileSidebarSection`. Defaults to `favorites`. */
     id?: string;
+    /** Shown before the title, see `FileSidebarSection`. Defaults to a star; `null` hides it. */
+    icon?: Nullable<ChonkyIconName | string | React.ReactElement>;
 }
 
 /**
@@ -371,7 +385,7 @@ export interface FileSidebarFavoritesProps {
  * ✕ button or `ChonkyActions.RemoveFromFavorites`. Clicking a favorite opens it.
  */
 export const FileSidebarFavorites: React.FC<FileSidebarFavoritesProps> = React.memo((props) => {
-    const { id = 'favorites' } = props;
+    const { id = 'favorites', icon = ChonkyIconName.favorite } = props;
     const dispatch = useDispatch<any>();
     const store = useStore<RootState>();
     const intl = useIntl();
@@ -432,6 +446,7 @@ export const FileSidebarFavorites: React.FC<FileSidebarFavoritesProps> = React.m
         <SidebarSectionFrame
             id={id}
             title={title}
+            icon={icon}
             rootRef={drop as unknown as Ref<HTMLElement>}
             className={c('chonky-sidebarFavorites', { 'chonky-sidebarFavoritesDropping': isOver && canDrop })}
             // While collapsed, the hint shows up when a folder that can be added is dragged
