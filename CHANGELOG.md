@@ -5,6 +5,10 @@ The project follows [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+### Development
+
+- `issues/mobile-responsive.md`: the plan for making the file browser usable on phones.
+
 ## [7.1.0]
 
 ### Added
