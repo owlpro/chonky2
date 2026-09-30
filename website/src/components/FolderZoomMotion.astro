@@ -2,6 +2,7 @@
 // Looping hero animation: items drop into the grid, a cursor opens Pictures,
 // and the view zooms through the folder into its contents.
 // The whole timeline is CSS; the script only restarts it each cycle.
+// Same names, order, icons and colours the package renders for this folder.
 const items = [
   { name: 'Desktop', kind: 'folder' },
   { name: 'Documents', kind: 'folder' },
@@ -9,20 +10,22 @@ const items = [
   { name: 'Pictures', kind: 'folder', target: true },
   { name: 'Projects', kind: 'folder' },
   { name: 'Videos', kind: 'folder' },
-  { name: '.profile', kind: 'file' },
-  { name: 'README.md', kind: 'file' },
+  { name: '.profile', kind: 'file', color: '#78909c' },
+  { name: 'README', ext: '.md', kind: 'file', color: '#546e7a', label: 'MD' },
 ];
+const folderBack = 'M5 12.5A3.5 3.5 0 0 1 8.5 9h10.3c.9 0 1.8.4 2.5 1l2.4 2.3c.6.6 1.5 1 2.5 1h13.3a3.5 3.5 0 0 1 3.5 3.5V36a3.5 3.5 0 0 1-3.5 3.5h-31A3.5 3.5 0 0 1 5 36Z';
+const folderFront = 'M5 19.5A3.5 3.5 0 0 1 8.5 16h31a3.5 3.5 0 0 1 3.5 3.5V36a3.5 3.5 0 0 1-3.5 3.5h-31A3.5 3.5 0 0 1 5 36Z';
 const photos = [
-  { name: 'Sunrise.jpg', sky: ['#ffd9a8', '#fb9f86'], land: '#6d4f73', sun: '#fff4c9' },
-  { name: 'Alps.jpg', sky: ['#9fd2ff', '#e4f2ff'], land: '#3f7d5b', sun: '#ffffff' },
-  { name: 'Dusk.jpg', sky: ['#8487d9', '#e3a3d4'], land: '#3a3263', sun: '#ffe6f1' },
-  { name: 'Lagoon.jpg', sky: ['#8be8c4', '#8ccff2'], land: '#2b6c6b', sun: '#f5fff9' },
-  { name: 'Canyon.jpg', sky: ['#fcd688', '#f5847f'], land: '#8b4b3c', sun: '#fff5d6' },
-  { name: 'Night.jpg', sky: ['#1f3b73', '#4d72a8'], land: '#142241', sun: '#f3efcf' },
-  { name: 'Meadow.jpg', sky: ['#dafc85', '#98e3a3'], land: '#3f8c45', sun: '#ffffff' },
-  { name: 'Harbor.jpg', sky: ['#8ff3fc', '#6ba8ff'], land: '#1e58a5', sun: '#ffffff' },
-  { name: 'Bloom.jpg', sky: ['#fbc5ea', '#a9c2ee'], land: '#6c5a9d', sun: '#fff8fd' },
-  { name: 'Desert.jpg', sky: ['#fddc95', '#d6fbff'], land: '#b98647', sun: '#fffbe6' },
+  { name: 'Sunrise', sky: ['#ffd9a8', '#fb9f86'], land: '#6d4f73', sun: '#fff4c9' },
+  { name: 'Alps', sky: ['#9fd2ff', '#e4f2ff'], land: '#3f7d5b', sun: '#ffffff' },
+  { name: 'Dusk', sky: ['#8487d9', '#e3a3d4'], land: '#3a3263', sun: '#ffe6f1' },
+  { name: 'Lagoon', sky: ['#8be8c4', '#8ccff2'], land: '#2b6c6b', sun: '#f5fff9' },
+  { name: 'Canyon', sky: ['#fcd688', '#f5847f'], land: '#8b4b3c', sun: '#fff5d6' },
+  { name: 'Night', sky: ['#1f3b73', '#4d72a8'], land: '#142241', sun: '#f3efcf' },
+  { name: 'Meadow', sky: ['#dafc85', '#98e3a3'], land: '#3f8c45', sun: '#ffffff' },
+  { name: 'Harbor', sky: ['#8ff3fc', '#6ba8ff'], land: '#1e58a5', sun: '#ffffff' },
+  { name: 'Bloom', sky: ['#fbc5ea', '#a9c2ee'], land: '#6c5a9d', sun: '#fff8fd' },
+  { name: 'Desert', sky: ['#fddc95', '#d6fbff'], land: '#b98647', sun: '#fffbe6' },
 ];
 const sidebar = ['Home', 'Desktop', 'Downloads', 'Documents', 'Pictures'];
 ---
@@ -79,13 +82,36 @@ const sidebar = ['Home', 'Desktop', 'Downloads', 'Documents', 'Pictures'];
     <div class="fm-content">
       <div class="fm-layer fm-home">
         {items.map((item, i) => (
-          <div class:list={['fm-item', { 'is-target': item.target }]} style={`--i:${i};--col:${i % 4};--row:${Math.floor(i / 4)}`}>
-            <span class="fm-item-bg"></span>
-            <div class="fm-item-body">
-              {item.kind === 'folder'
-                ? <span class="fm-folder"><span class="fm-folder-back"></span><span class="fm-folder-paper"></span><span class="fm-folder-front"></span></span>
-                : <span class="fm-file"></span>}
-              <span class="fm-label">{item.name}</span>
+          <div class:list={['fm-item', { 'is-target': item.target }]} style={`--i:${i};--col:${i % 6};--row:${Math.floor(i / 6)}`}>
+            <div class="fm-entry">
+              <div class="fm-preview">
+                {item.kind === 'folder' ? (
+                  <svg class="fm-icon fm-folder" viewBox="0 0 48 48">
+                    <path d={folderBack} fill="#ffc83d" />
+                    <path d={folderBack} fill="#000" fill-opacity="0.14" />
+                    <rect class="fm-folder-paper" x="9" y="11.5" width="30" height="18" rx="1.5" fill="#fff" />
+                    <path class="fm-folder-front" d={folderFront} fill="#ffc83d" />
+                  </svg>
+                ) : (
+                  <svg class="fm-icon" viewBox="0 0 48 48">
+                    <path class="fm-file-paper" d="M12 4.5h17.3l10.2 10.2V41a3 3 0 0 1-3 3H12a3 3 0 0 1-3-3V7.5a3 3 0 0 1 3-3Z" />
+                    <path class="fm-file-fold" d="M29.3 4.5v7.7a2.5 2.5 0 0 0 2.5 2.5h7.7" />
+                    {item.label ? (
+                      <>
+                        <rect x="5" y="25" width={6 + item.label.length * 6.4} height="13" rx="2.5" fill={item.color} />
+                        <text x={5 + (6 + item.label.length * 6.4) / 2} y="34.3" fill="#fff" font-size="8.5" font-weight="700" text-anchor="middle" font-family="system-ui, sans-serif">{item.label}</text>
+                      </>
+                    ) : (
+                      <g fill={item.color}>
+                        <rect x="14" y="21" width="20" height="3" rx="1.5" />
+                        <rect x="14" y="27" width="20" height="3" rx="1.5" />
+                        <rect x="14" y="33" width="13" height="3" rx="1.5" />
+                      </g>
+                    )}
+                  </svg>
+                )}
+              </div>
+              <span class="fm-name">{item.name}{item.ext && <span class="fm-ext">{item.ext}</span>}</span>
             </div>
           </div>
         ))}
@@ -94,11 +120,13 @@ const sidebar = ['Home', 'Desktop', 'Downloads', 'Documents', 'Pictures'];
       <div class="fm-layer fm-pictures">
         {photos.map((photo, i) => (
           <div
-            class="fm-photo"
-            style={`--i:${i};--col:${i % 5};--row:${Math.floor(i / 5)};--sky1:${photo.sky[0]};--sky2:${photo.sky[1]};--land:${photo.land};--sun:${photo.sun}`}
+            class="fm-item fm-photo"
+            style={`--i:${i};--col:${i % 6};--row:${Math.floor(i / 6)};--sky1:${photo.sky[0]};--sky2:${photo.sky[1]};--land:${photo.land};--sun:${photo.sun}`}
           >
-            <span class="fm-thumb"></span>
-            <span class="fm-label">{photo.name}</span>
+            <div class="fm-entry">
+              <div class="fm-preview"><span class="fm-thumb"></span></div>
+              <span class="fm-name">{photo.name}<span class="fm-ext">.jpg</span></span>
+            </div>
           </div>
         ))}
       </div>
@@ -151,22 +179,28 @@ const sidebar = ['Home', 'Desktop', 'Downloads', 'Documents', 'Pictures'];
 
 <style>
   /* Geometry is in cqw so the scene scales with its width, like the screenshot it replaces.
-     Target folder (Pictures, column 3, row 0) sits at 62.35cqw × 11.5cqw inside .fm-content. */
+     --u is one CSS pixel of the package: the stage is the 1150px-wide scene of that screenshot.
+     File list values mirror chonky.css and GridContainer (140px entries, 8px gutter, 64px icons).
+     Target folder (Pictures, column 3, row 0): icon centre at 523.75u × 66.2u inside .fm-content,
+     755u × 192u on the stage for the cursor tip. */
   .fm {
     --cycle: 9.6s;
-    --origin: 62.35cqw 11.5cqw;
-    --accent: #1f6fd1;
+    --u: calc(100cqw / 1150);
+    --origin: calc(523.75 * var(--u)) calc(66.2 * var(--u));
+    --click: calc(755 * var(--u)) calc(192 * var(--u));
+    --accent: #0067c0;
     position: relative;
     container-type: inline-size;
     aspect-ratio: 1840 / 1008;
     overflow: hidden;
     border-radius: 7px;
     background: radial-gradient(circle at 30% 20%, #eef2f6 0, transparent 60%), linear-gradient(160deg, #e3e9ef, #c3cfda);
-    color: #1f2328;
+    color: #1b1b1b;
+    font-family: 'Segoe UI Variable Text', 'Segoe UI', system-ui, -apple-system, 'Helvetica Neue', Roboto, sans-serif;
     text-align: left;
     user-select: none;
   }
-  .fm svg { fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+  .fm-menubar svg, .fm-navbar svg, .fm-side-item svg { fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
 
   .fm-window { position: absolute; inset: 2.1cqw 2.2cqw; overflow: hidden; border-radius: .9cqw; background: #fff; box-shadow: 0 1.2cqw 3cqw #1e324a2e, 0 0 0 1px #d5dde6; font-size: 1.2cqw; }
 
@@ -198,31 +232,20 @@ const sidebar = ['Home', 'Desktop', 'Downloads', 'Documents', 'Pictures'];
   .fm-layer { position: absolute; inset: 0; transform-origin: var(--origin); }
   .fm-pictures { opacity: 0; }
 
-  .fm-item { position: absolute; top: calc(7.5cqw + var(--row) * 13.5cqw); left: calc(9.35cqw + var(--col) * 15.5cqw); width: 13cqw; height: 11.5cqw; }
-  .fm-item-bg { position: absolute; inset: 0; border: 1px solid transparent; border-radius: .8cqw; background: #eef4fc; opacity: 0; }
-  .fm-item-body { position: relative; display: flex; flex-direction: column; align-items: center; gap: 1cqw; height: 100%; padding-top: 1.2cqw; }
-  .fm-label { max-width: 100%; overflow: hidden; color: #1f2328; text-overflow: ellipsis; white-space: nowrap; }
+  .fm-item { position: absolute; top: calc((6 + var(--row) * 148) * var(--u)); left: calc((8 + var(--col) * 148.5) * var(--u)); width: calc(140.5 * var(--u)); height: calc(140 * var(--u)); }
+  .fm-entry { display: flex; flex-direction: column; align-items: center; gap: calc(4 * var(--u)); height: 100%; padding: calc(8 * var(--u)) calc(6 * var(--u)) calc(6 * var(--u)); border-radius: calc(6 * var(--u)); }
+  .fm-preview { display: flex; flex: 1; align-items: center; justify-content: center; width: 100%; min-height: 0; }
+  .fm-name { display: -webkit-box; max-width: 100%; overflow: hidden; font-size: calc(13 * var(--u)); line-height: 1.35; text-align: center; word-break: break-word; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
+  .fm-ext { color: #616161; }
 
-  .fm-folder { position: relative; width: 7.2cqw; height: 5.6cqw; }
-  .fm-folder-back { position: absolute; inset: 0; border-radius: .5cqw; background: #eaa817; clip-path: polygon(0 0, 38% 0, 46% 14%, 100% 14%, 100% 100%, 0 100%); }
-  .fm-folder-paper { position: absolute; top: 20%; right: 10%; left: 10%; height: 50%; border-radius: .3cqw; background: #fff; box-shadow: 0 0 0 1px #0000000f; }
-  .fm-folder-front { position: absolute; top: 27%; right: 0; bottom: 0; left: 0; border-radius: .5cqw; background: linear-gradient(180deg, #ffd35c, #f8bb2a); box-shadow: inset 0 .15cqw 0 #ffe597, 0 .3cqw .8cqw #b37d1426; transform-origin: 50% 100%; }
-  .fm-file {
-    width: 4.4cqw;
-    height: 5.6cqw;
-    border-radius: .35cqw;
-    background:
-      linear-gradient(#b3bdc8, #b3bdc8) 50% 42% / 52% .18cqw no-repeat,
-      linear-gradient(#b3bdc8, #b3bdc8) 50% 57% / 52% .18cqw no-repeat,
-      linear-gradient(#b3bdc8, #b3bdc8) 36% 72% / 34% .18cqw no-repeat,
-      #fff;
-    box-shadow: inset 0 0 0 .12cqw #c9d1db;
-  }
+  .fm-icon { width: calc(64 * var(--u)); height: calc(64 * var(--u)); overflow: visible; }
+  .fm-folder-paper { opacity: 0; }
+  .fm-folder-front { transform-box: fill-box; transform-origin: 50% 100%; }
+  .fm-file-paper { fill: #fff; stroke: #c4c4c4; stroke-width: 1; }
+  .fm-file-fold { fill: #e9e9e9; stroke: #c4c4c4; stroke-width: 1; stroke-linejoin: round; }
 
-  .fm-photo { position: absolute; top: calc(8.3cqw + var(--row) * 12.5cqw); left: calc(5.1cqw + var(--col) * 14cqw); display: flex; flex-direction: column; align-items: center; gap: .7cqw; width: 12cqw; }
-  .fm-photo .fm-label { font-size: 1.05cqw; }
-  .fm-thumb { position: relative; width: 100%; height: 8.4cqw; overflow: hidden; border-radius: .6cqw; background: linear-gradient(170deg, var(--sky1), var(--sky2)); box-shadow: 0 .3cqw .9cqw #1c3d6a24; }
-  .fm-thumb::before { content: ''; position: absolute; top: 16%; right: 18%; width: 2cqw; height: 2cqw; border-radius: 50%; background: var(--sun); opacity: .9; }
+  .fm-thumb { position: relative; width: 100%; aspect-ratio: 4 / 3; max-height: 100%; overflow: hidden; border-radius: calc(4 * var(--u)); background: linear-gradient(170deg, var(--sky1), var(--sky2)); }
+  .fm-thumb::before { content: ''; position: absolute; top: 16%; right: 18%; width: 18%; aspect-ratio: 1; border-radius: 50%; background: var(--sun); opacity: .9; }
   .fm-thumb::after { content: ''; position: absolute; inset: 38% 0 0; background: var(--land); clip-path: polygon(0 100%, 0 55%, 22% 20%, 40% 52%, 62% 8%, 84% 45%, 100% 28%, 100% 100%); }
   .fm-photo:nth-child(3n + 2) .fm-thumb::after { clip-path: polygon(0 100%, 0 30%, 18% 50%, 38% 6%, 58% 46%, 76% 24%, 100% 60%, 100% 100%); }
   .fm-photo:nth-child(3n) .fm-thumb::after { clip-path: polygon(0 100%, 0 62%, 30% 34%, 48% 58%, 70% 16%, 100% 50%, 100% 100%); }
@@ -233,8 +256,8 @@ const sidebar = ['Home', 'Desktop', 'Downloads', 'Documents', 'Pictures'];
   .fm-count-pictures, .fm-selected { opacity: 0; }
   .fm-selected { color: var(--accent); }
 
-  .fm-ripple { position: absolute; top: 22.5cqw; left: 82.5cqw; width: 5cqw; height: 5cqw; margin: -2.5cqw 0 0 -2.5cqw; border: .22cqw solid var(--accent); border-radius: 50%; opacity: 0; pointer-events: none; }
-  .fm-cursor { position: absolute; top: 0; left: 0; z-index: 2; width: 2cqw; height: 2.75cqw; opacity: 0; transform-origin: 6% 5%; filter: drop-shadow(0 .2cqw .35cqw #0000004d); }
+  .fm-ripple { position: absolute; top: 0; left: 0; width: 5cqw; height: 5cqw; margin: -2.5cqw 0 0 -2.5cqw; translate: var(--click); border: .22cqw solid var(--accent); border-radius: 50%; opacity: 0; pointer-events: none; }
+  .fm-cursor { position: absolute; top: 0; left: 0; z-index: 2; width: 1.6cqw; height: 2.2cqw; opacity: 0; transform-origin: 6% 5%; filter: drop-shadow(0 .2cqw .35cqw #0000004d); }
   .fm .fm-cursor { fill: #16191d; stroke: #fff; stroke-width: 1.3; }
 
   /* ---- Timeline (one cycle = 9.6s; percentages below are of the cycle) ---- */
@@ -242,17 +265,17 @@ const sidebar = ['Home', 'Desktop', 'Downloads', 'Documents', 'Pictures'];
   .fm.is-paused, .fm.is-paused * { animation-play-state: paused !important; }
 
   /* 0.25s–1.4s: items drop into their slots */
-  .fm.is-playing .fm-item { animation: fm-drop .7s cubic-bezier(.34, 1.4, .55, 1) calc(.25s + var(--i) * .08s) both; }
-  /* 1.5s–3.4s: cursor travels to Pictures, hovers, clicks */
+  .fm.is-playing .fm-home .fm-item { animation: fm-drop .7s cubic-bezier(.34, 1.4, .55, 1) calc(.25s + var(--i) * .08s) both; }
+  /* 1.5s–3.4s: cursor travels to Pictures, hovers, double-clicks (first click selects) */
   .fm.is-playing .fm-cursor { animation: fm-cursor var(--cycle) linear both; }
-  .fm.is-playing .is-target .fm-item-bg { animation: fm-hover var(--cycle) linear both; }
-  .fm.is-playing .fm-ripple { animation: fm-ripple .65s ease-out 3.2s both; }
+  .fm.is-playing .is-target .fm-entry { animation: fm-hover var(--cycle) linear both; }
+  .fm.is-playing .fm-ripple { animation: fm-ripple .65s ease-out 3.3s both; }
   .fm.is-playing .fm-selected { animation: fm-selected var(--cycle) linear both; }
-  /* 3.25s: folder opens, the rest dim */
-  .fm.is-playing .fm-item:not(.is-target) .fm-item-body { animation: fm-dim .35s ease 3.25s both; }
-  .fm.is-playing .is-target .fm-folder { animation: fm-pop .5s cubic-bezier(.3, 1.6, .5, 1) 3.25s both; }
-  .fm.is-playing .is-target .fm-folder-front { animation: fm-flap .45s ease-out 3.3s both; }
-  .fm.is-playing .is-target .fm-folder-paper { animation: fm-paper .45s ease-out 3.3s both; }
+  /* 3.35s: folder opens, the rest dim */
+  .fm.is-playing .fm-home .fm-item:not(.is-target) .fm-entry { animation: fm-dim .35s ease 3.35s both; }
+  .fm.is-playing .is-target .fm-folder { animation: fm-pop .5s cubic-bezier(.3, 1.6, .5, 1) 3.35s both; }
+  .fm.is-playing .is-target .fm-folder-front { animation: fm-flap .45s ease-out 3.38s both; }
+  .fm.is-playing .is-target .fm-folder-paper { animation: fm-paper .45s ease-out 3.38s both; }
   /* 3.55s–4.7s: zoom through the folder into Pictures */
   .fm.is-playing .fm-home { animation: fm-zoom-out .95s cubic-bezier(.6, 0, .3, 1) 3.55s both; }
   .fm.is-playing .fm-pictures { animation: fm-zoom-in var(--cycle) linear both; }
@@ -272,21 +295,23 @@ const sidebar = ['Home', 'Desktop', 'Downloads', 'Documents', 'Pictures'];
   }
 
   @keyframes fm-cursor {
-    0%, 15.6% { opacity: 0; translate: 58cqw 60cqw; scale: 1; animation-timing-function: cubic-bezier(.45, 0, .2, 1); }
+    0%, 15.6% { opacity: 0; translate: 52cqw 60cqw; scale: 1; animation-timing-function: cubic-bezier(.45, 0, .2, 1); }
     18.8% { opacity: 1; }
-    30.2% { translate: 82.5cqw 22.5cqw; }
+    30.2% { translate: var(--click); }
     32.3% { scale: 1; animation-timing-function: ease-in; }
-    33.3% { scale: .8; animation-timing-function: ease-out; }
+    33% { scale: .82; animation-timing-function: ease-out; }
+    33.7% { scale: 1; animation-timing-function: ease-in; }
+    34.4% { scale: .82; animation-timing-function: ease-out; }
     35.4% { scale: 1; }
     37.5% { opacity: 1; }
-    40.1%, 100% { opacity: 0; translate: 82.5cqw 22.5cqw; scale: 1; }
+    40.1%, 100% { opacity: 0; translate: var(--click); scale: 1; }
   }
 
+  /* chonky.css entry states: hover, then selected + hover once clicked */
   @keyframes fm-hover {
-    0%, 28.6% { opacity: 0; }
-    30.7% { opacity: 1; }
-    32.3% { border-color: transparent; background: #eef4fc; }
-    33.3%, 100% { opacity: 1; border-color: #b8d1f0; background: #dbe8f8; }
+    0%, 28.6% { background-color: rgba(0, 0, 0, 0); }
+    29.4%, 32.8% { background-color: rgba(0, 0, 0, .045); }
+    33.1%, 100% { background-color: rgba(0, 120, 212, .18); }
   }
 
   @keyframes fm-ripple {
@@ -296,18 +321,20 @@ const sidebar = ['Home', 'Desktop', 'Downloads', 'Documents', 'Pictures'];
   }
 
   @keyframes fm-selected {
-    0%, 33.3% { opacity: 0; }
-    34.4%, 40.6% { opacity: 1; }
+    0%, 32.8% { opacity: 0; }
+    33.1%, 40.6% { opacity: 1; }
     42.7%, 100% { opacity: 0; }
   }
 
   @keyframes fm-dim { to { opacity: .3; } }
   @keyframes fm-pop { to { scale: 1.14; } }
-  @keyframes fm-flap {
-    from { transform: perspective(20cqw) rotateX(0); }
-    to { transform: perspective(20cqw) rotateX(-35deg); }
+  /* SVG elements can't take 3D transforms, so the front flap opens by squashing toward its base */
+  @keyframes fm-flap { to { scale: 1 .84; } }
+  @keyframes fm-paper {
+    from { opacity: 0; }
+    30% { opacity: 1; }
+    to { opacity: 1; translate: 0 -5px; }
   }
-  @keyframes fm-paper { to { translate: 0 -22%; } }
 
   @keyframes fm-zoom-out {
     from { opacity: 1; scale: 1; filter: blur(0); }

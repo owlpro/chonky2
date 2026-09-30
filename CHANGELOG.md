@@ -8,6 +8,7 @@ The project follows [Semantic Versioning](https://semver.org/).
 ### Development
 
 - `issues/mobile-responsive.md`: the plan for making the file browser usable on phones.
+- Website: the homepage animation's grid entries now match the package's grid view (sizes, icons, hover and selected states), and the cursor double-clicks to open the folder.
 
 ## [7.1.0]
 
