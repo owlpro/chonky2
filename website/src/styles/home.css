@@ -112,7 +112,7 @@ body { margin: 0; }
 .demo-section { background: #fff; }
 .demo-heading { margin-bottom: 37px; }
 .demo-mobile-only, .demo-mobile-card { display: none; }
-.demo-frame { height: 550px; overflow: hidden; border: 9px solid #eaf0f8; border-radius: 15px; background: #fff; box-shadow: 0 24px 55px #2047751c; }
+.demo-frame { height: 630px; overflow: hidden; border: 9px solid #eaf0f8; border-radius: 15px; background: #fff; box-shadow: 0 24px 55px #2047751c; }
 .demo-loading { display: grid; place-items: center; height: 100%; color: #69829f; font-size: 13px; }
 .demo-note { margin: 16px 0 0; color: #8494a8; font-size: 12px; text-align: center; }
 
