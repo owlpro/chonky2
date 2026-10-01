@@ -3,6 +3,8 @@ title: Your first explorer
 description: Build a working Chonky2 file explorer with local React state.
 ---
 
+import DocsLiveExample from '../../../components/DocsLiveExampleLoader.tsx';
+
 This example stores two folders in memory. Paste it into a React component, render it in your app, and double-click **Documents**. Breadcrumbs, Up, Back, and Forward use the same open-folder handler.
 
 ```tsx
@@ -64,6 +66,8 @@ export default function Explorer() {
 }
 ```
 
+<DocsLiveExample client:only="react" example="navigation" caption="Open Documents, then use breadcrumbs and Up" />
+
 ## What the component receives
 
 - `files` is the current folder's contents. Folder entries need `isDir: true`.
@@ -75,5 +79,7 @@ The parent `div` has a height because the explorer fills its container. You can 
 ## Try the built-in interactions
 
 Select files, search within the current folder, sort the list, and switch between list and grid views. These interactions work without extra handlers. Opening a regular file, downloading, renaming, or changing stored data requires your app to decide what happens.
+
+<DocsLiveExample client:only="react" example="interactions" caption="Select files, search, sort, and switch views" />
 
 When files live on a server, replace the in-memory map with the pattern in [Connect a backend](/docs/connect-backend/). The [core props](/docs/core-props/) page explains the contract in more detail.

@@ -3,7 +3,11 @@ title: API reference
 description: Chonky2 v7 browser props, FileData fields, and imperative methods.
 ---
 
+import DocsLiveExample from '../../../components/DocsLiveExampleLoader.tsx';
+
 Import public components and types from `chonky2`. `FullFileBrowser` gives you the complete interface; `FileBrowser` is the provider for a [custom layout](/docs/custom-layout/). Both accept the common props below. Only `files` is required.
+
+<DocsLiveExample client:only="react" example="navigation" caption="Core browser props in action" />
 
 ## Browser props
 
@@ -59,6 +63,8 @@ A file is a plain object. `id` and `name` are required. IDs should remain stable
 | `droppable`, `dndOpenable` | `boolean` | Control folder drop and drag-hover behavior. |
 | `renamable` | `boolean` | Set to `false` to prevent inline renaming. |
 
+<DocsLiveExample client:only="react" example="files" caption="FileData rendered in the list" />
+
 You can keep your own fields on `FileData`; Chonky2 returns them in action payloads. See [Core props](/docs/core-props/) for the relationship between `files` and `folderChain`.
 
 ## Ref methods
@@ -81,5 +87,7 @@ export function Explorer({ files }: { files: FileData[] }) {
 | `setFileSelection(ids, reset = true)` | Selects IDs present in `files`; set `reset` to `false` to add to the selection. |
 | `revealFiles(ids, select = true)` | Scrolls to and optionally selects files, including ones about to arrive from a load. |
 | `requestFileAction(action, payload)` | Runs an action through Chonky2. Pass its expected payload, or `undefined` when none is needed. |
+
+<DocsLiveExample client:only="react" example="ref" caption="Imperative selection methods" />
 
 The [search guide](/docs/search/) shows `revealFiles` after an API lookup. For action payloads, use [File actions](/docs/file-actions/).

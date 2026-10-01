@@ -3,6 +3,8 @@ title: Customize the explorer
 description: Set the Chonky2 theme, colors, labels, and visible browser parts.
 ---
 
+import DocsLiveExample from '../../../components/DocsLiveExampleLoader.tsx';
+
 Start with `FullFileBrowser` and change the parts your app needs. Chonky2 includes light and dark themes, CSS variables for styling, and an `i18n` prop for labels and formatting.
 
 ## Light and dark mode
@@ -17,6 +19,8 @@ Pass a boolean to `darkMode`. Your app can connect it to its existing theme sett
 />
 ```
 
+<DocsLiveExample client:only="react" example="theme" caption="Switch between light and dark themes" />
+
 Chonky2 fills its parent, so keep a height on the container. To change the built-in colors and sizing, add CSS in your app's stylesheet:
 
 ```css
@@ -30,6 +34,8 @@ Chonky2 fills its parent, so keep a height on the container. To change the built
   --chonky-accent: #ce93d8;
 }
 ```
+
+<DocsLiveExample client:only="react" example="accent" caption="The same explorer with a purple accent variable" />
 
 Wrap the browser with `<div className="my-explorer" style={{ height: 500 }}>` to scope these values to one instance. The available variables include `--chonky-bg`, `--chonky-text`, `--chonky-selected-bg`, `--chonky-sidebar-width`, and the list column widths. See [all theme variables](https://github.com/owlpro/chonky2/blob/main/src/styles/chonky.css) in the source.
 
@@ -51,8 +57,12 @@ Pass a locale and only the messages you want to replace. Missing messages use th
 />
 ```
 
+<DocsLiveExample client:only="react" example="translation" caption="Custom Persian labels in the explorer" />
+
 The locale also controls built-in number and date formatting. For custom file size or date formats, use `i18n.formatters`. The [translation reference](https://github.com/owlpro/chonky2#translations) lists message groups and formatters.
 
 ## Choose the layout
+
+<DocsLiveExample client:only="react" example="toolbar" caption="Explorer with an extra Refresh toolbar button" />
 
 `FullFileBrowser` includes the navigation bar, toolbar, file list, context menu, and status bar. You can supply `sidebar`, `toolbarStart`, and `toolbarEnd` content. If your product needs a different arrangement, compose the exported `FileBrowser`, `FileNavbar`, `FileToolbar`, `FileList`, `FileContextMenu`, and `FileStatusBar` components. The [custom layout guide](/docs/custom-layout/) shows their required nesting and toolbar slots.

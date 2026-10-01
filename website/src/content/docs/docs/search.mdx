@@ -3,6 +3,8 @@ title: Search and reveal files
 description: Filter a Chonky2 folder, search beyond it, and jump to a result.
 ---
 
+import DocsLiveExample from '../../../components/DocsLiveExampleLoader.tsx';
+
 The built-in search field filters the files in the **current folder**. Each word in the query must appear in the file's `name` or `searchText`. Chonky2 clears this filter when the folder changes and deselects files that become hidden.
 
 ## Add searchable metadata
@@ -21,6 +23,8 @@ const files: FileData[] = [
   },
 ];
 ```
+
+<DocsLiveExample client:only="react" example="search" caption="Try “summer beach” to find Sunrise.jpg through searchText" />
 
 A search for `summer beach` finds this file even though those words are not in its name. Chonky2 does not send this query to your API automatically.
 
@@ -79,8 +83,12 @@ export function SearchableExplorer({
 }
 ```
 
+<DocsLiveExample client:only="react" example="reveal" caption="Reveal a result in a different folder" />
+
 `findFile`, `openFolder`, and `handleNavigation` are supplied by your app. Keep handling `OpenFiles` in `handleNavigation` so folder browsing continues to work. `revealFiles` waits for a file that has not arrived in `files` yet, scrolls to it, and selects it. It also clears a local filter that would hide the result. If your API returns several matches, present them in your own results UI and reveal the one the user chooses.
 
 ## Control the selection
+
+<DocsLiveExample client:only="react" example="ref" caption="Set and read selection using the browser ref" />
 
 The browser ref also exposes `getFileSelection()` and `setFileSelection(new Set(['photo-42']))`. These methods work with file IDs in the current folder. The [API reference](/docs/api-reference/#ref-methods) lists the complete handle.

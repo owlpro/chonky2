@@ -3,6 +3,8 @@ title: Core props
 description: Understand files, folderChain, and onFileAction in Chonky2 v7.
 ---
 
+import DocsLiveExample from '../../../components/DocsLiveExampleLoader.tsx';
+
 `FullFileBrowser` can render with only `files`. To let people move through folders, your app also supplies `folderChain` and handles `onFileAction`.
 
 | Prop | Type | Role |
@@ -25,6 +27,8 @@ const files: FileData[] = [
 ];
 ```
 
+<DocsLiveExample client:only="react" example="files" caption="File names, sizes, dates, and folder entries" />
+
 Use an array even for an empty folder: `files={[]}`. A `null` entry can represent a loading placeholder. Set `loading` when the whole folder is being fetched. Keep IDs stable across renders and unique within your file data.
 
 ## folderChain
@@ -37,6 +41,8 @@ const folderChain: FileData[] = [
   { id: 'docs', name: 'Documents', isDir: true },
 ];
 ```
+
+<DocsLiveExample client:only="react" example="path" caption="Documents as the current folder and breadcrumb" />
 
 With this chain, `files` must contain the contents of **Documents**, not the contents of Home. Chonky2 uses the chain for breadcrumbs and the Up button. Your app updates both props after a folder change.
 
@@ -57,6 +63,8 @@ const handleFileAction: FileActionHandler = (data) => {
   openFolder(target.id);
 };
 ```
+
+<DocsLiveExample client:only="react" example="navigation" caption="OpenFiles updates the folder and breadcrumb" />
 
 `openFolder` here stands for your app's navigation function. Use the full working handler in [Your first explorer](/docs/first-explorer/) or [Connect a backend](/docs/connect-backend/).
 

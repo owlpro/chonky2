@@ -3,6 +3,8 @@ title: Connect a backend
 description: Load Chonky2 folders from an API with navigation, loading, and error handling.
 ---
 
+import DocsLiveExample from '../../../components/DocsLiveExampleLoader.tsx';
+
 Chonky2 does not read a disk or call an API by itself. Your app supplies the current folder's data. This example uses a REST endpoint and keeps the current path in React state.
 
 ## Example API response
@@ -116,6 +118,8 @@ export default function ApiExplorer() {
   );
 }
 ```
+
+<DocsLiveExample client:only="react" example="loading" caption="The loading prop while sample data arrives" />
 
 The effect fetches the starting folder and each folder the user opens. `AbortController` cancels the previous request when navigation changes, so a slower old response cannot replace a newer folder's files. The `loading` prop shows Chonky2's loading state, and the Retry button fetches the current folder again after an error.
 

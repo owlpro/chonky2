@@ -3,6 +3,8 @@ title: Build your own layout
 description: Compose Chonky2's navigation, toolbar, file list, and status bar.
 ---
 
+import DocsLiveExample from '../../../components/DocsLiveExampleLoader.tsx';
+
 `FullFileBrowser` is the quickest choice for a complete explorer. Use `FileBrowser` and its child components when your product needs a different arrangement or only some of the built-in UI.
 
 ## Compose the parts
@@ -32,6 +34,8 @@ import {
 </div>
 ```
 
+<DocsLiveExample client:only="react" example="layout" caption="Custom composition without the default toolbar" />
+
 The snippet assumes `files`, `folderChain`, and `handleFileAction` come from your React component. `FileBrowser` supplies the context and state the children need. Keep the parent height, as with `FullFileBrowser`. Leave out a visual part you do not want, or put your own React content between the parts. Include `FileContextMenu` if users need the built-in right-click menu.
 
 ## Add toolbar content
@@ -54,8 +58,12 @@ import { ChonkyIconName, FullFileBrowser, ToolbarButton } from 'chonky2';
 />
 ```
 
+<DocsLiveExample client:only="react" example="toolbar" caption="A Refresh button in the toolbar slot" />
+
 With your own layout, `FileToolbar` takes `startContent` and `endContent` instead. `reloadCurrentFolder` is your app's function.
 
 ## Change defaults
+
+<DocsLiveExample client:only="react" example="defaults" caption="List view and size sorting as initial defaults" />
 
 Keep built-in selection, views, and sorting unless your product has a reason to replace them. Use `defaultFileViewActionId` and `defaultSortActionId` to choose the initial view and sort action. `disableDefaultFileActions` can turn off all defaults or selected action IDs. See the [API reference](/docs/api-reference/) for the other props.

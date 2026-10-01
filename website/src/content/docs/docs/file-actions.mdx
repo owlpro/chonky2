@@ -3,6 +3,8 @@ title: File actions
 description: Connect Chonky2 file actions to your storage and add your own commands.
 ---
 
+import DocsLiveExample from '../../../components/DocsLiveExampleLoader.tsx';
+
 Chonky2 reports user intent through `onFileAction`. It handles selection, sorting, and switching views inside the component. Your app handles actions that change stored files, then passes the updated `files` back to Chonky2.
 
 ## Enable the actions your app supports
@@ -24,6 +26,8 @@ import { ChonkyActions, FullFileBrowser } from 'chonky2';
   onFileAction={handleFileAction}
 />
 ```
+
+<DocsLiveExample client:only="react" example="actions" caption="Create, upload, rename, and delete in sample data" />
 
 The snippet assumes `files`, `folderChain`, and `handleFileAction` come from your React component. The [first explorer](/docs/first-explorer/) shows the navigation handler; the [backend guide](/docs/connect-backend/) shows how to reload files from an API.
 
@@ -68,6 +72,8 @@ Here `api`, `currentFolderId`, and `reloadCurrentFolder` are functions and state
 
 Add `CopyFiles`, `CutFiles`, and `PasteFiles` when your storage supports these operations. Chonky2 keeps the clipboard state and fades cut files. On paste, your app receives `CopyFilesTo` for copied files or `MoveFiles` for cut files. Both carry `payload.files` and `payload.destination`; perform the operation in your storage, then reload affected folders.
 
+<DocsLiveExample client:only="react" example="clipboard" caption="Copy or cut a file, then paste it in another folder" />
+
 Drag files onto a folder in the list, breadcrumbs, or sidebar to receive `MoveFiles`. When `UploadFiles` is enabled, files dropped from the user's computer arrive as `DropFiles`: `payload.files` are browser `File` objects and `payload.destination` is the target folder. Handle these separately from moves between folders.
 
 | Keys | Built-in or opt-in action |
@@ -103,5 +109,7 @@ const ShowInfo = defineFileAction({
 
 // Add ShowInfo to fileActions, then handle its ID in onFileAction.
 ```
+
+<DocsLiveExample client:only="react" example="actions" caption="Select a file and run the custom Show info action" />
 
 For the complete action list and payloads, see the [version 7 README](https://github.com/owlpro/chonky2#actions).

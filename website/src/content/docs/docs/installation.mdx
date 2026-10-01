@@ -3,6 +3,8 @@ title: Installation
 description: Install Chonky2 in a React 19 or newer project and check the package requirements.
 ---
 
+import DocsLiveExample from '../../../components/DocsLiveExampleLoader.tsx';
+
 ## Requirements
 
 These guides target Chonky2 **7.1.x**. Check the installed version before using the newer sidebar and user-state APIs.
@@ -50,5 +52,7 @@ export function FilePanel() {
   );
 }
 ```
+
+<DocsLiveExample client:only="react" example="basic" caption="A static folder with one file" />
 
 This renders a static folder. For working folder navigation, continue with [your first explorer](/docs/first-explorer/).
