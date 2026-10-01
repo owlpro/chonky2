@@ -127,25 +127,37 @@
   }
 }
 
-/* Use the space beside navigation for documentation and wide tables. */
+/* Balance the navigation columns with room for tables and wrapped link labels. */
 @media (min-width: 72rem) {
   html[data-has-sidebar] {
-    --sl-sidebar-width: 14rem;
+    --sl-sidebar-width: 16rem;
   }
 
   html[data-has-toc] .right-sidebar-container {
-    width: 13rem;
-    flex: 0 0 13rem;
+    --docs-toc-width: 14.5rem;
+    width: var(--docs-toc-width);
+    flex: 0 0 var(--docs-toc-width);
+  }
+
+  html[data-has-toc] .right-sidebar {
+    width: var(--docs-toc-width);
   }
 
   html[data-has-toc][data-has-sidebar] .main-pane {
-    width: calc(100% - 13rem);
+    width: calc(100% - 14.5rem);
     --sl-content-width: 68rem;
     --sl-content-margin-inline: auto;
   }
 
   html[data-has-toc] .right-sidebar-panel .sl-container {
-    width: 100%;
-    max-width: none;
+    width: calc(var(--docs-toc-width) - 2 * var(--sl-sidebar-pad-x));
+    max-width: 100%;
+  }
+
+  #starlight__sidebar .sidebar-content a,
+  #starlight__sidebar .sidebar-content .group-label,
+  html[data-has-toc] .right-sidebar-panel a {
+    white-space: normal;
+    overflow-wrap: break-word;
   }
 }
