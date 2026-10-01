@@ -129,10 +129,6 @@
 
 /* Balance the navigation columns with room for tables and wrapped link labels. */
 @media (min-width: 72rem) {
-  html[data-has-sidebar] {
-    --sl-sidebar-width: 16rem;
-  }
-
   html[data-has-toc] .right-sidebar-container {
     --docs-toc-width: 14.5rem;
     width: var(--docs-toc-width);
