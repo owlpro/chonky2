@@ -5,6 +5,12 @@ The project follows [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+### Development
+
+- `CLAUDE.md`: every commit that changes published code bumps the version and writes its changelog entries under that version.
+- `issues/mobile-responsive.md` lists only what is left after 7.2.0: multi-select and drag and drop on touch screens.
+- README: new light and dark previews with Favorites and Recent, and a preview on a phone.
+
 ## [7.2.0]
 
 ### Added

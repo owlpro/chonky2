@@ -29,11 +29,15 @@ opens, moves, renames, uploads or deletes something. That makes it fit any stora
 it is a REST API, S3, Firebase, a CMS media library or data in memory.
 
 <p align="center">
-    <img src="./images/preview-light.png" alt="Chonky2 in light mode: a sidebar with folders, and the Home folder in list view" width="800" />
+    <img src="./images/preview-light.png" alt="Chonky2 in light mode: a sidebar with Favorites, Recent and Folders, and the Home folder in list view" width="800" />
 </p>
 
 <p align="center">
     <img src="./images/preview-dark.png" alt="Chonky2 in dark mode: the Pictures folder in grid view with image thumbnails" width="800" />
+</p>
+
+<p align="center">
+    <img src="./images/preview-mobile.png" alt="Chonky2 on a phone: the list view, and the sidebar open as a drawer" width="800" />
 </p>
 
 ## Contents
