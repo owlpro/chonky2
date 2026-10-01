@@ -5,6 +5,8 @@ The project follows [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [7.2.0]
+
 ### Added
 
 - Phones and tablets: when Chonky is 560px wide or narrower, the `FileSidebar` becomes a drawer over the file list and the status bar. A menu button in the navbar, in place of Forward, opens it; a tap outside it, Esc or choosing an item closes it.
