@@ -2,11 +2,15 @@ import { useState } from 'react';
 import {
   ChonkyActions,
   FileSidebar,
+  FileSidebarFavorites,
   FileSidebarItem,
+  FileSidebarRecent,
   FileSidebarSection,
   FullFileBrowser,
+  ChonkyIconName,
   type FileActionHandler,
   type FileData,
+  type ChonkyUserState,
 } from 'chonky2';
 
 const folders: Record<string, FileData[]> = {
@@ -63,6 +67,20 @@ const parents: Record<string, string | null> = {
   assets: 'website',
 };
 
+const initialUserState: ChonkyUserState = {
+  favorites: [
+    { id: 'documents', name: 'Documents', isDir: true },
+    { id: 'pictures', name: 'Pictures', isDir: true },
+    { id: 'projects', name: 'Projects', isDir: true },
+  ],
+  recent: [
+    { id: 'proposal', name: 'Project proposal.pdf', size: 480000 },
+    { id: 'mountains', name: 'Mountains.jpg', size: 2100000 },
+    { id: 'readme', name: 'README.md', size: 2480 },
+  ],
+  collapsedSidebarSections: ['folders'],
+};
+
 function pathTo(folderId: string): string[] {
   const path: string[] = [];
   let id: string | null = folderId;
@@ -76,6 +94,7 @@ function pathTo(folderId: string): string[] {
 export default function PackagePreview() {
   const [path, setPath] = useState(['home']);
   const [darkMode, setDarkMode] = useState(false);
+  const [userState, setUserState] = useState<ChonkyUserState>(initialUserState);
   const [announcement, setAnnouncement] = useState('Sample files · No backend required');
   const currentFolder = path[path.length - 1] ?? 'home';
 
@@ -93,8 +112,10 @@ export default function PackagePreview() {
 
   const sidebar = (
     <FileSidebar>
-      <FileSidebarSection id="places" title="Places">
-        <FileSidebarItem folder={{ id: 'home', name: 'Home', isDir: true }} />
+      <FileSidebarFavorites />
+      <FileSidebarRecent limit={5} />
+      <FileSidebarSection id="folders" title="Folders" icon={ChonkyIconName.folder}>
+        <FileSidebarItem folder={{ id: 'home', name: 'Home', isDir: true }} icon={ChonkyIconName.home} />
         {folders.home.filter((file) => file.isDir).map((folder) => (
           <FileSidebarItem key={folder.id} folder={folder} />
         ))}
@@ -126,6 +147,9 @@ export default function PackagePreview() {
           folderChain={path.map((id) => ({ id, name: folderNames[id] ?? id, isDir: true }))}
           onFileAction={handleFileAction}
           sidebar={sidebar}
+          fileActions={[ChonkyActions.AddToFavorites, ChonkyActions.RemoveFromFavorites]}
+          userState={userState}
+          onUserStateChange={setUserState}
           darkMode={darkMode}
         />
       </div>
