@@ -9,6 +9,7 @@ The project follows [Semantic Versioning](https://semver.org/).
 
 - `issues/mobile-responsive.md`: the plan for making the file browser usable on phones.
 - Website: the homepage animation's grid entries now match the package's grid view (sizes, icons, hover and selected states), and the cursor double-clicks to open the folder.
+- Website: the homepage animation follows the current sidebar (Favorites, Recent, Folders). Its sections fade in, a photo is opened into Recent, a folder is dragged onto Favorites, then the up button zooms back to Home and both entries are removed with ✕, so the loop restarts where it began. The timeline runs on the Web Animations API.
 
 ## [7.1.0]
 

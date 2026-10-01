@@ -1,40 +1,66 @@
 ---
-// Looping hero animation: items drop into the grid, a cursor opens Pictures,
-// and the view zooms through the folder into its contents.
-// The whole timeline is CSS; the script only restarts it each cycle.
-// Same names, order, icons and colours the package renders for this folder.
-const items = [
-  { name: 'Desktop', kind: 'folder' },
-  { name: 'Documents', kind: 'folder' },
-  { name: 'Downloads', kind: 'folder' },
-  { name: 'Pictures', kind: 'folder', target: true },
-  { name: 'Projects', kind: 'folder' },
-  { name: 'Videos', kind: 'folder' },
-  { name: '.profile', kind: 'file', color: '#78909c' },
-  { name: 'README', ext: '.md', kind: 'file', color: '#546e7a', label: 'MD' },
-];
+// Looping hero animation of the explorer, drawn to the package's own measurements:
+// 1. items rain into the grid and the sidebar sections slam into place,
+// 2. Pictures is double-clicked and the view zooms through it,
+// 3. a photo is opened, and OpenFiles puts it at the top of Recent,
+// 4. a folder is dragged onto Favorites and shakes into its slot,
+// 5. the up button zooms back out to Home and both new sidebar entries are removed,
+//    leaving the window as the intro built it, so the loop repeats cleanly.
+// Layout and resting states are CSS; the timeline lives in the script below.
 const folderBack = 'M5 12.5A3.5 3.5 0 0 1 8.5 9h10.3c.9 0 1.8.4 2.5 1l2.4 2.3c.6.6 1.5 1 2.5 1h13.3a3.5 3.5 0 0 1 3.5 3.5V36a3.5 3.5 0 0 1-3.5 3.5h-31A3.5 3.5 0 0 1 5 36Z';
 const folderFront = 'M5 19.5A3.5 3.5 0 0 1 8.5 16h31a3.5 3.5 0 0 1 3.5 3.5V36a3.5 3.5 0 0 1-3.5 3.5h-31A3.5 3.5 0 0 1 5 36Z';
+
+// FileTypeIcon from the package: two-tone folder, and paper with a label (large) or lines (small)
+const folderIcon = `<svg class="fm-glyph" viewBox="0 0 48 48"><path d="${folderBack}" fill="#ffc83d"/><path d="${folderBack}" fill="#000" fill-opacity=".14"/><rect class="fm-folder-paper" x="9" y="11.5" width="30" height="18" rx="1.5" fill="#fff"/><path class="fm-folder-front" d="${folderFront}" fill="#ffc83d"/></svg>`;
+const fileIcon = (color: string, label?: string) => {
+  const labelWidth = label ? 6 + label.length * 6.4 : 0;
+  const mark = label
+    ? `<rect x="5" y="25" width="${labelWidth}" height="13" rx="2.5" fill="${color}"/><text x="${5 + labelWidth / 2}" y="34.3" fill="#fff" font-size="8.5" font-weight="700" text-anchor="middle" font-family="system-ui, sans-serif">${label}</text>`
+    : `<g fill="${color}"><rect x="14" y="21" width="20" height="3" rx="1.5"/><rect x="14" y="27" width="20" height="3" rx="1.5"/><rect x="14" y="33" width="13" height="3" rx="1.5"/></g>`;
+  return `<svg class="fm-glyph" viewBox="0 0 48 48"><path class="fm-file-paper" d="M12 4.5h17.3l10.2 10.2V41a3 3 0 0 1-3 3H12a3 3 0 0 1-3-3V7.5a3 3 0 0 1 3-3Z"/><path class="fm-file-fold" d="M29.3 4.5v7.7a2.5 2.5 0 0 0 2.5 2.5h7.7"/>${mark}</svg>`;
+};
+
+// Lucide icons, as ChonkyIconLucide draws them
+const lucide = (paths: string, cls = '') => `<svg class="fm-lucide ${cls}" viewBox="0 0 24 24">${paths}</svg>`;
+const chevron = lucide('<path d="m9 18 6-6-6-6"/>', 'fm-chevron');
+const starPath = '<path d="M11.525 2.295a.53.53 0 0 1 .95 0l2.31 4.679a2.123 2.123 0 0 0 1.595 1.16l5.166.756a.53.53 0 0 1 .294.904l-3.736 3.638a2.123 2.123 0 0 0-.611 1.878l.882 5.14a.53.53 0 0 1-.771.56l-4.618-2.428a2.122 2.122 0 0 0-1.973 0L6.396 21.01a.53.53 0 0 1-.77-.56l.881-5.139a2.122 2.122 0 0 0-.611-1.879L2.16 9.795a.53.53 0 0 1 .294-.906l5.165-.755a2.122 2.122 0 0 0 1.597-1.16z"/>';
+const historyIcon = lucide('<path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/><path d="M12 7v5l4 2"/>', 'fm-history');
+const removeButton = `<span class="fm-remove">${lucide('<path d="M18 6 6 18"/><path d="m6 6 12 12"/>')}</span>`;
+const folderOutline = lucide('<path d="M20 20a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.9a2 2 0 0 1-1.69-.9L9.6 3.9A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2Z"/>');
+
+const pdf = '#e53935';
+const image = '#1e88e5';
+const text = '#546e7a';
+
+// Home, sorted like the package: folders first, then files
+const homeItems = [
+  { name: 'Desktop' },
+  { name: 'Documents' },
+  { name: 'Downloads' },
+  { name: 'Pictures', cls: 'is-open-target' },
+  { name: 'Projects' },
+  { name: 'Videos' },
+  { name: '.profile', icon: fileIcon('#78909c') },
+  { name: 'README', ext: '.md', icon: fileIcon(text, 'MD') },
+];
 const photos = [
-  { name: 'Sunrise', sky: ['#ffd9a8', '#fb9f86'], land: '#6d4f73', sun: '#fff4c9' },
   { name: 'Alps', sky: ['#9fd2ff', '#e4f2ff'], land: '#3f7d5b', sun: '#ffffff' },
+  { name: 'Canyon', sky: ['#fcd688', '#f5847f'], land: '#8b4b3c', sun: '#fff5d6' },
   { name: 'Dusk', sky: ['#8487d9', '#e3a3d4'], land: '#3a3263', sun: '#ffe6f1' },
   { name: 'Lagoon', sky: ['#8be8c4', '#8ccff2'], land: '#2b6c6b', sun: '#f5fff9' },
-  { name: 'Canyon', sky: ['#fcd688', '#f5847f'], land: '#8b4b3c', sun: '#fff5d6' },
-  { name: 'Night', sky: ['#1f3b73', '#4d72a8'], land: '#142241', sun: '#f3efcf' },
   { name: 'Meadow', sky: ['#dafc85', '#98e3a3'], land: '#3f8c45', sun: '#ffffff' },
-  { name: 'Harbor', sky: ['#8ff3fc', '#6ba8ff'], land: '#1e58a5', sun: '#ffffff' },
-  { name: 'Bloom', sky: ['#fbc5ea', '#a9c2ee'], land: '#6c5a9d', sun: '#fff8fd' },
-  { name: 'Desert', sky: ['#fddc95', '#d6fbff'], land: '#b98647', sun: '#fffbe6' },
+  { name: 'Mountains', sky: ['#a8c8ff', '#e8f0ff'], land: '#41577f', sun: '#ffffff', cls: 'is-launch-target' },
+  { name: 'Night', sky: ['#1f3b73', '#4d72a8'], land: '#142241', sun: '#f3efcf' },
+  { name: 'Sunrise', sky: ['#ffd9a8', '#fb9f86'], land: '#6d4f73', sun: '#fff4c9' },
 ];
-const sidebar = ['Home', 'Desktop', 'Downloads', 'Documents', 'Pictures'];
+const pictureFolders = [{ name: 'Screenshots' }, { name: 'Wallpapers', cls: 'is-drag-target' }];
 ---
 
 <div
   class="fm"
   data-folder-motion
   role="img"
-  aria-label="Animated preview of Chonky2: folders drop into the explorer, a cursor opens the Pictures folder, and the view zooms into its photos."
+  aria-label="Animated preview of Chonky2: files drop into the explorer, the Pictures folder opens, a photo is added to Recent, and a folder is dragged into Favorites."
 >
   <div class="fm-window" aria-hidden="true">
     <div class="fm-menubar">
@@ -52,7 +78,7 @@ const sidebar = ['Home', 'Desktop', 'Downloads', 'Documents', 'Pictures'];
     <div class="fm-navbar">
       <svg viewBox="0 0 24 24"><path d="M19 12H5M11 6l-6 6 6 6" /></svg>
       <svg viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6" /></svg>
-      <svg viewBox="0 0 24 24"><path d="M12 19V5M6 11l6-6 6 6" /></svg>
+      <svg class="fm-up" viewBox="0 0 24 24"><path d="M12 19V5M6 11l6-6 6 6" /></svg>
       <div class="fm-path">
         <svg viewBox="0 0 24 24"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" /></svg>
         <b>Home</b>
@@ -64,53 +90,56 @@ const sidebar = ['Home', 'Desktop', 'Downloads', 'Documents', 'Pictures'];
       </div>
     </div>
 
+    <!-- FileSidebar: Favorites, Recent and a collapsed Folders section, rows at the package's offsets -->
     <div class="fm-sidebar">
-      <div class="fm-side-highlight"></div>
-      <p>Files</p>
-      {sidebar.map((name) => (
-        <div class="fm-side-item">
-          {name === 'Home'
-            ? <svg viewBox="0 0 24 24"><path d="M4 10.5 12 4l8 6.5V20h-5v-6H9v6H4z" /></svg>
-            : <span class="fm-mini"></span>}
-          {name}
+      <div class="fm-side-rows">
+        <div class="fm-fav-zone"></div>
+
+        <div class="fm-sec-group">
+          <div class="fm-section" style="--top:9">
+            <Fragment set:html={chevron} />
+            <span class="fm-star">
+              <Fragment set:html={lucide(starPath)} />
+              <Fragment set:html={lucide(starPath, 'fm-star-filled')} />
+            </span>
+            Favorites
+          </div>
+          <div class="fm-side-item" style="--top:37"><Fragment set:html={folderIcon} /><span>Documents</span></div>
+          <div class="fm-side-item" style="--top:71"><Fragment set:html={folderIcon} /><span>Projects</span></div>
+          <div class="fm-side-item fm-removable fm-fav-new" style="--top:105"><Fragment set:html={folderIcon} /><span>Wallpapers</span><Fragment set:html={removeButton} /></div>
         </div>
-      ))}
-      <p>Workspace</p>
-      <div class="fm-side-item"><span class="fm-mini"></span>Projects</div>
+
+        <div class="fm-recent">
+          <div class="fm-sec-group">
+            <div class="fm-section fm-recent-title" style="--top:114">
+              <Fragment set:html={chevron} />
+              <Fragment set:html={historyIcon} />
+              Recent
+            </div>
+            <div class="fm-side-item fm-removable fm-recent-new" style="--top:142"><Fragment set:html={fileIcon(image)} /><span>Mountains.jpg</span><Fragment set:html={removeButton} /></div>
+            <div class="fm-recent-old">
+              <div class="fm-side-item" style="--top:142"><Fragment set:html={fileIcon(pdf)} /><span>Project proposal.pdf</span></div>
+              <div class="fm-side-item" style="--top:176"><Fragment set:html={fileIcon(text)} /><span>README.md</span></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="fm-sec-group">
+          <div class="fm-section fm-collapsed">
+            <Fragment set:html={chevron} />
+            <Fragment set:html={folderOutline} />
+            Folders
+          </div>
+        </div>
+      </div>
     </div>
 
     <div class="fm-content">
       <div class="fm-layer fm-home">
-        {items.map((item, i) => (
-          <div class:list={['fm-item', { 'is-target': item.target }]} style={`--i:${i};--col:${i % 6};--row:${Math.floor(i / 6)}`}>
+        {homeItems.map((item, i) => (
+          <div class:list={['fm-item', item.cls]} style={`--col:${i % 6};--row:${Math.floor(i / 6)}`}>
             <div class="fm-entry">
-              <div class="fm-preview">
-                {item.kind === 'folder' ? (
-                  <svg class="fm-icon fm-folder" viewBox="0 0 48 48">
-                    <path d={folderBack} fill="#ffc83d" />
-                    <path d={folderBack} fill="#000" fill-opacity="0.14" />
-                    <rect class="fm-folder-paper" x="9" y="11.5" width="30" height="18" rx="1.5" fill="#fff" />
-                    <path class="fm-folder-front" d={folderFront} fill="#ffc83d" />
-                  </svg>
-                ) : (
-                  <svg class="fm-icon" viewBox="0 0 48 48">
-                    <path class="fm-file-paper" d="M12 4.5h17.3l10.2 10.2V41a3 3 0 0 1-3 3H12a3 3 0 0 1-3-3V7.5a3 3 0 0 1 3-3Z" />
-                    <path class="fm-file-fold" d="M29.3 4.5v7.7a2.5 2.5 0 0 0 2.5 2.5h7.7" />
-                    {item.label ? (
-                      <>
-                        <rect x="5" y="25" width={6 + item.label.length * 6.4} height="13" rx="2.5" fill={item.color} />
-                        <text x={5 + (6 + item.label.length * 6.4) / 2} y="34.3" fill="#fff" font-size="8.5" font-weight="700" text-anchor="middle" font-family="system-ui, sans-serif">{item.label}</text>
-                      </>
-                    ) : (
-                      <g fill={item.color}>
-                        <rect x="14" y="21" width="20" height="3" rx="1.5" />
-                        <rect x="14" y="27" width="20" height="3" rx="1.5" />
-                        <rect x="14" y="33" width="13" height="3" rx="1.5" />
-                      </g>
-                    )}
-                  </svg>
-                )}
-              </div>
+              <div class="fm-preview" set:html={item.icon ?? folderIcon} />
               <span class="fm-name">{item.name}{item.ext && <span class="fm-ext">{item.ext}</span>}</span>
             </div>
           </div>
@@ -118,17 +147,31 @@ const sidebar = ['Home', 'Desktop', 'Downloads', 'Documents', 'Pictures'];
       </div>
 
       <div class="fm-layer fm-pictures">
-        {photos.map((photo, i) => (
-          <div
-            class="fm-item fm-photo"
-            style={`--i:${i};--col:${i % 6};--row:${Math.floor(i / 6)};--sky1:${photo.sky[0]};--sky2:${photo.sky[1]};--land:${photo.land};--sun:${photo.sun}`}
-          >
+        {pictureFolders.map((folder, i) => (
+          <div class:list={['fm-item', folder.cls]} style={`--col:${i};--row:0`}>
             <div class="fm-entry">
-              <div class="fm-preview"><span class="fm-thumb"></span></div>
-              <span class="fm-name">{photo.name}<span class="fm-ext">.jpg</span></span>
+              <div class="fm-preview" set:html={folderIcon} />
+              <span class="fm-name">{folder.name}</span>
             </div>
           </div>
         ))}
+        {photos.map((photo, n) => {
+          const i = n + pictureFolders.length;
+          return (
+            <div
+              class:list={['fm-item', 'fm-photo', photo.cls]}
+              style={`--col:${i % 6};--row:${Math.floor(i / 6)};--sky1:${photo.sky[0]};--sky2:${photo.sky[1]};--land:${photo.land};--sun:${photo.sun}`}
+            >
+              <div class="fm-entry">
+                <div class="fm-preview">
+                  <span class="fm-thumb"></span>
+                  {photo.cls && <span class="fm-thumb fm-launch"></span>}
+                </div>
+                <span class="fm-name">{photo.name}<span class="fm-ext">.jpg</span></span>
+              </div>
+            </div>
+          );
+        })}
       </div>
     </div>
 
@@ -138,35 +181,225 @@ const sidebar = ['Home', 'Desktop', 'Downloads', 'Documents', 'Pictures'];
     </div>
   </div>
 
+  <!-- Stage overlays: the drag preview, the click ripple and the cursor -->
+  <span class="fm-chip fm-drag" aria-hidden="true"><Fragment set:html={folderIcon} />Wallpapers</span>
   <span class="fm-ripple" aria-hidden="true"></span>
   <svg class="fm-cursor" viewBox="0 0 16 22" aria-hidden="true"><path d="M1 1v16.5l4.3-4.1 2.9 6.8 2.8-1.2-2.9-6.6h6z" /></svg>
 </div>
 
 <script>
+  const CYCLE = 19.2;
+  const EASE = 'cubic-bezier(.4, 0, .2, 1)';
+  const OUT = 'cubic-bezier(.2, .8, .2, 1)';
+  const POP = 'cubic-bezier(.3, 1.6, .5, 1)';
+
+  /** Package pixels to stage units; the stage is 1150 package pixels wide. */
+  const u = (n: number) => `${((n * 100) / 1150).toFixed(3)}cqw`;
+  const at = (x: number, y: number) => `${u(x)} ${u(y)}`;
+  const down = (y: number) => `0 ${u(y)}`;
+  const side = (x: number) => `${u(x)} 0`;
+  const hover = 'rgba(0, 0, 0, .045)';
+  const selected = 'rgba(0, 120, 212, .18)';
+  const none = 'rgba(0, 0, 0, 0)';
+  const blue = (alpha: number) => `rgba(0, 120, 212, ${alpha})`;
+
+  // Cursor tip positions on the stage, in package pixels
+  const OFFSCREEN = at(560, 680);
+  const PICTURES = at(755, 192);
+  const MOUNTAINS = at(458, 340);
+  const WALLPAPERS = at(458, 192);
+  const FAVORITES = at(128, 196);
+  const UP = at(119, 93);
+  const FAVORITE_ROW = at(95, 240);
+  const FAVORITE_REMOVE = at(205, 240);
+  const RECENT_ROW = at(100, 277);
+  const RECENT_REMOVE = at(205, 277);
+  const REST = at(640, 470);
+
+  type Key = [time: number, value: string | number, easing?: string];
+
+  /**
+   * One property of one element over the whole cycle, keyed by seconds. The value
+   * before the first key and after the last one is held. Every track runs for the
+   * same looping duration, so they all stay in step.
+   */
+  const track = (animations: Animation[], el: Element | null, property: string, keys: Key[]) => {
+    if (!el) return;
+    // Keyframe objects take camelCase names; 'background-color' would be ignored
+    const name = property.replace(/-(\w)/g, (_, letter: string) => letter.toUpperCase());
+    const frames: Keyframe[] = keys.map(([time, value, easing = EASE]) => ({ [name]: value, offset: time / CYCLE, easing }));
+    if (keys[0][0] > 0) frames.unshift({ ...frames[0], offset: 0 });
+    if (keys[keys.length - 1][0] < CYCLE) frames.push({ ...frames[frames.length - 1], offset: 1 });
+    animations.push(el.animate(frames, { duration: CYCLE * 1000, iterations: Infinity }));
+  };
+
+  /** A press of the cursor: down at `time`, back up 0.12s later, so a double-click is click(t), click(t + 0.12). */
+  const click = (time: number): Key[] => [[time, 1, 'ease-in'], [time + 0.06, 0.82, 'ease-out'], [time + 0.12, 1]];
+
+  const buildTimeline = (root: HTMLElement) => {
+    const animations: Animation[] = [];
+    const $ = (selector: string) => root.querySelector(selector);
+    const $$ = (selector: string) => Array.from(root.querySelectorAll(selector));
+    const add = (el: Element | null, property: string, keys: Key[]) => track(animations, el, property, keys);
+
+    // 0.15s: Home's items rain into the grid
+    $$('.fm-home .fm-item').forEach((item, i) => {
+      const t = 0.15 + i * 0.07;
+      add(item, 'opacity', [[t, 0], [t + 0.12, 1]]);
+      add(item, 'translate', [[t, down(-260), 'cubic-bezier(.55, 0, 1, .45)'], [t + 0.42, down(6), 'ease-out'], [t + 0.6, down(0)]]);
+    });
+
+    // 0.9s: the sidebar sections fade and slide down into place, one section after another
+    $$('.fm-sec-group').forEach((group, i) => {
+      const t = 0.9 + i * 0.18;
+      add(group, 'opacity', [[t, 0, OUT], [t + 0.5, 1]]);
+      add(group, 'translate', [[t, down(-14), OUT], [t + 0.6, down(0)]]);
+    });
+
+    // Cursor: opens Pictures and Mountains.jpg, drags Wallpapers onto Favorites, goes back up,
+    // then removes both new sidebar entries with their ✕ buttons
+    const cursorPath: Key[] = [
+      [2.3, OFFSCREEN], [3.45, PICTURES],
+      [5.8, PICTURES], [6.7, MOUNTAINS],
+      [9, MOUNTAINS], [9.75, WALLPAPERS],
+      [10.1, WALLPAPERS, 'cubic-bezier(.45, 0, .25, 1)'], [11, FAVORITES],
+      [12.2, FAVORITES], [12.85, UP],
+      [13.3, UP], [14.2, FAVORITE_ROW],
+      [14.5, FAVORITE_ROW], [14.85, FAVORITE_REMOVE],
+      [15.35, FAVORITE_REMOVE], [15.85, RECENT_ROW],
+      [16.05, RECENT_ROW], [16.4, RECENT_REMOVE],
+      [16.8, RECENT_REMOVE], [17.5, REST],
+    ];
+    const cursor = $('.fm-cursor');
+    add(cursor, 'translate', cursorPath);
+    add(cursor, 'opacity', [[2.3, 0], [2.5, 1], [4.05, 1], [4.3, 0], [5.7, 0], [5.9, 1], [17.3, 1], [17.6, 0]]);
+    add(cursor, 'scale', [
+      ...click(3.6), ...click(3.72),
+      ...click(6.85), ...click(6.97),
+      [9.85, 1, 'ease-in'], [9.92, 0.88], [11.2, 0.88, 'ease-out'], [11.28, 1],
+      ...click(12.95), ...click(15), ...click(16.5),
+    ]);
+
+    // Click ripples: Pictures, Mountains.jpg, the up button and both ✕ buttons
+    const ripple = $('.fm-ripple');
+    add(ripple, 'translate', [
+      [6, PICTURES, 'step-end'], [6.01, MOUNTAINS],
+      [12, MOUNTAINS, 'step-end'], [12.01, UP],
+      [14, UP, 'step-end'], [14.01, FAVORITE_REMOVE],
+      [15.8, FAVORITE_REMOVE, 'step-end'], [15.81, RECENT_REMOVE],
+    ]);
+    const ripples: [time: number, size: number][] = [[3.78, 1.5], [7.03, 1.5], [13.01, 1.1], [15.06, 0.8], [16.56, 0.8]];
+    add(ripple, 'opacity', ripples.flatMap(([t]): Key[] => [[t, 0], [t + 0.01, 0.55, 'ease-out'], [t + 0.55, 0]]));
+    add(ripple, 'scale', ripples.flatMap(([t, size]): Key[] => [[t, 0.2, 'ease-out'], [t + 0.55, size, 'step-end'], [t + 0.56, 0.2]]));
+
+    const status = $('.fm-selected');
+    add(status, 'opacity', [[3.66, 0], [3.69, 1], [4.3, 1], [4.5, 0], [6.91, 0], [6.94, 1], [13.05, 1], [13.2, 0]]);
+
+    // 3.45s: Pictures is hovered, double-clicked, opens; the view zooms through it.
+    // 13.1s: the up button zooms back out of it, and Pictures closes and is deselected.
+    add($('.is-open-target .fm-entry'), 'background-color', [[3.3, none], [3.38, hover], [3.66, hover], [3.69, selected], [13.85, selected], [14.05, none]]);
+    $$('.fm-home .fm-item:not(.is-open-target) .fm-entry').forEach((entry) => add(entry, 'opacity', [[3.95, 1], [4.3, 0.3], [13.55, 0.3], [13.95, 1]]));
+    add($('.is-open-target .fm-glyph'), 'scale', [[3.95, 1, POP], [4.45, 1.14], [13.5, 1.14], [13.9, 1]]);
+    add($('.is-open-target .fm-folder-front'), 'scale', [[3.98, '1 1', 'ease-out'], [4.43, '1 .84'], [13.55, '1 .84'], [13.9, '1 1']]);
+    add($('.is-open-target .fm-folder-paper'), 'opacity', [[3.98, 0], [4.12, 1], [13.7, 1], [13.9, 0]]);
+    add($('.is-open-target .fm-folder-paper'), 'translate', [[3.98, '0 0', 'ease-out'], [4.43, '0 -5px'], [13.55, '0 -5px'], [13.9, '0 0']]);
+
+    const home = $('.fm-home');
+    add(home, 'scale', [[4.15, 1, 'cubic-bezier(.6, 0, .3, 1)'], [5.1, 3.6], [13.1, 3.6, 'cubic-bezier(.2, .7, .3, 1)'], [14, 1]]);
+    add(home, 'opacity', [[4.15, 1], [4.58, 1, 'ease-in'], [5.1, 0], [13.15, 0, 'ease-out'], [13.6, 1]]);
+    add(home, 'filter', [[4.15, 'blur(0px)'], [5.1, `blur(${u(3)})`], [13.1, `blur(${u(3)})`], [13.9, 'blur(0px)']]);
+
+    const pictures = $('.fm-pictures');
+    add(pictures, 'opacity', [[4.35, 0, 'cubic-bezier(.16, .84, .3, 1)'], [5.2, 1], [13.1, 1, 'ease-in'], [13.55, 0]]);
+    add(pictures, 'scale', [[4.35, 0.35, 'cubic-bezier(.16, .84, .3, 1)'], [5.2, 1], [13.1, 1, 'cubic-bezier(.5, 0, .75, 0)'], [13.6, 0.35]]);
+    $$('.fm-pictures .fm-item').forEach((item, i) => {
+      const t = 4.75 + i * 0.05;
+      add(item, 'opacity', [[t, 0, OUT], [t + 0.5, 1]]);
+      add(item, 'translate', [[t, down(16), OUT], [t + 0.5, down(0)]]);
+    });
+
+    // Up is disabled at Home and enabled inside Pictures; the cursor hovers it before clicking
+    const up = $('.fm-up');
+    add(up, 'color', [[4.6, '#8a939d'], [4.9, '#3b434c'], [13.1, '#3b434c'], [13.3, '#8a939d']]);
+    add(up, 'box-shadow', [[12.7, `0 0 0 ${u(6)} ${none}`], [12.78, `0 0 0 ${u(6)} ${hover}`], [13.3, `0 0 0 ${u(6)} ${hover}`], [13.4, `0 0 0 ${u(6)} ${none}`]]);
+
+    const crumb = $('.fm-path-next');
+    add(crumb, 'opacity', [[4.6, 0, 'ease-out'], [4.95, 1], [13.1, 1, 'ease-in'], [13.35, 0]]);
+    add(crumb, 'translate', [[4.6, side(-9), 'ease-out'], [4.95, side(0)], [13.1, side(0), 'ease-in'], [13.35, side(-9)]]);
+    add($('.fm-count-home'), 'opacity', [[4.4, 1], [4.6, 0], [13.2, 0], [13.4, 1]]);
+    add($('.fm-count-pictures'), 'opacity', [[4.5, 0], [4.7, 1], [13.1, 1], [13.3, 0]]);
+
+    // 6.7s: Mountains.jpg is double-clicked and opens: the photo grows from its tile toward
+    // the middle of the list like a viewer opening. Opening it adds it to Recent on its own,
+    // so Recent makes room and the entry appears at the top.
+    add($('.is-launch-target .fm-entry'), 'background-color', [[6.6, none], [6.68, hover], [6.91, hover], [6.94, selected], [9.92, selected], [9.95, none]]);
+    const launch = $('.fm-launch');
+    add(launch, 'opacity', [[7.12, 0], [7.13, 1], [7.5, 1, 'ease-in'], [7.8, 0]]);
+    add(launch, 'scale', [[7.12, 1, OUT], [7.6, 2.8], [7.8, 3]]);
+    add(launch, 'translate', [[7.12, '0 0', OUT], [7.6, at(223, 16)]]);
+
+    add($('.fm-history'), 'rotate', [[7.95, '0deg', 'cubic-bezier(.3, 0, .2, 1)'], [8.6, '-360deg']]);
+    add($('.fm-recent-title'), 'color', [[7.95, '#616161'], [8.1, '#0067c0'], [9.3, '#0067c0'], [9.7, '#616161']]);
+    const recent = $('.fm-recent-new');
+    add(recent, 'opacity', [[8, 0], [8.12, 1], [16.65, 1], [16.85, 0]]);
+    add(recent, 'scale', [[8, 0.9, POP], [8.3, 1], [16.65, 1, 'ease-in'], [16.85, 0.92]]);
+    add(recent, 'box-shadow', [[8.05, 'inset 0 0 0 1px rgba(0, 103, 192, 0)'], [8.15, 'inset 0 0 0 1px rgba(0, 103, 192, 1)'], [9.2, 'inset 0 0 0 1px rgba(0, 103, 192, 1)'], [9.6, 'inset 0 0 0 1px rgba(0, 103, 192, 0)']]);
+    // Emphasis pulse, then the hover of the cursor on its way to ✕ (which takes over the hover)
+    add(recent, 'background-color', [[8.05, blue(0)], [8.15, selected], [8.45, blue(0.07)], [8.75, selected], [9.6, blue(0)], [15.85, none], [15.9, hover], [16.3, hover], [16.35, none]]);
+    add($('.fm-recent-new .fm-remove'), 'opacity', [[15.85, 0], [15.9, 1]]);
+    add($('.fm-recent-new .fm-remove'), 'background-color', [[16.3, none], [16.35, hover]]);
+    add($('.fm-recent-old'), 'translate', [[7.9, down(0), OUT], [8.2, down(34)], [16.75, down(34), OUT], [17.05, down(0)]]);
+
+    // 9.75s: Wallpapers is dragged onto Favorites, lands at the end and shakes into place
+    const dragged = $('.is-drag-target .fm-entry');
+    add(dragged, 'background-color', [[9.6, none], [9.68, hover], [9.92, hover], [9.95, selected]]);
+    add(dragged, 'opacity', [[10.1, 1], [10.15, 0.5], [11.2, 0.5], [11.3, 1]]);
+
+    const preview = $('.fm-drag');
+    add(preview, 'translate', cursorPath);
+    add(preview, 'opacity', [[10.1, 0], [10.18, 1], [11.2, 1], [11.35, 0]]);
+    add(preview, 'scale', [[11.2, 1, 'ease-in'], [11.35, 0.7]]);
+
+    const dropping: Key[] = [[10.8, 0], [10.86, 1], [11.2, 1], [11.28, 0]];
+    add($('.fm-fav-zone'), 'opacity', dropping);
+    add($('.fm-star-filled'), 'opacity', dropping);
+
+    const favorite = $('.fm-fav-new');
+    add(favorite, 'opacity', [[11.2, 0], [11.3, 1], [15.15, 1], [15.35, 0]]);
+    add(favorite, 'scale', [[11.2, 0.85, POP], [11.45, 1], [15.15, 1, 'ease-in'], [15.35, 0.92]]);
+    add(favorite, 'translate', [[11.4, side(0)], [11.47, side(-5)], [11.54, side(5)], [11.61, side(-4)], [11.68, side(3)], [11.76, side(-1.5)], [11.85, side(0)]]);
+    add(favorite, 'rotate', [[11.4, '0deg'], [11.47, '-2deg'], [11.54, '2deg'], [11.61, '-1.5deg'], [11.68, '1deg'], [11.76, '-.5deg'], [11.85, '0deg']]);
+    add(favorite, 'background-color', [[11.25, selected], [11.9, selected], [12.8, blue(0)], [14.4, none], [14.45, hover], [14.8, hover], [14.85, none]]);
+    add($('.fm-fav-new .fm-remove'), 'opacity', [[14.4, 0], [14.45, 1]]);
+    add($('.fm-fav-new .fm-remove'), 'background-color', [[14.8, none], [14.85, hover]]);
+    add($('.fm-recent'), 'translate', [[11.2, down(0), OUT], [11.5, down(34)], [15.25, down(34), OUT], [15.55, down(0)]]);
+
+    // 18s: back where the intro left off; everything fades out and the loop starts over
+    add($('.fm-content'), 'opacity', [[18, 1, 'ease-in'], [18.6, 0]]);
+    add($('.fm-side-rows'), 'opacity', [[18, 1, 'ease-in'], [18.6, 0]]);
+
+    return animations;
+  };
+
   const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
 
   document.querySelectorAll<HTMLElement>('[data-folder-motion]').forEach((root) => {
+    let animations: Animation[] = [];
     let visible = true;
-
-    const restart = () => {
-      root.classList.remove('is-playing');
-      void root.offsetWidth;
-      root.classList.add('is-playing');
-    };
 
     const sync = () => {
       if (reducedMotion.matches) {
-        root.classList.remove('is-playing', 'is-paused');
+        animations.forEach((animation) => animation.cancel());
+        animations = [];
+        root.classList.remove('is-playing');
         return;
       }
-      if (!root.classList.contains('is-playing')) restart();
-      root.classList.toggle('is-paused', !visible);
+      if (!animations.length) {
+        animations = buildTimeline(root);
+        root.classList.add('is-playing');
+      }
+      animations.forEach((animation) => (visible ? animation.play() : animation.pause()));
     };
-
-    // The root's own clock animation spans one full cycle.
-    root.addEventListener('animationend', (event) => {
-      if (event.target === root && !reducedMotion.matches) restart();
-    });
 
     new IntersectionObserver(([entry]) => {
       visible = entry.isIntersecting;
@@ -177,17 +410,16 @@ const sidebar = ['Home', 'Desktop', 'Downloads', 'Documents', 'Pictures'];
   });
 </script>
 
-<style>
+<!-- Global: icons injected with set:html miss Astro's scoping, and every class here is fm- prefixed -->
+<style is:global>
   /* Geometry is in cqw so the scene scales with its width, like the screenshot it replaces.
      --u is one CSS pixel of the package: the stage is the 1150px-wide scene of that screenshot.
-     File list values mirror chonky.css and GridContainer (140px entries, 8px gutter, 64px icons).
-     Target folder (Pictures, column 3, row 0): icon centre at 523.75u × 66.2u inside .fm-content,
-     755u × 192u on the stage for the cursor tip. */
+     The file list mirrors chonky.css and GridContainer (140px entries, 8px gutter, 64px icons),
+     and the sidebar mirrors its 200px width, 26px section titles and 32px items.
+     Pictures' icon centre is at 523.75u × 66.2u inside .fm-content; both layers zoom around it. */
   .fm {
-    --cycle: 9.6s;
     --u: calc(100cqw / 1150);
     --origin: calc(523.75 * var(--u)) calc(66.2 * var(--u));
-    --click: calc(755 * var(--u)) calc(192 * var(--u));
     --accent: #0067c0;
     position: relative;
     container-type: inline-size;
@@ -200,7 +432,7 @@ const sidebar = ['Home', 'Desktop', 'Downloads', 'Documents', 'Pictures'];
     text-align: left;
     user-select: none;
   }
-  .fm-menubar svg, .fm-navbar svg, .fm-side-item svg { fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+  .fm-menubar svg, .fm-navbar svg, .fm-lucide { fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
 
   .fm-window { position: absolute; inset: 2.1cqw 2.2cqw; overflow: hidden; border-radius: .9cqw; background: #fff; box-shadow: 0 1.2cqw 3cqw #1e324a2e, 0 0 0 1px #d5dde6; font-size: 1.2cqw; }
 
@@ -211,7 +443,7 @@ const sidebar = ['Home', 'Desktop', 'Downloads', 'Documents', 'Pictures'];
   .fm-tools i { width: 1px; height: 1.8cqw; background: #dde1e6; }
 
   .fm-navbar { display: flex; align-items: center; gap: 1.5cqw; height: 3.85cqw; padding: 0 1.1cqw .5cqw 1.6cqw; background: #f6f7f8; border-bottom: 1px solid #e6e8eb; color: #8a939d; }
-  .fm-navbar > svg { width: 1.4cqw; height: 1.4cqw; }
+  .fm-navbar > svg { width: 1.4cqw; height: 1.4cqw; border-radius: calc(4 * var(--u)); }
   .fm-path { display: flex; flex: 1; align-items: center; gap: .6cqw; height: 2.75cqw; padding: 0 .8cqw; background: #fff; border: 1px solid #e1e4e8; border-radius: .45cqw; color: #1f2328; }
   .fm-path svg { width: 1.35cqw; height: 1.35cqw; color: #50585f; }
   .fm-path b { font-weight: 640; }
@@ -220,25 +452,44 @@ const sidebar = ['Home', 'Desktop', 'Downloads', 'Documents', 'Pictures'];
   .fm-search { display: flex; align-items: center; gap: .6cqw; width: 22.5cqw; height: 2.75cqw; margin-left: -1.5cqw; padding: 0 .8cqw; background: #fff; border: 1px solid #e1e4e8; border-left: 0; border-radius: 0 .45cqw .45cqw 0; color: #7d858e; }
   .fm-search svg { width: 1.3cqw; height: 1.3cqw; }
 
-  .fm-sidebar { position: absolute; top: 8.15cqw; bottom: 2.4cqw; left: 0; width: 17.4cqw; padding: .7cqw .6cqw; border-right: 1px solid #e6e8eb; }
-  .fm-sidebar p { display: flex; align-items: center; height: 2.3cqw; margin: 0; padding-left: .8cqw; color: #5d656e; font-size: 1.05cqw; font-weight: 640; }
-  .fm-side-item { position: relative; display: flex; align-items: center; gap: .9cqw; height: 2.95cqw; padding-left: 1.3cqw; color: #1f2328; }
-  .fm-side-item svg { width: 1.45cqw; height: 1.45cqw; }
-  .fm-side-highlight { position: absolute; top: 3cqw; right: .6cqw; left: .6cqw; height: 2.95cqw; border-radius: .45cqw; background: #eceef1; }
-  .fm-side-highlight::before { content: ''; position: absolute; top: .75cqw; bottom: .75cqw; left: 0; width: .22cqw; border-radius: 1cqw; background: var(--accent); }
-  .fm-mini { width: 1.4cqw; height: 1.1cqw; border-radius: .2cqw; background: #f8b822; clip-path: polygon(0 0, 42% 0, 52% 16%, 100% 16%, 100% 100%, 0 100%); }
+  /* Sidebar (chonky.css: .chonky-sidebar*) */
+  .fm-sidebar { position: absolute; top: 8.15cqw; bottom: 2.4cqw; left: 0; width: 17.4cqw; border-right: 1px solid #ececec; }
+  .fm-side-rows, .fm-sec-group, .fm-recent, .fm-recent-old { position: absolute; inset: 0; }
+  .fm-fav-zone { position: absolute; top: calc(6 * var(--u)); right: 0; left: 0; height: calc(99 * var(--u)); background: rgba(0, 120, 212, .14); box-shadow: inset 0 0 0 1px var(--accent); opacity: 0; }
 
+  .fm-section, .fm-side-item { position: absolute; top: calc(var(--top) * var(--u)); right: calc(6 * var(--u)); left: calc(6 * var(--u)); display: flex; align-items: center; border-radius: calc(4 * var(--u)); }
+  .fm-section { gap: calc(4 * var(--u)); height: calc(26 * var(--u)); padding-right: calc(8 * var(--u)); color: #616161; font-size: calc(12 * var(--u)); font-weight: 600; }
+  .fm-section .fm-lucide { width: calc(14 * var(--u)); height: calc(14 * var(--u)); margin-right: calc(2 * var(--u)); stroke-width: 2; }
+  .fm-section .fm-chevron { width: calc(13 * var(--u)); height: calc(13 * var(--u)); margin-right: 0; rotate: 90deg; }
+  .fm-collapsed { top: auto; bottom: calc(8 * var(--u)); }
+  .fm-collapsed .fm-chevron { rotate: 0deg; }
+  .fm-star { position: relative; display: flex; }
+  .fm-star-filled { position: absolute; inset: 0; color: #f5b700; fill: currentColor; opacity: 0; }
+
+  .fm-side-item { gap: calc(8 * var(--u)); height: calc(32 * var(--u)); padding: 0 calc(10 * var(--u)) 0 calc(18 * var(--u)); font-size: calc(13 * var(--u)); }
+  .fm-side-item .fm-glyph { flex-shrink: 0; width: calc(18 * var(--u)); height: calc(18 * var(--u)); }
+  /* As .chonky-sidebarItemLabel: clipped sideways only, so the line-height: 1 box doesn't cut off ascenders */
+  .fm-side-item span { min-width: 0; overflow-x: clip; overflow-y: visible; line-height: 1; text-overflow: ellipsis; white-space: nowrap; text-box: trim-both cap alphabetic; }
+  .fm-fav-new, .fm-recent-new { opacity: 0; }
+  /* .chonky-sidebarRemovableItem and its ✕ button, shown while the row is hovered */
+  .fm-side-item.fm-removable { padding-right: calc(30 * var(--u)); }
+  .fm-remove { position: absolute; top: 50%; right: calc(4 * var(--u)); display: flex; align-items: center; justify-content: center; width: calc(22 * var(--u)); height: calc(22 * var(--u)); border-radius: calc(4 * var(--u)); color: #616161; opacity: 0; translate: 0 -50%; }
+  .fm-remove .fm-lucide { width: calc(13 * var(--u)); height: calc(13 * var(--u)); stroke-width: 2; }
+
+  /* File list (chonky.css: grid view) */
   .fm-content { position: absolute; top: 8.15cqw; right: 0; bottom: 2.4cqw; left: 17.4cqw; overflow: hidden; }
   .fm-layer { position: absolute; inset: 0; transform-origin: var(--origin); }
   .fm-pictures { opacity: 0; }
 
   .fm-item { position: absolute; top: calc((6 + var(--row) * 148) * var(--u)); left: calc((8 + var(--col) * 148.5) * var(--u)); width: calc(140.5 * var(--u)); height: calc(140 * var(--u)); }
+  .fm-item.is-launch-target { z-index: 2; }
   .fm-entry { display: flex; flex-direction: column; align-items: center; gap: calc(4 * var(--u)); height: 100%; padding: calc(8 * var(--u)) calc(6 * var(--u)) calc(6 * var(--u)); border-radius: calc(6 * var(--u)); }
-  .fm-preview { display: flex; flex: 1; align-items: center; justify-content: center; width: 100%; min-height: 0; }
+  .fm-preview { position: relative; display: flex; flex: 1; align-items: center; justify-content: center; width: 100%; min-height: 0; }
+  .fm-preview > .fm-glyph { width: calc(64 * var(--u)); height: calc(64 * var(--u)); }
   .fm-name { display: -webkit-box; max-width: 100%; overflow: hidden; font-size: calc(13 * var(--u)); line-height: 1.35; text-align: center; word-break: break-word; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
   .fm-ext { color: #616161; }
 
-  .fm-icon { width: calc(64 * var(--u)); height: calc(64 * var(--u)); overflow: visible; }
+  .fm-glyph { overflow: visible; }
   .fm-folder-paper { opacity: 0; }
   .fm-folder-front { transform-box: fill-box; transform-origin: 50% 100%; }
   .fm-file-paper { fill: #fff; stroke: #c4c4c4; stroke-width: 1; }
@@ -249,6 +500,7 @@ const sidebar = ['Home', 'Desktop', 'Downloads', 'Documents', 'Pictures'];
   .fm-thumb::after { content: ''; position: absolute; inset: 38% 0 0; background: var(--land); clip-path: polygon(0 100%, 0 55%, 22% 20%, 40% 52%, 62% 8%, 84% 45%, 100% 28%, 100% 100%); }
   .fm-photo:nth-child(3n + 2) .fm-thumb::after { clip-path: polygon(0 100%, 0 30%, 18% 50%, 38% 6%, 58% 46%, 76% 24%, 100% 60%, 100% 100%); }
   .fm-photo:nth-child(3n) .fm-thumb::after { clip-path: polygon(0 100%, 0 62%, 30% 34%, 48% 58%, 70% 16%, 100% 50%, 100% 100%); }
+  .fm-launch { position: absolute; inset: 0; margin: auto; opacity: 0; box-shadow: 0 calc(6 * var(--u)) calc(18 * var(--u)) #00000040; }
 
   .fm-status { position: absolute; right: 0; bottom: 0; left: 0; display: flex; align-items: center; gap: 1.5cqw; height: 2.4cqw; padding: 0 1.2cqw; border-top: 1px solid #e6e8eb; background: #f6f7f8; color: #5d656e; font-size: 1.05cqw; }
   .fm-count { display: grid; }
@@ -256,127 +508,11 @@ const sidebar = ['Home', 'Desktop', 'Downloads', 'Documents', 'Pictures'];
   .fm-count-pictures, .fm-selected { opacity: 0; }
   .fm-selected { color: var(--accent); }
 
-  .fm-ripple { position: absolute; top: 0; left: 0; width: 5cqw; height: 5cqw; margin: -2.5cqw 0 0 -2.5cqw; translate: var(--click); border: .22cqw solid var(--accent); border-radius: 50%; opacity: 0; pointer-events: none; }
+  /* Stage overlays; their translate is the cursor tip in stage units */
+  .fm-chip { position: absolute; top: 0; left: 0; z-index: 1; display: inline-flex; align-items: center; gap: calc(8 * var(--u)); padding: calc(6 * var(--u)) calc(10 * var(--u)); border: 1px solid rgba(0, 0, 0, .08); border-radius: calc(6 * var(--u)); background: #fff; box-shadow: 0 calc(8 * var(--u)) calc(16 * var(--u)) rgba(0, 0, 0, .12), 0 0 calc(2 * var(--u)) rgba(0, 0, 0, .08); font-size: calc(14 * var(--u)); white-space: nowrap; opacity: 0; transform-origin: 0 0; }
+  .fm-chip .fm-glyph { width: calc(20 * var(--u)); height: calc(20 * var(--u)); }
+
+  .fm-ripple { position: absolute; top: 0; left: 0; width: 5cqw; height: 5cqw; margin: -2.5cqw 0 0 -2.5cqw; border: .22cqw solid var(--accent); border-radius: 50%; opacity: 0; pointer-events: none; }
   .fm-cursor { position: absolute; top: 0; left: 0; z-index: 2; width: 1.6cqw; height: 2.2cqw; opacity: 0; transform-origin: 6% 5%; filter: drop-shadow(0 .2cqw .35cqw #0000004d); }
   .fm .fm-cursor { fill: #16191d; stroke: #fff; stroke-width: 1.3; }
-
-  /* ---- Timeline (one cycle = 9.6s; percentages below are of the cycle) ---- */
-  .fm.is-playing { animation: fm-clock var(--cycle) linear both; }
-  .fm.is-paused, .fm.is-paused * { animation-play-state: paused !important; }
-
-  /* 0.25s–1.4s: items drop into their slots */
-  .fm.is-playing .fm-home .fm-item { animation: fm-drop .7s cubic-bezier(.34, 1.4, .55, 1) calc(.25s + var(--i) * .08s) both; }
-  /* 1.5s–3.4s: cursor travels to Pictures, hovers, double-clicks (first click selects) */
-  .fm.is-playing .fm-cursor { animation: fm-cursor var(--cycle) linear both; }
-  .fm.is-playing .is-target .fm-entry { animation: fm-hover var(--cycle) linear both; }
-  .fm.is-playing .fm-ripple { animation: fm-ripple .65s ease-out 3.3s both; }
-  .fm.is-playing .fm-selected { animation: fm-selected var(--cycle) linear both; }
-  /* 3.35s: folder opens, the rest dim */
-  .fm.is-playing .fm-home .fm-item:not(.is-target) .fm-entry { animation: fm-dim .35s ease 3.35s both; }
-  .fm.is-playing .is-target .fm-folder { animation: fm-pop .5s cubic-bezier(.3, 1.6, .5, 1) 3.35s both; }
-  .fm.is-playing .is-target .fm-folder-front { animation: fm-flap .45s ease-out 3.38s both; }
-  .fm.is-playing .is-target .fm-folder-paper { animation: fm-paper .45s ease-out 3.38s both; }
-  /* 3.55s–4.7s: zoom through the folder into Pictures */
-  .fm.is-playing .fm-home { animation: fm-zoom-out .95s cubic-bezier(.6, 0, .3, 1) 3.55s both; }
-  .fm.is-playing .fm-pictures { animation: fm-zoom-in var(--cycle) linear both; }
-  .fm.is-playing .fm-photo { animation: fm-rise .55s cubic-bezier(.2, .8, .2, 1) calc(4.2s + var(--i) * .055s) both; }
-  .fm.is-playing .fm-side-highlight { animation: fm-side var(--cycle) linear both; }
-  .fm.is-playing .fm-path-next { animation: fm-crumb var(--cycle) linear both; }
-  .fm.is-playing .fm-count-home { animation: fm-count-home var(--cycle) linear both; }
-  .fm.is-playing .fm-count-pictures { animation: fm-count-pictures var(--cycle) linear both; }
-  /* 8.8s–9.4s: Pictures fades out, then the cycle restarts */
-
-  @keyframes fm-clock { from, to { visibility: visible; } }
-
-  @keyframes fm-drop {
-    from { opacity: 0; translate: 0 -6cqw; }
-    50% { opacity: 1; }
-    to { opacity: 1; translate: 0 0; }
-  }
-
-  @keyframes fm-cursor {
-    0%, 15.6% { opacity: 0; translate: 52cqw 60cqw; scale: 1; animation-timing-function: cubic-bezier(.45, 0, .2, 1); }
-    18.8% { opacity: 1; }
-    30.2% { translate: var(--click); }
-    32.3% { scale: 1; animation-timing-function: ease-in; }
-    33% { scale: .82; animation-timing-function: ease-out; }
-    33.7% { scale: 1; animation-timing-function: ease-in; }
-    34.4% { scale: .82; animation-timing-function: ease-out; }
-    35.4% { scale: 1; }
-    37.5% { opacity: 1; }
-    40.1%, 100% { opacity: 0; translate: var(--click); scale: 1; }
-  }
-
-  /* chonky.css entry states: hover, then selected + hover once clicked */
-  @keyframes fm-hover {
-    0%, 28.6% { background-color: rgba(0, 0, 0, 0); }
-    29.4%, 32.8% { background-color: rgba(0, 0, 0, .045); }
-    33.1%, 100% { background-color: rgba(0, 120, 212, .18); }
-  }
-
-  @keyframes fm-ripple {
-    0% { opacity: 0; scale: .2; }
-    1% { opacity: .55; }
-    100% { opacity: 0; scale: 1.5; }
-  }
-
-  @keyframes fm-selected {
-    0%, 32.8% { opacity: 0; }
-    33.1%, 40.6% { opacity: 1; }
-    42.7%, 100% { opacity: 0; }
-  }
-
-  @keyframes fm-dim { to { opacity: .3; } }
-  @keyframes fm-pop { to { scale: 1.14; } }
-  /* SVG elements can't take 3D transforms, so the front flap opens by squashing toward its base */
-  @keyframes fm-flap { to { scale: 1 .84; } }
-  @keyframes fm-paper {
-    from { opacity: 0; }
-    30% { opacity: 1; }
-    to { opacity: 1; translate: 0 -5px; }
-  }
-
-  @keyframes fm-zoom-out {
-    from { opacity: 1; scale: 1; filter: blur(0); }
-    45% { opacity: 1; }
-    to { opacity: 0; scale: 3.6; filter: blur(.25cqw); }
-  }
-
-  @keyframes fm-zoom-in {
-    0%, 39.6% { opacity: 0; scale: .35; animation-timing-function: cubic-bezier(.16, .84, .3, 1); }
-    49% { opacity: 1; scale: 1; }
-    91.7% { opacity: 1; scale: 1; animation-timing-function: cubic-bezier(.5, 0, .75, 0); }
-    97.9%, 100% { opacity: 0; scale: .96; }
-  }
-
-  @keyframes fm-rise {
-    from { opacity: 0; translate: 0 1.4cqw; scale: .96; }
-    to { opacity: 1; translate: 0 0; scale: 1; }
-  }
-
-  @keyframes fm-side {
-    0%, 41.7% { translate: 0 0; animation-timing-function: cubic-bezier(.3, .7, .2, 1); }
-    46.9% { translate: 0 11.8cqw; }
-    91.7% { translate: 0 11.8cqw; animation-timing-function: cubic-bezier(.3, .7, .2, 1); }
-    96.9%, 100% { translate: 0 0; }
-  }
-
-  @keyframes fm-crumb {
-    0%, 41.7% { opacity: 0; translate: -.8cqw 0; animation-timing-function: ease-out; }
-    45.8% { opacity: 1; translate: 0 0; }
-    91.7% { opacity: 1; translate: 0 0; animation-timing-function: ease-in; }
-    95.8%, 100% { opacity: 0; translate: -.8cqw 0; }
-  }
-
-  @keyframes fm-count-home {
-    0%, 40.6% { opacity: 1; }
-    42.7%, 95.8% { opacity: 0; }
-    97.9%, 100% { opacity: 1; }
-  }
-
-  @keyframes fm-count-pictures {
-    0%, 41.7% { opacity: 0; }
-    43.8%, 93.8% { opacity: 1; }
-    95.8%, 100% { opacity: 0; }
-  }
 </style>
