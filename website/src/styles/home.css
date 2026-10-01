@@ -208,7 +208,7 @@ body { margin: 0; }
   .demo-mobile-top span:first-child { display: inline-flex; align-items: center; gap: 8px; }
   .demo-mobile-top span:last-child { color: #9eb0c6; font-size: 9px; letter-spacing: .13em; }
   .demo-mobile-top i { width: 7px; height: 7px; border-radius: 50%; background: #4089f2; box-shadow: 0 0 0 3px #e4f0ff; }
-  .demo-mobile-image { overflow: hidden; height: 220px; margin: 0 8px; border: 1px solid #e1e9f3; border-radius: 7px; background: #dce8f5; }
+  .demo-mobile-image { overflow: hidden; margin: 0 8px; border: 1px solid #e1e9f3; border-radius: 7px; background: #dce8f5; }
   .demo-mobile-image img { display: block; width: 165%; max-width: none; height: auto; transform: translateX(-4%); }
   .demo-mobile-content { padding: 23px 21px 25px; }
   .demo-mobile-content h3 { margin: 0 0 8px; color: #233753; font-size: 21px; font-weight: 700; letter-spacing: -.04em; }
@@ -226,7 +226,6 @@ body { margin: 0; }
   .section-heading h2, .showcase-copy h2, .integration-grid h2 { font-size: 37px; }
   .use-case-separator { display: none; }
   .use-case-list { display: grid; grid-template-columns: 1fr 1fr; width: 100%; text-align: center; }
-  .demo-mobile-image { height: 190px; }
   .closing-actions { flex-direction: column; gap: 18px; }
 }
 @media (prefers-reduced-motion: reduce) {
