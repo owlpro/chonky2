@@ -3,7 +3,7 @@
  * @copyright 2020
  * @license MIT
  */
-import React, { ReactNode, useCallback, useContext, useMemo, useRef } from 'react';
+import React, { ReactNode, useCallback, useContext, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 
 import { ChonkyActions } from '../../action-definitions/index';
@@ -18,7 +18,9 @@ import { useNativeFileDrop } from '../../util/dnd';
 import { useAnimationsEnabled } from '../../util/animations';
 import { useDndContextAvailable } from '../../util/dnd-fallback';
 import { elementIsInsideButton } from '../../util/helpers';
-import { c, ChonkyDarkModeContext, getThemeClassName } from '../../util/styles';
+import {
+    c, ChonkyDarkModeContext, ChonkyNarrowLayoutContext, getThemeClassName, NARROW_LAYOUT_WIDTH
+} from '../../util/styles';
 import { useContextMenuTrigger } from '../external/FileContextMenu-hooks';
 import { DnDFileListDragLayer } from '../file-list/DnDFileListDragLayer';
 import { ClickAwayListener } from './ClickAwayListener';
@@ -84,7 +86,19 @@ export const ChonkyPresentationLayer: React.FC<ChonkyPresentationLayerProps> = (
     );
 
     const dndContextAvailable = useDndContextAvailable();
-    const showContextMenu = useContextMenuTrigger();
+    const contextMenuTriggers = useContextMenuTrigger();
+
+    const [narrow, setNarrow] = useState(false);
+    useLayoutEffect(() => {
+        const root = rootRef.current;
+        if (!root) return;
+        // The content width, like the `@container chonky (max-width: …)` queries in chonky.css
+        const update = () => setNarrow(root.clientWidth <= NARROW_LAYOUT_WIDTH);
+        update();
+        const observer = new ResizeObserver(update);
+        observer.observe(root);
+        return () => observer.disconnect();
+    }, []);
 
     const { nativeFileDropIsOver, nativeFileDrop } = useNativeFileDrop();
     nativeFileDrop(rootRef);
@@ -98,7 +112,7 @@ export const ChonkyPresentationLayer: React.FC<ChonkyPresentationLayerProps> = (
                 className={c('chonky-chonkyRoot', getThemeClassName(darkMode, !animationsEnabled), {
                     'chonky-nativeFileDropOver': nativeFileDropIsOver,
                 })}
-                onContextMenu={showContextMenu}
+                {...contextMenuTriggers}
                 onMouseDown={handleMouseDown}
                 onMouseUp={handleMouseUp}
                 // Focusable, so a click anywhere in Chonky (e.g. empty list space) puts focus
@@ -107,7 +121,9 @@ export const ChonkyPresentationLayer: React.FC<ChonkyPresentationLayerProps> = (
             >
                 {!dndDisabled && dndContextAvailable && <DnDFileListDragLayer />}
                 {hotkeyListenerComponents}
-                {children ? children : null}
+                <ChonkyNarrowLayoutContext.Provider value={narrow}>
+                    {children ? children : null}
+                </ChonkyNarrowLayoutContext.Provider>
             </div>
         </ClickAwayListener>
     );

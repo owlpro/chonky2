@@ -60,6 +60,8 @@ import {
     Star,
     StarOff,
     History,
+    Menu,
+    Ellipsis,
 } from "lucide-react";
 
 import { ChonkyIconName, ChonkyIconProps } from "../../types/icons.types";
@@ -122,6 +124,8 @@ export const IconMap: { [iconName in ChonkyIconName]: any } = {
     [ChonkyIconName.unfavorite]: StarOff,
     [ChonkyIconName.recent]: History,
     [ChonkyIconName.sectionToggle]: ChevronRight,
+    [ChonkyIconName.sidebar]: Menu,
+    [ChonkyIconName.more]: Ellipsis,
     [ChonkyIconName.download]: Download,
     [ChonkyIconName.upload]: Upload,
     [ChonkyIconName.trash]: Trash2,

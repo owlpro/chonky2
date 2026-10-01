@@ -14,6 +14,7 @@ import { ChonkyIconName } from '../../types/icons.types';
 import { useDebounce } from '../../util/hooks-helpers';
 import { getI18nId, I18nNamespace, useIntl } from '../../util/i18n';
 import { ChonkyIconContext } from '../../util/icon-helper';
+import { c } from '../../util/styles';
 
 export interface ToolbarSearchProps { }
 
@@ -96,7 +97,8 @@ export const ToolbarSearch: React.FC<ToolbarSearchProps> = React.memo(() => {
     }, [setDebouncedLocalSearchString]);
 
     return (
-        <label className="chonky-search">
+        // While Chonky is narrow, the field is only an icon until it has focus or text
+        <label className={c('chonky-search', { 'chonky-searchFilled': !!localSearchString })}>
             <span className="chonky-searchIcon">
                 <ChonkyIcon
                     icon={showLoadingIndicator ? ChonkyIconName.loading : ChonkyIconName.search}

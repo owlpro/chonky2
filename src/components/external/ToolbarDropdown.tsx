@@ -7,15 +7,21 @@
 import React, { useCallback, useMemo } from 'react';
 
 import { FileActionGroup } from '../../types/action-menus.types';
+import { ChonkyIconName } from '../../types/icons.types';
 import { useLocalizedFileActionGroup } from '../../util/i18n';
 import { ChonkyMenu } from '../internal/ChonkyMenu';
 import { ToolbarButton } from './ToolbarButton';
 import { SmartToolbarDropdownButton } from './ToolbarDropdownButton';
 
-export type ToolbarDropdownProps = FileActionGroup;
+export type ToolbarDropdownProps = FileActionGroup & {
+    /** Shown instead of the group's localized name. */
+    label?: string;
+    /** Makes the button show only this icon, with the name as its tooltip. */
+    icon?: ChonkyIconName | string;
+};
 
 export const ToolbarDropdown: React.FC<ToolbarDropdownProps> = React.memo(props => {
-    const { name, fileActionIds } = props;
+    const { name, fileActionIds, label, icon } = props;
     const [anchor, setAnchor] = React.useState<null | HTMLElement>(null);
 
     const handleClick = useCallback(
@@ -44,7 +50,9 @@ export const ToolbarDropdown: React.FC<ToolbarDropdownProps> = React.memo(props 
         <>
             <ToolbarButton
                 className="chonky-menuBarButton"
-                text={localizedName}
+                text={label ?? localizedName}
+                icon={icon}
+                iconOnly={!!icon}
                 onClick={handleClick}
                 active={Boolean(anchor)}
             />

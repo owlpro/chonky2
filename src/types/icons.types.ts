@@ -48,6 +48,10 @@ export enum ChonkyIconName {
     recent = 'recent',
     /** The arrow of a collapsible sidebar section; points right, and down when open */
     sectionToggle = 'sectionToggle',
+    /** The navbar button that opens the sidebar while Chonky is narrow */
+    sidebar = 'sidebar',
+    /** The toolbar menu with the buttons that don't fit while Chonky is narrow */
+    more = 'more',
     download = 'download',
     upload = 'upload',
     trash = 'trash',

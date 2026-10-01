@@ -5,6 +5,25 @@ The project follows [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+### Added
+
+- Phones and tablets: when Chonky is 560px wide or narrower, the `FileSidebar` becomes a drawer over the file list and the status bar. A menu button in the navbar, in place of Forward, opens it; a tap outside it, Esc or choosing an item closes it.
+- A long press on a touch screen opens the context menu, also on iOS, which never sends `contextmenu`. The file under the finger is selected like on a right click, and lifting the finger doesn't open it.
+- While Chonky is narrow, the toolbar buttons other than the view modes go into a "More" (⋯) menu, so the toolbar fits on one line. At 480px or narrower the search field is an icon that covers the address bar while it has focus or text.
+- `ChonkyIconName.sidebar` and `ChonkyIconName.more`, the `chonky.toolbar.toggleSidebar` and `chonky.toolbar.moreActions` messages, and the `--chonky-status-bar-height` CSS variable.
+
+### Changed
+
+- On touch screens a tap opens a file or folder, like a double click with the mouse, instead of selecting it. Mouse clicks work as before.
+- On touch screens (`pointer: coarse`) buttons are 40px tall, list rows at least 44px, and the ✕ buttons of Favorites and Recent are larger and always shown. The search and rename fields use 16px text there, so iOS doesn't zoom in on them.
+- Hover effects only apply on devices that can hover, so they no longer stick after a tap.
+- The list view drops columns by its own width instead of the window's: the Type column at 680px or narrower, then the Date column at 480px. Next to the sidebar on a tablet the names stay visible.
+- Sidebar items' icons sit under the icons of the section titles, and the Favorites drop hint is smaller and has no star of its own.
+
+### Fixed
+
+- On narrow screens the list view's Type and Date columns stayed visible and pushed the size and date under the name.
+
 ### Development
 
 - `issues/mobile-responsive.md`: the plan for making the file browser usable on phones.

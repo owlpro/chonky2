@@ -23,7 +23,7 @@ import { SortOrder } from '../../types/sort.types';
 import { useInstanceVariable } from '../../util/hooks-helpers';
 import { getI18nId, I18nNamespace, useIntl } from '../../util/i18n';
 import { ChonkyIconContext } from '../../util/icon-helper';
-import { c } from '../../util/styles';
+import { c, useIsCoarsePointer } from '../../util/styles';
 import { SmartFileEntry } from './FileEntry';
 import { useRevealFiles } from './FileList-hooks';
 
@@ -34,6 +34,8 @@ export interface FileListListProps {
 
 /** Keep in sync with `.chonky-listHeader` in chonky.css. */
 const LIST_HEADER_HEIGHT = 32;
+/** The least row height for fingers, e.g. on a phone. */
+const TOUCH_ROW_HEIGHT = 44;
 
 const listColumns = [
     { className: 'chonky-listCellName', stringId: 'nameColumn', label: 'Name', sortActionId: ChonkyActions.SortFilesByName.id },
@@ -101,6 +103,8 @@ export const ListContainer: React.FC<FileListListProps> = React.memo((props) => 
     const { width, height } = props;
 
     const viewConfig = useSelector(selectFileViewConfig);
+    const coarsePointer = useIsCoarsePointer();
+    const rowHeight = coarsePointer ? Math.max(viewConfig.entryHeight, TOUCH_ROW_HEIGHT) : viewConfig.entryHeight;
 
     const listRef = useRef<FixedSizeList>(null);
 
@@ -132,7 +136,7 @@ export const ListContainer: React.FC<FileListListProps> = React.memo((props) => 
             <FixedSizeList
                 ref={listRef as any}
                 className="chonky-listContainer"
-                itemSize={viewConfig.entryHeight}
+                itemSize={rowHeight}
                 height={Math.max(0, height - LIST_HEADER_HEIGHT)}
                 itemCount={displayFileIds.length}
                 width={width}
@@ -141,7 +145,7 @@ export const ListContainer: React.FC<FileListListProps> = React.memo((props) => 
                 {rowRenderer}
             </FixedSizeList>
         );
-    }, [viewConfig.entryHeight, height, displayFileIds, width, getItemKey]);
+    }, [rowHeight, height, displayFileIds, width, getItemKey]);
 
     return (
         <div className="chonky-listView" style={{ width }}>

@@ -287,6 +287,13 @@ const reducers = {
     showContextMenu(state: RootState, action: PayloadAction<ContextMenuConfig>) {
         state.contextMenuConfig = action.payload;
     },
+    setSidebarMounted(state: RootState, action: PayloadAction<boolean>) {
+        state.sidebarMounted = action.payload;
+        if (!action.payload) state.sidebarOpen = false;
+    },
+    setSidebarOpen(state: RootState, action: PayloadAction<boolean>) {
+        state.sidebarOpen = action.payload;
+    },
     setUserState(state: RootState, action: PayloadAction<ChonkyUserState>) {
         state.userState = action.payload;
     },

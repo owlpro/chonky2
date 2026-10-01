@@ -7,7 +7,7 @@ import { useDispatch, useSelector, useStore } from 'react-redux';
 import { ChonkyActions } from '../../action-definitions/index';
 import {
     selectCollapsedSidebarSections, selectFavorites, selectFolderChain, selectInstanceId, selectIsDnDDisabled,
-    selectIsSidebarSectionCollapsed, selectRecent
+    selectIsSidebarSectionCollapsed, selectRecent, selectSidebarOpen
 } from '../../redux/selectors';
 import { reduxActions } from '../../redux/reducers';
 import { useParamSelector } from '../../redux/store';
@@ -29,7 +29,7 @@ import { FileHelper } from '../../util/file-helper';
 import { useDelayedTrue } from '../../util/hooks-helpers';
 import { getI18nId, I18nNamespace, useIntl } from '../../util/i18n';
 import { ChonkyIconContext } from '../../util/icon-helper';
-import { c, getDndOverClasses } from '../../util/styles';
+import { c, ChonkyNarrowLayoutContext, getDndOverClasses } from '../../util/styles';
 import { FileIcon } from '../file-list/FileEntryIcon';
 
 export interface FileSidebarProps {
@@ -49,9 +49,13 @@ const SidebarLayoutContext = createContext<Nullable<() => void>>(null);
 /**
  * Navigation pane on the left of the file list, like File Explorer's. Pass it to
  * `FullFileBrowser`'s `sidebar` prop, filled with `FileSidebarSection`s,
- * `FileSidebarItem`s and a `FileSidebarFavorites`.
+ * `FileSidebarItem`s and a `FileSidebarFavorites`. While Chonky is narrow, e.g. on a
+ * phone, it is a drawer over the file list that the navbar's menu button opens.
  */
 export const FileSidebar: React.FC<FileSidebarProps> = React.memo(({ className, children }) => {
+    const dispatch = useDispatch<any>();
+    const narrow = useContext(ChonkyNarrowLayoutContext);
+    const drawerOpen = useSelector(selectSidebarOpen) && narrow;
     const navRef = useRef<HTMLElement | null>(null);
     const animationsEnabled = useAnimationsEnabled();
     const collapsedSections = useSelector(selectCollapsedSidebarSections);
@@ -83,9 +87,33 @@ export const FileSidebar: React.FC<FileSidebarProps> = React.memo(({ className, 
         });
     }, [collapsedSections]);
 
+    // Lets the navbar show its menu button
+    useEffect(() => {
+        dispatch(reduxActions.setSidebarMounted(true));
+        return () => {
+            dispatch(reduxActions.setSidebarMounted(false));
+        };
+    }, [dispatch]);
+
+    // Closed when Chonky gets wide, so it isn't open the next time it's narrow
+    useEffect(() => {
+        if (!narrow) dispatch(reduxActions.setSidebarOpen(false));
+    }, [dispatch, narrow]);
+
+    const closeDrawer = useCallback(() => dispatch(reduxActions.setSidebarOpen(false)), [dispatch]);
+    useEffect(() => {
+        if (!drawerOpen) return;
+        const handleKeyDown = (event: KeyboardEvent) => {
+            if (event.key === 'Escape') closeDrawer();
+        };
+        document.addEventListener('keydown', handleKeyDown);
+        return () => document.removeEventListener('keydown', handleKeyDown);
+    }, [drawerOpen, closeDrawer]);
+
     return (
         <SidebarLayoutContext.Provider value={recordPositions}>
-            <nav ref={navRef} className={c('chonky-sidebar', className)}>
+            {drawerOpen && <div className="chonky-sidebarBackdrop" onClick={closeDrawer} />}
+            <nav ref={navRef} className={c('chonky-sidebar', className, { 'chonky-sidebarOpen': drawerOpen })}>
                 {children}
             </nav>
         </SidebarLayoutContext.Provider>
@@ -250,6 +278,8 @@ export const FileSidebarItem: React.FC<FileSidebarItemProps> = React.memo((props
 
     const handleClick = useCallback(
         (event: React.MouseEvent<HTMLButtonElement>) => {
+            // Closes the sidebar's drawer, see `FileSidebar`
+            dispatch(reduxActions.setSidebarOpen(false));
             if (onClick) return onClick(event);
             if (!folder || !FileHelper.isOpenable(folder)) return;
             dispatch(thunkRequestFileAction(ChonkyActions.OpenFiles, { targetFile: folder, files: [folder] }));
@@ -394,7 +424,6 @@ export const FileSidebarFavorites: React.FC<FileSidebarFavoritesProps> = React.m
     const dispatch = useDispatch<any>();
     const store = useStore<RootState>();
     const intl = useIntl();
-    const ChonkyIcon = useContext(ChonkyIconContext);
     const favorites = useSelector(selectFavorites);
     const instanceId = useSelector(selectInstanceId);
     const dndDisabled = useSelector(selectIsDnDDisabled);
@@ -448,13 +477,10 @@ export const FileSidebarFavorites: React.FC<FileSidebarFavoritesProps> = React.m
         intl.formatMessage({ id: getI18nId(I18nNamespace.Sidebar, 'favorites'), defaultMessage: 'Favorites' });
     const dropHint = (
         <div className="chonky-sidebarDropHint">
-            <ChonkyIcon icon={ChonkyIconName.favorite} />
-            <span>
-                {intl.formatMessage({
-                    id: getI18nId(I18nNamespace.Sidebar, 'favoritesDropHint'),
-                    defaultMessage: 'Drop folders here',
-                })}
-            </span>
+            {intl.formatMessage({
+                id: getI18nId(I18nNamespace.Sidebar, 'favoritesDropHint'),
+                defaultMessage: 'Drop folders here',
+            })}
         </div>
     );
 

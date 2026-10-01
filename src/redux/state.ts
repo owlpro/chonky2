@@ -51,6 +51,9 @@ export const initialRootState: RootState = {
     contextMenuMounted: false,
     contextMenuConfig: null,
 
+    sidebarMounted: false,
+    sidebarOpen: false,
+
     renamingFileId: null,
     newFileWatch: null,
     revealFileIds: null,

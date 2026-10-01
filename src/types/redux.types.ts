@@ -86,6 +86,12 @@ export type RootState = {
     contextMenuMounted: boolean;
     contextMenuConfig: Nullable<ContextMenuConfig>;
 
+    // Sidebar
+    /** A `FileSidebar` is shown, so the navbar offers to open it while Chonky is narrow. */
+    sidebarMounted: boolean;
+    /** The sidebar is open as a drawer over the file list, see `NARROW_LAYOUT_WIDTH`. */
+    sidebarOpen: boolean;
+
     // Inline rename
     renamingFileId: Nullable<string>;
     /**

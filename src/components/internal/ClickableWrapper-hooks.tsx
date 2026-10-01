@@ -18,7 +18,9 @@ import {
 
 export const useClickHandler = (
     onSingleClick: Nilable<MouseClickEventHandler>,
-    onDoubleClick: Nilable<MouseClickEventHandler>
+    onDoubleClick: Nilable<MouseClickEventHandler>,
+    /** The `pointerType` of the last `pointerdown`, e.g. `touch`. */
+    pointerTypeRef?: React.MutableRefObject<string>
 ) => {
     const doubleClickDelay = useSelector(selectDoubleClickDelay);
 
@@ -35,6 +37,14 @@ export const useClickHandler = (
                 shiftKey: event.shiftKey,
 
             };
+
+            // A tap acts like a double click, so it opens the file like the file
+            // managers of phones do
+            if (pointerTypeRef?.current === 'touch' && onDoubleClick) {
+                event.preventDefault();
+                onDoubleClick(mouseClickEvent);
+                return;
+            }
 
             counter.current.clickCount++;
             if (counter.current.clickCount === 1) {
@@ -60,7 +70,7 @@ export const useClickHandler = (
                 }
             }
         },
-        [doubleClickDelay, onSingleClick, onDoubleClick, counter]
+        [doubleClickDelay, onSingleClick, onDoubleClick, counter, pointerTypeRef]
     );
 };
 

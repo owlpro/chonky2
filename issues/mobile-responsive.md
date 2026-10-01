@@ -1,6 +1,6 @@
 # Make the file browser usable on phones
 
-**Status:** open
+**Status:** phase 1 done, phase 2 open
 **Estimate:** 4–6 days in total (layout only: 1–2 days)
 
 ## Goal
@@ -30,12 +30,12 @@ The browser should look clean and be comfortable to use on a phone (≈360–480
 
 ### Phase 1: layout and core touch behaviour (priority)
 
-- [ ] **Sidebar drawer:** on narrow containers, render the sidebar as an overlay drawer instead of hiding it. Add a toggle button to the navbar or toolbar. Close the drawer on backdrop tap, on Escape, and after choosing an item.
-- [ ] **Tap to open:** when the input is touch (`pointerType === 'touch'` or `(pointer: coarse)`), a single tap opens the file. Keep the current behaviour for mouse.
-- [ ] **Long press:** a long press of about 500ms on a file opens the context menu and selects the file. Cancel it if the finger moves.
-- [ ] **Hover-only UI:** wrap `:hover` styles in `@media (hover: hover)`. Keep hover-only controls (such as the sidebar item remove button) always visible when `(hover: none)`.
-- [ ] **Compact toolbar:** below the mobile breakpoint, keep search and the most important buttons visible and move the rest into an overflow ("⋯") menu. Let the breadcrumbs scroll horizontally or collapse the middle folders.
-- [ ] **Tap targets:** raise the control and row height for `(pointer: coarse)` rather than lowering them.
+- [x] **Sidebar drawer:** on narrow containers, render the sidebar as an overlay drawer instead of hiding it. Add a toggle button to the navbar or toolbar. Close the drawer on backdrop tap, on Escape, and after choosing an item.
+- [x] **Tap to open:** when the input is touch (`pointerType === 'touch'` or `(pointer: coarse)`), a single tap opens the file. Keep the current behaviour for mouse.
+- [x] **Long press:** a long press of about 500ms on a file opens the context menu and selects the file. Cancel it if the finger moves.
+- [x] **Hover-only UI:** wrap `:hover` styles in `@media (hover: hover)`. Keep hover-only controls (such as the sidebar item remove button) always visible when `(hover: none)`.
+- [x] **Compact toolbar:** below the mobile breakpoint, keep search and the most important buttons visible and move the rest into an overflow ("⋯") menu. Let the breadcrumbs scroll horizontally or collapse the middle folders.
+- [x] **Tap targets:** raise the control and row height for `(pointer: coarse)` rather than lowering them.
 
 ### Phase 2: advanced touch interactions
 

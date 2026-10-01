@@ -103,6 +103,8 @@ current folder, Back and Forward history) works on its own.
 - **Navigation:** breadcrumbs, Back, Forward, Up, a sidebar, and the mouse's back and
   forward buttons. After going up, the folder you came from is selected.
 - **Selection:** click, Ctrl+click, Shift+click and Ctrl+A.
+- **Phones and tablets:** a tap opens a file, a long press opens the context menu, and while
+  Chonky is narrow the sidebar becomes a drawer and the toolbar buttons go into a menu.
 - **File operations:** create folder, upload, download, delete, inline rename (F2), and copy,
   cut and paste (Ctrl+C, Ctrl+X, Ctrl+V), each opt-in.
 - **Drag and drop:** move files into folders, breadcrumbs and sidebar items, and upload files
@@ -211,7 +213,7 @@ what the user wants.
 
 | Action | When it fires | Payload / state |
 |---|---|---|
-| `OpenFiles` | Double click, Enter, breadcrumbs, Up, Back, Forward, sidebar | `payload.targetFile`, `payload.files` |
+| `OpenFiles` | Double click, a tap on touch screens, Enter, breadcrumbs, Up, Back, Forward, sidebar | `payload.targetFile`, `payload.files` |
 | `MoveFiles` | Files dropped onto a folder, or cut files pasted | `payload.files`, `payload.destination` |
 | `CopyFilesTo` | Copied files pasted | `payload.files`, `payload.destination` |
 | `ChangeFileName` | A new name confirmed in the inline rename field | `payload.file`, `payload.name` |
@@ -349,7 +351,9 @@ decides the new `folderChain`. Files dragged onto an item are moved into its fol
 uploaded into it when they come from the computer. An item is highlighted while its folder is
 the current folder or one of its ancestors (not counting the root); pass `active` to decide
 yourself, `label` and `icon` to override the folder's, or `onClick` to do something else. The
-sidebar hides when Chonky is narrower than 560px, and its width is `--chonky-sidebar-width`.
+sidebar's width is `--chonky-sidebar-width`. When Chonky is 560px wide or narrower, e.g. on a
+phone, the sidebar becomes a drawer over the file list and the status bar: a menu button in the
+navbar (in place of Forward) opens it, and a tap outside it, Esc or choosing an item closes it.
 
 Sections with a title collapse when the title is clicked, like the views in VS Code's side
 bar: a collapsed section shows only its title. Sections keep their order, so a collapsed
@@ -440,6 +444,14 @@ Each shortcut belongs to an action and only works when that action is registered
 | F2 | Rename the selected file (`RenameFile`) |
 | Ctrl+C, Ctrl+X, Ctrl+V (Cmd on macOS) | Copy, cut, paste (`CopyFiles`, `CutFiles`, `PasteFiles`) |
 | Delete | Delete the selection (`DeleteFiles`) |
+
+On touch screens a tap opens a file or folder, and a long press opens the context menu for
+it. Buttons and list rows are taller there, and hover effects only show with a mouse.
+
+While Chonky is 560px wide or narrower, the toolbar buttons other than the view modes go into
+a "More" (⋯) menu. At 480px or narrower the search field is an icon that covers the address
+bar while it has focus or text. The list drops its Type column when it is 680px wide or
+narrower and its Date column at 480px, so names keep their room.
 
 ### Building your own layout
 
@@ -560,6 +572,7 @@ CSS variables on `.chonky-theme` from your own stylesheet:
 | `--chonky-radius`, `--chonky-control-height` | Corners and button height |
 | `--chonky-list-type-width`, `--chonky-list-size-width`, `--chonky-list-date-width` | List column widths |
 | `--chonky-sidebar-width` | Sidebar width |
+| `--chonky-status-bar-height` | Status bar height (default `28px`) |
 | `--chonky-scrollbar-thumb` | Colour of the thin scrollbars |
 | `--chonky-menu-z-index` | Stacking order of the menus, which render on `<body>` (default `2000`, above most dialogs) |
 
@@ -599,7 +612,7 @@ Message IDs follow the pattern `chonky.<area>.<name>`:
 
 | Area | IDs |
 |---|---|
-| `toolbar` | `searchPlaceholder`, `clearSearch`, `visibleFileCount`, `selectedFileCount`, `hiddenFileCount` |
+| `toolbar` | `searchPlaceholder`, `clearSearch`, `visibleFileCount`, `selectedFileCount`, `hiddenFileCount`, `toggleSidebar`, `moreActions` |
 | `fileList` | `nothingToShow`, `loading`, `nameColumn`, `typeColumn`, `sizeColumn`, `dateColumn` |
 | `fileEntry` | `folderType`, `fileType`, `genericFileType`, `folderItemCount` |
 | `contextMenu` | `browserMenuShortcut` |

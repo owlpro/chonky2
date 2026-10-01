@@ -54,6 +54,7 @@
     --chonky-list-size-width: 100px;
     --chonky-list-date-width: 180px;
     --chonky-sidebar-width: 200px;
+    --chonky-status-bar-height: 28px;
 
     --chonky-scrollbar-thumb: rgba(0, 0, 0, 0.25);
 
@@ -105,6 +106,13 @@
     }
 }
 
+/* Fingers need bigger targets than a mouse, e.g. on a phone or a tablet */
+@media (pointer: coarse) {
+    .chonky-theme {
+        --chonky-control-height: 40px;
+    }
+}
+
 @keyframes chonky-spin {
     from {
         transform: rotate(0deg);
@@ -121,6 +129,12 @@
     }
     50% {
         opacity: 1;
+    }
+}
+
+@keyframes chonky-fade-in {
+    from {
+        opacity: 0;
     }
 }
 
@@ -146,7 +160,8 @@
     transition: none !important;
 }
 
-.chonky-noAnimations .chonky-menu {
+.chonky-noAnimations .chonky-menu,
+.chonky-noAnimations .chonky-sidebarBackdrop {
     animation: none;
 }
 
@@ -229,8 +244,10 @@
     text-box: trim-both cap alphabetic;
 }
 
-.chonky-baseButton:hover:not(:disabled) {
-    background-color: var(--chonky-hover);
+@media (hover: hover) {
+    .chonky-baseButton:hover:not(:disabled) {
+        background-color: var(--chonky-hover);
+    }
 }
 
 .chonky-baseButton:active:not(:disabled) {
@@ -300,6 +317,17 @@
     background-color: var(--chonky-field-border);
 }
 
+/* Less room around the bars while Chonky is narrow, so the toolbar fits on one line */
+@container chonky (max-width: 560px) {
+    .chonky-toolbar {
+        padding: 8px 8px 2px;
+    }
+
+    .chonky-toolbarDivider {
+        margin: 0 2px;
+    }
+}
+
 /* Navbar: history buttons and address bar */
 
 .chonky-navbar {
@@ -316,6 +344,13 @@
     gap: 2px;
 }
 
+@container chonky (max-width: 560px) {
+    .chonky-navbar {
+        gap: 4px;
+        padding: 2px 8px 8px;
+    }
+}
+
 .chonky-addressBar {
     display: flex;
     align-items: center;
@@ -328,8 +363,10 @@
     transition: border-color 100ms;
 }
 
-.chonky-addressBar:hover {
-    border-color: var(--chonky-field-border-hover);
+@media (hover: hover) {
+    .chonky-addressBar:hover {
+        border-color: var(--chonky-field-border-hover);
+    }
 }
 
 .chonky-breadcrumbs {
@@ -438,6 +475,56 @@
     appearance: none;
 }
 
+/* iOS zooms into fields with smaller text when they get focus */
+@media (pointer: coarse) {
+    .chonky-searchInput,
+    .chonky-renameInput {
+        font-size: 16px;
+    }
+}
+
+/* While Chonky is narrow the field is only an icon, and covers the address bar once it
+   has focus or text */
+@container chonky (max-width: 480px) {
+    .chonky-addressBar {
+        position: relative;
+    }
+
+    .chonky-search {
+        flex: none;
+        justify-content: center;
+        gap: 0;
+        width: var(--chonky-control-height);
+        min-width: 0;
+        max-width: none;
+        padding: 0;
+    }
+
+    .chonky-searchInput {
+        flex: 0 0 0;
+        width: 0;
+    }
+
+    .chonky-search:focus-within,
+    .chonky-search.chonky-searchFilled {
+        position: absolute;
+        inset: 0;
+        z-index: 1;
+        justify-content: flex-start;
+        gap: 8px;
+        width: auto;
+        padding: 0 10px;
+        border-left: 0;
+        border-radius: inherit;
+        background-color: var(--chonky-field-bg);
+    }
+
+    .chonky-search:focus-within .chonky-searchInput,
+    .chonky-search.chonky-searchFilled .chonky-searchInput {
+        flex: 1;
+    }
+}
+
 .chonky-searchInput::placeholder {
     color: var(--chonky-text-secondary);
     opacity: 1;
@@ -459,9 +546,11 @@
     cursor: pointer;
 }
 
-.chonky-searchClear:hover {
-    background-color: var(--chonky-hover);
-    color: var(--chonky-text);
+@media (hover: hover) {
+    .chonky-searchClear:hover {
+        background-color: var(--chonky-hover);
+        color: var(--chonky-text);
+    }
 }
 
 .chonky-searchClear:active {
@@ -496,9 +585,56 @@
     border-inline-end: 1px solid var(--chonky-divider);
 }
 
+.chonky-sidebarBackdrop {
+    display: none;
+}
+
+/* While Chonky is narrow, e.g. on a phone, the sidebar is a drawer over the file list
+   that the navbar's menu button opens. Keep in sync with NARROW_LAYOUT_WIDTH in styles.ts. */
 @container chonky (max-width: 560px) {
+    .chonky-browserBody {
+        position: relative;
+    }
+
     .chonky-sidebar {
-        display: none;
+        position: absolute;
+        inset-block: 0;
+        inset-inline-start: 0;
+        z-index: 3;
+        width: min(280px, 85%);
+        background-color: var(--chonky-bg);
+        border-inline-end: 0;
+        box-shadow: var(--chonky-menu-shadow);
+        visibility: hidden;
+        transform: translateX(-100%);
+        transition:
+            transform 200ms cubic-bezier(0.2, 0, 0, 1),
+            visibility 0s 200ms;
+    }
+
+    .chonky-sidebar:dir(rtl) {
+        transform: translateX(100%);
+    }
+
+    .chonky-sidebar.chonky-sidebarOpen {
+        visibility: visible;
+        transform: none;
+        transition: transform 200ms cubic-bezier(0.2, 0, 0, 1);
+    }
+
+    .chonky-sidebarBackdrop {
+        display: block;
+        position: absolute;
+        inset: 0;
+        z-index: 2;
+        background-color: rgba(0, 0, 0, 0.32);
+        animation: chonky-fade-in 200ms;
+    }
+
+    /* The drawer covers the status bar under the file list too */
+    .chonky-browserBody:has(+ .chonky-statusBar) > .chonky-sidebar,
+    .chonky-browserBody:has(+ .chonky-statusBar) > .chonky-sidebarBackdrop {
+        bottom: calc(-1 * var(--chonky-status-bar-height));
     }
 }
 
@@ -574,9 +710,17 @@
     cursor: pointer;
 }
 
-.chonky-sidebarSectionToggle:hover {
-    background-color: var(--chonky-hover);
-    color: var(--chonky-text);
+@media (hover: hover) {
+    .chonky-sidebarSectionToggle:hover {
+        background-color: var(--chonky-hover);
+        color: var(--chonky-text);
+    }
+}
+
+@media (pointer: coarse) {
+    .chonky-sidebarSectionToggle {
+        height: 36px;
+    }
 }
 
 .chonky-sidebarSectionToggle:focus-visible {
@@ -625,17 +769,14 @@
 }
 
 .chonky-sidebarDropHint {
-    display: flex;
-    align-items: center;
-    gap: 8px;
     margin: 0 6px 4px;
-    padding-block: 6px;
-    /* Its icon in line with the sidebar items' icons */
-    padding-inline: 23px 10px;
+    padding-block: 3px;
+    /* Its text in line with the sidebar items' icons */
+    padding-inline: 17px 10px;
     border: 1px dashed var(--chonky-divider);
     border-radius: var(--chonky-radius-control);
     color: var(--chonky-text-secondary);
-    font-size: 12px;
+    font-size: 11px;
 }
 
 .chonky-sidebarSectionBody > .chonky-sidebarDropHint {
@@ -665,7 +806,7 @@
 
 .chonky-sidebarEmpty {
     padding-block: 4px 6px;
-    padding-inline: 24px 10px;
+    padding-inline: 18px 10px;
     color: var(--chonky-text-secondary);
     font-size: 12px;
 }
@@ -718,14 +859,37 @@
     transform: translateY(-50%);
 }
 
-.chonky-sidebarRemovableItem:hover > .chonky-sidebarItemRemove,
 .chonky-sidebarItemRemove:focus-visible {
     opacity: 1;
 }
 
-.chonky-sidebarItemRemove:hover {
-    background-color: var(--chonky-hover);
-    color: var(--chonky-text);
+@media (hover: hover) {
+    .chonky-sidebarRemovableItem:hover > .chonky-sidebarItemRemove {
+        opacity: 1;
+    }
+
+    .chonky-sidebarItemRemove:hover {
+        background-color: var(--chonky-hover);
+        color: var(--chonky-text);
+    }
+}
+
+/* Without a mouse to hover with, e.g. on a phone, the ✕ button is always shown */
+@media (hover: none) {
+    .chonky-sidebarItemRemove {
+        opacity: 1;
+    }
+}
+
+@media (pointer: coarse) {
+    .chonky-sidebarRemovableItem > .chonky-sidebarItem {
+        padding-inline-end: 40px;
+    }
+
+    .chonky-sidebarItemRemove {
+        width: 32px;
+        height: 32px;
+    }
 }
 
 .chonky-sidebarItemRemove:focus-visible {
@@ -741,8 +905,8 @@
     flex-shrink: 0;
     height: var(--chonky-control-height);
     padding: 0;
-    /* Deeper than the icons of the section titles, like a tree */
-    padding-inline: 24px 10px;
+    /* Its icon centered under the icons of the section titles */
+    padding-inline: 18px 10px;
     border: 0;
     border-radius: var(--chonky-radius-control);
     background: transparent;
@@ -753,8 +917,10 @@
     cursor: pointer;
 }
 
-.chonky-sidebarItem:hover {
-    background-color: var(--chonky-hover);
+@media (hover: hover) {
+    .chonky-sidebarItem:hover {
+        background-color: var(--chonky-hover);
+    }
 }
 
 .chonky-sidebarItem:focus-visible {
@@ -782,9 +948,20 @@
 }
 
 /* The ✕ button of Favorites and Recent takes the dot's place on hover */
-.chonky-sidebarRemovableItem:hover > .chonky-sidebarItemActive::after,
 .chonky-sidebarItemActive:has(~ .chonky-sidebarItemRemove:focus-visible)::after {
     opacity: 0;
+}
+
+@media (hover: hover) {
+    .chonky-sidebarRemovableItem:hover > .chonky-sidebarItemActive::after {
+        opacity: 0;
+    }
+}
+
+@media (hover: none) {
+    .chonky-sidebarRemovableItem > .chonky-sidebarItemActive::after {
+        opacity: 0;
+    }
 }
 
 .chonky-sidebarItem.chonky-dnd-over-can {
@@ -819,7 +996,7 @@
     display: flex;
     align-items: center;
     flex-shrink: 0;
-    height: 28px;
+    height: var(--chonky-status-bar-height);
     padding: 0 14px;
     border-top: 1px solid var(--chonky-divider);
     color: var(--chonky-text-secondary);
@@ -875,9 +1052,14 @@
     outline: 0;
 }
 
-.chonky-menuItem:hover:not(:disabled),
 .chonky-menuItem:focus-visible {
     background-color: var(--chonky-hover);
+}
+
+@media (hover: hover) {
+    .chonky-menuItem:hover:not(:disabled) {
+        background-color: var(--chonky-hover);
+    }
 }
 
 .chonky-menuItem:disabled {
@@ -1037,10 +1219,12 @@
     transition: background-color 80ms;
 }
 
-.chonky-listFileEntry:hover,
-.chonky-gridFileEntry:hover,
-.chonky-compactFileEntry:hover {
-    background-color: var(--chonky-hover);
+@media (hover: hover) {
+    .chonky-listFileEntry:hover,
+    .chonky-gridFileEntry:hover,
+    .chonky-compactFileEntry:hover {
+        background-color: var(--chonky-hover);
+    }
 }
 
 .chonky-selected.chonky-listFileEntry,
@@ -1049,10 +1233,12 @@
     background-color: var(--chonky-selected-bg);
 }
 
-.chonky-selected.chonky-listFileEntry:hover,
-.chonky-selected.chonky-gridFileEntry:hover,
-.chonky-selected.chonky-compactFileEntry:hover {
-    background-color: var(--chonky-selected-hover-bg);
+@media (hover: hover) {
+    .chonky-selected.chonky-listFileEntry:hover,
+    .chonky-selected.chonky-gridFileEntry:hover,
+    .chonky-selected.chonky-compactFileEntry:hover {
+        background-color: var(--chonky-selected-hover-bg);
+    }
 }
 
 .chonky-fileEntryClickableWrapper:focus-visible > .chonky-listFileEntry,
@@ -1214,9 +1400,11 @@
     cursor: pointer;
 }
 
-.chonky-listHeaderButton:hover {
-    background-color: var(--chonky-hover);
-    color: var(--chonky-text);
+@media (hover: hover) {
+    .chonky-listHeaderButton:hover {
+        background-color: var(--chonky-hover);
+        color: var(--chonky-text);
+    }
 }
 
 .chonky-listHeaderButton:focus-visible {
@@ -1238,14 +1426,32 @@
     font-size: 0.9em;
 }
 
-@media (max-width: 600px) {
+/* The columns go one by one as the list gets narrower (e.g. next to the sidebar on a
+   tablet), so the name keeps room: first the type, then the date */
+.chonky-listView {
+    container: chonky-list / inline-size;
+}
+
+@container chonky-list (max-width: 680px) {
+    .chonky-listHeader,
+    .chonky-listFileEntry {
+        grid-template-columns: minmax(0, 1fr) var(--chonky-list-size-width) var(--chonky-list-date-width);
+    }
+
+    .chonky-listHeader .chonky-listColumnType,
+    .chonky-listFileEntry .chonky-listColumnType {
+        display: none;
+    }
+}
+
+@container chonky-list (max-width: 480px) {
     .chonky-listHeader,
     .chonky-listFileEntry {
         grid-template-columns: minmax(0, 1fr) var(--chonky-list-size-width);
     }
 
-    .chonky-listColumnType,
-    .chonky-listColumnDate {
+    .chonky-listHeader .chonky-listColumnDate,
+    .chonky-listFileEntry .chonky-listColumnDate {
         display: none;
     }
 }

@@ -1,4 +1,4 @@
-import { createContext, useInsertionEffect, useSyncExternalStore } from 'react';
+import { createContext, useCallback, useInsertionEffect, useSyncExternalStore } from 'react';
 
 import chonkyCss from '../styles/chonky.css?inline';
 import { DndEntryState } from '../types/file-list.types';
@@ -28,22 +28,37 @@ export const getThemeClassName = (darkMode: boolean, animationsDisabled = false)
 export const ChonkyDarkModeContext = createContext(false);
 
 const MOBILE_QUERY = '(max-width:480px)';
+const COARSE_POINTER_QUERY = '(pointer: coarse)';
 
-const subscribeToMobileQuery = (onChange: () => void) => {
-    const query = window.matchMedia(MOBILE_QUERY);
-    query.addEventListener('change', onChange);
-    return () => query.removeEventListener('change', onChange);
+const useMediaQuery = (query: string) => {
+    const subscribe = useCallback(
+        (onChange: () => void) => {
+            const mediaQuery = window.matchMedia(query);
+            mediaQuery.addEventListener('change', onChange);
+            return () => mediaQuery.removeEventListener('change', onChange);
+        },
+        [query]
+    );
+    return useSyncExternalStore(subscribe, () => window.matchMedia(query).matches, () => false);
 };
 
 /**
  * Hook: detect mobile breakpoint
  */
-export const useIsMobileBreakpoint = () =>
-    useSyncExternalStore(
-        subscribeToMobileQuery,
-        () => window.matchMedia(MOBILE_QUERY).matches,
-        () => false
-    );
+export const useIsMobileBreakpoint = () => useMediaQuery(MOBILE_QUERY);
+
+/** Whether the main input is a finger rather than a mouse, e.g. on a phone or a tablet. */
+export const useIsCoarsePointer = () => useMediaQuery(COARSE_POINTER_QUERY);
+
+/**
+ * Chonky's root is this wide or narrower, e.g. on a phone: the sidebar becomes a drawer and
+ * the toolbar moves its buttons into a menu. Keep in sync with the `@container chonky`
+ * queries in chonky.css.
+ */
+export const NARROW_LAYOUT_WIDTH = 560;
+
+/** Whether Chonky's root is at most `NARROW_LAYOUT_WIDTH` wide, see ChonkyPresentationLayer. */
+export const ChonkyNarrowLayoutContext = createContext(false);
 
 /**
  * Classes that colour an element while a file is dragged over it.

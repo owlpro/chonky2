@@ -4,7 +4,7 @@
  * @license MIT
  */
 
-import React, { ReactNode, useCallback } from 'react';
+import React, { ReactNode, useCallback, useRef } from 'react';
 import { AnyObjectWithStringKeys } from '../../types/util.types';
 
 import { useClickHandler, useKeyDownHandler } from './ClickableWrapper-hooks';
@@ -48,7 +48,11 @@ export const ClickableWrapper: React.FC<ClickableWrapperProps> = props => {
         setFocused,
     } = props;
 
-    const handleClick = useClickHandler(onSingleClick, onDoubleClick);
+    const pointerTypeRef = useRef('mouse');
+    const handlePointerDown = useCallback((event: React.PointerEvent) => {
+        pointerTypeRef.current = event.pointerType;
+    }, []);
+    const handleClick = useClickHandler(onSingleClick, onDoubleClick, pointerTypeRef);
     const handleKeyDown = useKeyDownHandler(onKeyboardClick);
 
     const compProps: AnyObjectWithStringKeys = {
@@ -57,6 +61,7 @@ export const ClickableWrapper: React.FC<ClickableWrapperProps> = props => {
     };
 
     if (onSingleClick || onDoubleClick || onKeyboardClick) {
+        compProps.onPointerDown = handlePointerDown;
         compProps.onClick = handleClick;
         compProps.onKeyDown = handleKeyDown;
         compProps.tabIndex = 0;
