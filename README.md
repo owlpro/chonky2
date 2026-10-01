@@ -121,7 +121,7 @@ current folder, Back and Forward history) works on its own.
   automatically and themed with CSS variables. The only peer dependencies are `react` and
   `react-dom`.
 - `react-intl` was replaced by a small formatter built on the browser's `Intl` APIs.
-- Chonky's cost in an app bundle dropped from about 139 KB to about 64 KB (minified + brotli,
+- Chonky's cost in an app bundle dropped from about 139 KB to about 66 KB (minified + brotli,
   all dependencies included).
 - Inline rename, copy/cut/paste, drag-and-drop upload, a sidebar, a loading state and more.
   See the [changelog](./CHANGELOG.md) for the full list, and [Upgrading](#upgrading) if you
