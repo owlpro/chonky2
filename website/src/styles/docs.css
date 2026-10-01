@@ -79,7 +79,7 @@
 }
 
 .docs-example-browser {
-  height: 340px;
+  height: 500px;
   min-width: 560px;
   border-block: 1px solid var(--sl-color-gray-5);
   background: #fff;
@@ -119,8 +119,19 @@
   color: var(--sl-color-gray-3);
 }
 
-/* Give wide documentation tables more room without changing the mobile TOC. */
+/* Keep the docs navigation visible even if the popover enhancement has not run. */
+@media (min-width: 50rem) {
+  #starlight__sidebar {
+    display: block;
+  }
+}
+
+/* Use the space beside navigation for documentation and wide tables. */
 @media (min-width: 72rem) {
+  html[data-has-sidebar] {
+    --sl-sidebar-width: 14rem;
+  }
+
   html[data-has-toc] .right-sidebar-container {
     width: 13rem;
     flex: 0 0 13rem;
@@ -128,7 +139,8 @@
 
   html[data-has-toc][data-has-sidebar] .main-pane {
     width: calc(100% - 13rem);
-    --sl-content-width: 55rem;
+    --sl-content-width: 68rem;
+    --sl-content-margin-inline: auto;
   }
 
   html[data-has-toc] .right-sidebar-panel .sl-container {
