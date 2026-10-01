@@ -16,6 +16,8 @@ export default defineConfig({
             { slug: 'docs/first-explorer' },
             { slug: 'docs/connect-backend' },
             { slug: 'docs/core-props' },
+            { slug: 'docs/file-actions' },
+            { slug: 'docs/customize' },
           ],
         },
       ],

@@ -1,0 +1,58 @@
+---
+title: Customize the explorer
+description: Set the Chonky2 theme, colors, labels, and visible browser parts.
+---
+
+Start with `FullFileBrowser` and change the parts your app needs. Chonky2 includes light and dark themes, CSS variables for styling, and an `i18n` prop for labels and formatting.
+
+## Light and dark mode
+
+Pass a boolean to `darkMode`. Your app can connect it to its existing theme setting:
+
+```tsx
+<FullFileBrowser
+  files={files}
+  folderChain={folderChain}
+  darkMode={theme === 'dark'}
+/>
+```
+
+Chonky2 fills its parent, so keep a height on the container. To change the built-in colors and sizing, add CSS in your app's stylesheet:
+
+```css
+.my-explorer .chonky-theme {
+  --chonky-accent: #7b1fa2;
+  --chonky-font: system-ui, sans-serif;
+  --chonky-control-height: 36px;
+}
+
+.my-explorer .chonky-theme.chonky-dark {
+  --chonky-accent: #ce93d8;
+}
+```
+
+Wrap the browser with `<div className="my-explorer" style={{ height: 500 }}>` to scope these values to one instance. The available variables include `--chonky-bg`, `--chonky-text`, `--chonky-selected-bg`, `--chonky-sidebar-width`, and the list column widths. See [all theme variables](https://github.com/owlpro/chonky2/blob/main/src/styles/chonky.css) in the source.
+
+## Translate labels
+
+Pass a locale and only the messages you want to replace. Missing messages use the built-in text:
+
+```tsx
+<FullFileBrowser
+  files={files}
+  i18n={{
+    locale: 'fa',
+    messages: {
+      'chonky.toolbar.searchPlaceholder': 'جست‌وجو',
+      'chonky.fileList.nameColumn': 'نام',
+      'chonky.actions.open_files.button.name': 'باز کردن',
+    },
+  }}
+/>
+```
+
+The locale also controls built-in number and date formatting. For custom file size or date formats, use `i18n.formatters`. The [translation reference](https://github.com/owlpro/chonky2#translations) lists message groups and formatters.
+
+## Choose the layout
+
+`FullFileBrowser` includes the navigation bar, toolbar, file list, context menu, and status bar. You can supply `sidebar`, `toolbarStart`, and `toolbarEnd` content. If your product needs a different arrangement, compose the exported `FileBrowser`, `FileNavbar`, `FileToolbar`, `FileList`, `FileContextMenu`, and `FileStatusBar` components. The [layout example](https://github.com/owlpro/chonky2#building-your-own-layout) shows their required nesting.

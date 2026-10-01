@@ -11,6 +11,8 @@ Chonky2 gives a React app a desktop-style file explorer. It draws files and fold
 2. [Build your first explorer](/docs/first-explorer/) with two folders in memory. The example is ready to paste into a React app.
 3. [Connect a backend](/docs/connect-backend/) when your files come from an API. The guide covers loading, navigation history, and errors.
 4. [Learn the three core props](/docs/core-props/) so you can adapt the examples to your own data.
+5. [Handle file actions](/docs/file-actions/) to create, rename, delete, upload, or move files in your storage.
+6. [Customize the explorer](/docs/customize/) with a theme, translated labels, and a layout that fits your app.
 
 ## How the data flows
 
@@ -18,4 +20,4 @@ Your app passes the current folder's `files` and its `folderChain` to `FullFileB
 
 The component handles selection, sorting, the current folder's search, and list or grid view changes internally. File storage and server requests remain in your app.
 
-Want to see the actual component first? [Try the live demo](/#demo). For the broader version 7 API, the [repository README](https://github.com/owlpro/chonky2#readme) covers additional actions and customization.
+Want to see the actual component first? [Try the live demo](/#demo). For the full version 7 API, see the [repository README](https://github.com/owlpro/chonky2#readme).
