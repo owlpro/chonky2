@@ -118,3 +118,21 @@
   border-radius: 12px;
   color: var(--sl-color-gray-3);
 }
+
+/* Give wide documentation tables more room without changing the mobile TOC. */
+@media (min-width: 72rem) {
+  html[data-has-toc] .right-sidebar-container {
+    width: 13rem;
+    flex: 0 0 13rem;
+  }
+
+  html[data-has-toc][data-has-sidebar] .main-pane {
+    width: calc(100% - 13rem);
+    --sl-content-width: 55rem;
+  }
+
+  html[data-has-toc] .right-sidebar-panel .sl-container {
+    width: 100%;
+    max-width: none;
+  }
+}
