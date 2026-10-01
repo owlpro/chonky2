@@ -5,14 +5,22 @@ description: Start using the Chonky2 React file explorer with the version 7 guid
 
 Chonky2 gives a React app a desktop-style file explorer. It draws files and folders, handles browsing interactions, and tells your app when a user requests an action. Your app decides where the files come from and how they are stored.
 
+These guides cover Chonky2 **7.1.x**. Features such as favorites, recent files, and saved sidebar state require version 7.1 or newer.
+
 ## Follow the short path
 
 1. [Install Chonky2](/docs/installation/) in a React 19+ project. Styles, icons, and TypeScript types come with the package.
-2. [Build your first explorer](/docs/first-explorer/) with two folders in memory. The example is ready to paste into a React app.
-3. [Connect a backend](/docs/connect-backend/) when your files come from an API. The guide covers loading, navigation history, and errors.
-4. [Learn the three core props](/docs/core-props/) so you can adapt the examples to your own data.
-5. [Handle file actions](/docs/file-actions/) to create, rename, delete, upload, or move files in your storage.
-6. [Customize the explorer](/docs/customize/) with a theme, translated labels, and a layout that fits your app.
+2. [Build your first explorer](/docs/first-explorer/) with two folders in memory.
+3. [Connect a backend](/docs/connect-backend/) when your files come from an API.
+4. [Handle file actions](/docs/file-actions/) so requests to create, rename, upload, move, or delete files update your storage.
+
+## Go further
+
+- [Search and reveal files](/docs/search/) inside a folder or after an API lookup.
+- [Add a sidebar and save user state](/docs/sidebar-state/) for folders, favorites, and recent files.
+- [Customize the explorer](/docs/customize/) with themes, translations, and toolbar content.
+- [Build your own layout](/docs/custom-layout/) from Chonky2's parts.
+- [Read the API reference](/docs/api-reference/) for props, file fields, and ref methods.
 
 ## How the data flows
 

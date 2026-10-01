@@ -7,6 +7,7 @@ import { buttonVariants } from '../components/ui/button';
 
 const githubUrl = 'https://github.com/owlpro/chonky2';
 const npmUrl = 'https://www.npmjs.com/package/chonky2';
+const siteUrl = 'https://chonky2.mdpro-smm.workers.dev';
 const features = [
   { number: '01', icon: '▤', title: 'Built for browsing', description: 'Move between folders with breadcrumbs, Back and Forward, a sidebar, and search. Switch between sortable list and thumbnail grid views.' },
   { number: '02', icon: '⌘', title: 'Every action in reach', description: 'Give people selection, keyboard shortcuts, context menus, drag and drop, and opt-in actions for rename, upload, copy, and more.' },
@@ -21,12 +22,14 @@ const features = [
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="theme-color" content="#f7f9fc" />
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
-    <meta name="description" content="Chonky2 is a Windows 11-inspired file explorer component for React with list and grid views, navigation, drag and drop, and custom file actions." />
+    <meta name="description" content="Chonky2 is a file explorer component for React with list and grid views, navigation, drag and drop, and custom file actions." />
+    <link rel="canonical" href={siteUrl + "/"} />
     <meta property="og:type" content="website" />
+    <meta property="og:url" content={siteUrl + "/"} />
     <meta property="og:title" content="Chonky2 — A file explorer for React" />
-    <meta property="og:description" content="A Windows 11-inspired file explorer for React apps. Connect it to your own backend." />
-    <meta property="og:image" content="/images/explorer-light.webp" />
-    <title>Windows 11-Inspired File Explorer for React | Chonky2</title>
+    <meta property="og:description" content="A flexible file explorer for React apps. Connect it to your own backend." />
+    <meta property="og:image" content={siteUrl + "/images/explorer-light.webp"} />
+    <title>React File Explorer Component | Chonky2</title>
   </head>
   <body>
     <div class="site-shell">
@@ -64,7 +67,7 @@ const features = [
                 <span class="version-dot"></span> Explore Chonky2 v7 <span aria-hidden="true">↗</span>
               </a>
               <h1 id="hero-title">Your files deserve a <span>better view.</span></h1>
-              <p class="hero-lead">A Windows 11-inspired file explorer for React apps. Add familiar desktop-style browsing to your product, then connect it to your own data and actions.</p>
+              <p class="hero-lead">A file explorer for React apps. Add familiar desktop-style browsing to your product, then connect it to your own data and actions.</p>
               <div class="hero-actions">
                 <a class={buttonVariants({ size: 'lg' }) + ' button-primary'} href="/docs/">Get started <span aria-hidden="true">↗</span></a>
                 <a class={buttonVariants({ variant: 'outline', size: 'lg' }) + ' button-secondary'} href="#demo">Explore the preview <span aria-hidden="true">↓</span></a>
@@ -148,7 +151,7 @@ const features = [
             <div class="showcase-copy">
               <p class="section-kicker"><span class="kicker-line"></span> YOUR UI, YOUR RULES</p>
               <h2 id="showcase-title">Looks at home,<br /><em>wherever it lives.</em></h2>
-              <p class="showcase-lead">A Fluent-inspired interface with light and dark modes, file thumbnails, a flexible sidebar, and CSS variables for your own colors.</p>
+              <p class="showcase-lead">A flexible interface with light and dark modes, file thumbnails, a sidebar, and CSS variables for your own colors.</p>
               <ul class="check-list">
                 <li><span aria-hidden="true">✓</span> List and grid views</li>
                 <li><span aria-hidden="true">✓</span> Built-in light and dark themes</li>

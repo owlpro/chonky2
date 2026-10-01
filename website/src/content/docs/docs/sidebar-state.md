@@ -1,0 +1,95 @@
+---
+title: Sidebar and saved state
+description: Add navigation, favorites, recent files, and per-user persistence.
+---
+
+The `sidebar` prop places a navigation pane beside the file list. Build it with the exported sidebar components. Its folder items send `OpenFiles`, so your existing navigation handler remains in control of `folderChain` and `files`.
+
+## Add places, favorites, and recent files
+
+```tsx
+import {
+  ChonkyIconName,
+  FileSidebar,
+  FileSidebarFavorites,
+  FileSidebarItem,
+  FileSidebarRecent,
+  FileSidebarSection,
+  FullFileBrowser,
+} from 'chonky2';
+
+<FullFileBrowser
+  files={files}
+  folderChain={folderChain}
+  onFileAction={handleFileAction}
+  sidebar={
+    <FileSidebar>
+      <FileSidebarSection id="places" title="Places">
+        <FileSidebarItem folder={home} icon={ChonkyIconName.home} />
+        {topFolders.map((folder) => (
+          <FileSidebarItem key={folder.id} folder={folder} />
+        ))}
+      </FileSidebarSection>
+      <FileSidebarFavorites />
+      <FileSidebarRecent limit={10} />
+    </FileSidebar>
+  }
+/>
+```
+
+The snippet uses `home`, `topFolders`, `files`, `folderChain`, and `handleFileAction` from your app. See [Connect a backend](/docs/connect-backend/) for an `OpenFiles` handler. Sidebar sections can be collapsed; give a section a stable `id` so the collapsed state is saved. `FileSidebarItem` accepts `label`, `icon`, `active`, or `onClick` when its default folder behavior does not fit.
+
+Favorites hold folders. Users can add them with the `AddToFavorites` action or by dragging a folder to the favorites section, then reorder or remove them. Recent lists opened files, newest first, while `FileSidebarRecent` is mounted. Chonky2 stores these along with collapsed sections in `ChonkyUserState`.
+
+## Save in the browser
+
+Pass a storage key when browser-local persistence is enough. Include your user ID to keep accounts separate on a shared device:
+
+```tsx
+<FullFileBrowser
+  files={files}
+  sidebar={sidebar}
+  userStateStorageKey={`files:${user.id}`}
+/>
+```
+
+Without a key or a controlled `userState`, this state lasts only until the browser component unmounts.
+
+## Save with your account data
+
+Pass `userState` to control it yourself, then return each new state through the prop after saving. This lets favorites follow a signed-in user between devices:
+
+```tsx
+import { useState, type ReactNode } from 'react';
+import { FullFileBrowser, type ChonkyUserState, type FileData } from 'chonky2';
+
+type Props = {
+  files: FileData[];
+  sidebar: ReactNode;
+  userId: string;
+  initialUserState: ChonkyUserState;
+  saveUserState: (userId: string, state: ChonkyUserState) => Promise<void>;
+};
+
+export function SavedExplorer({
+  files, sidebar, userId, initialUserState, saveUserState,
+}: Props) {
+  const [userState, setUserState] = useState(initialUserState);
+
+  return (
+    <div style={{ height: 500 }}>
+      <FullFileBrowser
+        files={files}
+        sidebar={sidebar}
+        userState={userState}
+        onUserStateChange={(next) => {
+          setUserState(next);
+          void saveUserState(userId, next);
+        }}
+      />
+    </div>
+  );
+}
+```
+
+The state has `favorites`, `recent`, and `collapsedSidebarSections`. `initialUserState`, `saveUserState`, and `userId` come from your app. Handle server errors and retries as your product needs. When `userState` is controlled, Chonky2 waits for your updated prop instead of retaining the change internally.

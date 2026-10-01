@@ -64,6 +64,24 @@ const handleFileAction: FileActionHandler = async (data) => {
 
 Here `api`, `currentFolderId`, and `reloadCurrentFolder` are functions and state from your app. Add error handling appropriate to your API. When a new folder appears in the refreshed `files`, Chonky2 can select it and start inline rename. The component never writes to your backend by itself.
 
+## Copy, paste, and drag and drop
+
+Add `CopyFiles`, `CutFiles`, and `PasteFiles` when your storage supports these operations. Chonky2 keeps the clipboard state and fades cut files. On paste, your app receives `CopyFilesTo` for copied files or `MoveFiles` for cut files. Both carry `payload.files` and `payload.destination`; perform the operation in your storage, then reload affected folders.
+
+Drag files onto a folder in the list, breadcrumbs, or sidebar to receive `MoveFiles`. When `UploadFiles` is enabled, files dropped from the user's computer arrive as `DropFiles`: `payload.files` are browser `File` objects and `payload.destination` is the target folder. Handle these separately from moves between folders.
+
+| Keys | Built-in or opt-in action |
+| --- | --- |
+| Enter | Open selected files. |
+| Ctrl+A / Cmd+A | Select all files. |
+| Backspace | Go up one folder. |
+| Ctrl+F / Cmd+F | Focus search. |
+| F2 | Start inline rename when `RenameFile` is enabled. |
+| Ctrl+C, Ctrl+X, Ctrl+V / Cmd equivalents | Copy, cut, and paste when those actions are enabled. |
+| Delete | Request deletion when `DeleteFiles` is enabled. |
+
+Shortcuts work while focus is in Chonky2 and the relevant action is registered. Your app still decides how file operations affect stored data.
+
 ## Add a custom action
 
 Use `defineFileAction` to place an app-specific command in the toolbar or context menu:

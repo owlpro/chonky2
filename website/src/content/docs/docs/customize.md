@@ -55,4 +55,4 @@ The locale also controls built-in number and date formatting. For custom file si
 
 ## Choose the layout
 
-`FullFileBrowser` includes the navigation bar, toolbar, file list, context menu, and status bar. You can supply `sidebar`, `toolbarStart`, and `toolbarEnd` content. If your product needs a different arrangement, compose the exported `FileBrowser`, `FileNavbar`, `FileToolbar`, `FileList`, `FileContextMenu`, and `FileStatusBar` components. The [layout example](https://github.com/owlpro/chonky2#building-your-own-layout) shows their required nesting.
+`FullFileBrowser` includes the navigation bar, toolbar, file list, context menu, and status bar. You can supply `sidebar`, `toolbarStart`, and `toolbarEnd` content. If your product needs a different arrangement, compose the exported `FileBrowser`, `FileNavbar`, `FileToolbar`, `FileList`, `FileContextMenu`, and `FileStatusBar` components. The [custom layout guide](/docs/custom-layout/) shows their required nesting and toolbar slots.

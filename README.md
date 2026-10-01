@@ -21,7 +21,7 @@
 **A file explorer for React apps.** Chonky2 puts a complete, desktop-style file manager on a
 web page: folders and files in a list or grid, a sidebar, breadcrumbs, Back and Forward,
 search, multi-select, drag and drop, copy and paste, inline rename, a right-click menu and
-keyboard shortcuts. It looks and feels like the Windows 11 File Explorer.
+keyboard shortcuts. Its familiar desktop-style interface can be adapted to your app.
 
 Chonky2 only draws the explorer and handles the user's interaction. It doesn't read a disk or
 call a server: your app gives it the files to show and decides what happens when the user
@@ -80,7 +80,7 @@ thousands of files, keyboard navigation, context menus, thumbnails, sorting. Cho
 UI, ready to drop into a React app.
 
 It is a maintained and modernized fork of [Chonky](https://github.com/TimboKZ/Chonky), with a
-new Fluent design, no UI framework dependency and many new features.
+an updated design, no UI framework dependency and many new features.
 
 ### How it works
 
@@ -115,13 +115,13 @@ current folder, Back and Forward history) works on its own.
 
 ### What's new in v7
 
-- A new look modelled on the Windows 11 File Explorer, with colour-coded file icons, a
-  sidebar and a built-in dark theme.
+- A refreshed file explorer interface with colour-coded file icons, a sidebar and a
+  built-in dark theme.
 - Material UI, Emotion, styled-components and JSS are gone. Styles are plain CSS, injected
   automatically and themed with CSS variables. The only peer dependencies are `react` and
   `react-dom`.
 - `react-intl` was replaced by a small formatter built on the browser's `Intl` APIs.
-- Chonky's cost in an app bundle dropped from about 139 KB to about 60 KB (minified + brotli,
+- Chonky's cost in an app bundle dropped from about 139 KB to about 64 KB (minified + brotli,
   all dependencies included).
 - Inline rename, copy/cut/paste, drag-and-drop upload, a sidebar, a loading state and more.
   See the [changelog](./CHANGELOG.md) for the full list, and [Upgrading](#upgrading) if you

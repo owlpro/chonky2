@@ -1,0 +1,18 @@
+.mobile-table-hint {
+  display: none;
+}
+
+@media (max-width: 50rem) {
+  .mobile-table-hint {
+    display: block;
+    color: var(--sl-color-gray-3);
+    font-size: var(--sl-text-sm);
+  }
+
+  .sl-markdown-content table {
+    display: block;
+    max-width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+}

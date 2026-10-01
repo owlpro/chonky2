@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://chonky2.mdpro-smm.workers.dev/sitemap-index.xml

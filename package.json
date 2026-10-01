@@ -15,7 +15,7 @@
     "files": [
         "dist"
     ],
-    "description": "A file explorer component for React: list and grid views, sidebar, drag and drop, copy and paste, rename and keyboard shortcuts, in a Windows 11 style. Works with any backend.",
+    "description": "A file explorer component for React with list and grid views, a sidebar, drag and drop, copy and paste, rename, and keyboard shortcuts. Works with any backend.",
     "license": "MIT",
     "engines": {
         "node": ">=18"
@@ -68,7 +68,7 @@
         "react": ">=19",
         "react-dom": ">=19"
     },
-    "homepage": "https://chonky.io/",
+    "homepage": "https://chonky2.mdpro-smm.workers.dev/",
     "author": {
         "name": "Mahdi Amiri",
         "email": "mdpro.smm@gmail.com",

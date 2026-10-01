@@ -1,0 +1,86 @@
+---
+title: Search and reveal files
+description: Filter a Chonky2 folder, search beyond it, and jump to a result.
+---
+
+The built-in search field filters the files in the **current folder**. Each word in the query must appear in the file's `name` or `searchText`. Chonky2 clears this filter when the folder changes and deselects files that become hidden.
+
+## Add searchable metadata
+
+Use `searchText` when a file should also match an ID, tag, or another value:
+
+```tsx
+import type { FileData } from 'chonky2';
+
+const files: FileData[] = [
+  {
+    id: 'photo-42',
+    name: 'Sunrise.jpg',
+    searchText: 'summer album beach',
+    thumbnailUrl: '/thumbnails/sunrise.jpg',
+  },
+];
+```
+
+A search for `summer beach` finds this file even though those words are not in its name. Chonky2 does not send this query to your API automatically.
+
+## Search across folders
+
+Handle `ChangeSearch` when you want to ask your API for results outside the current folder. The action carries the trimmed query in `data.payload.searchString`. It fires after typing settles, when Enter is pressed, when Esc clears the field, or when navigation clears the query.
+
+```tsx
+import { useRef } from 'react';
+import {
+  ChonkyActions,
+  FullFileBrowser,
+  type FileActionHandler,
+  type FileBrowserHandle,
+  type FileData,
+} from 'chonky2';
+
+type Props = {
+  files: FileData[];
+  folderChain: FileData[];
+  findFile: (query: string) => Promise<{ id: string; folderId: string } | null>;
+  openFolder: (folderId: string) => void;
+  handleNavigation: FileActionHandler;
+};
+
+export function SearchableExplorer({
+  files, folderChain, findFile, openFolder, handleNavigation,
+}: Props) {
+  const browserRef = useRef<FileBrowserHandle>(null);
+
+  const handleFileAction: FileActionHandler = async (data) => {
+    if (data.id !== ChonkyActions.ChangeSearch.id) {
+      handleNavigation(data);
+      return;
+    }
+
+    const query = data.payload.searchString;
+    if (!query) return;
+    const match = await findFile(query);
+    if (!match) return;
+
+    openFolder(match.folderId); // Update folderChain and load its files.
+    browserRef.current?.revealFiles([match.id]);
+  };
+
+  return (
+    <div style={{ height: 500 }}>
+      <FullFileBrowser
+        ref={browserRef}
+        files={files}
+        folderChain={folderChain}
+        onFileAction={handleFileAction}
+      />
+    </div>
+  );
+}
+```
+
+`findFile`, `openFolder`, and `handleNavigation` are supplied by your app. Keep handling `OpenFiles` in `handleNavigation` so folder browsing continues to work. `revealFiles` waits for a file that has not arrived in `files` yet, scrolls to it, and selects it. It also clears a local filter that would hide the result. If your API returns several matches, present them in your own results UI and reveal the one the user chooses.
+
+## Control the selection
+
+The browser ref also exposes `getFileSelection()` and `setFileSelection(new Set(['photo-42']))`. These methods work with file IDs in the current folder. The [API reference](/docs/api-reference/#ref-methods) lists the complete handle.

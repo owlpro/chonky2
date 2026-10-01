@@ -5,6 +5,8 @@ description: Install Chonky2 in a React 19 or newer project and check the packag
 
 ## Requirements
 
+These guides target Chonky2 **7.1.x**. Check the installed version before using the newer sidebar and user-state APIs.
+
 - React and React DOM **19 or newer** are peer dependencies.
 - TypeScript is optional; types are included.
 - A current Chrome, Edge, Firefox, or Safari browser is supported.
