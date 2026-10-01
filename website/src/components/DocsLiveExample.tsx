@@ -171,7 +171,7 @@ export default function DocsLiveExample({ example, caption }: { example: Example
   };
 
   return (
-    <figure className="docs-example">
+    <figure className="docs-example not-content">
       {example === 'actions' && <input ref={uploadRef} type="file" multiple hidden onChange={(event) => {
         const uploaded = Array.from(event.currentTarget.files ?? []);
         setFolderMap((previous) => ({ ...previous, [currentId]: [...(previous[currentId] ?? []), ...uploaded.map((file) => ({ id: `upload-${Date.now()}-${file.name}`, name: file.name, size: file.size }))] }));

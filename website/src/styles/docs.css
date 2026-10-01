@@ -19,6 +19,7 @@
 
 .docs-example {
   margin: 1.75rem 0;
+  max-width: 1100px;
   border: 1px solid var(--sl-color-gray-5);
   border-radius: 12px;
   overflow: hidden;
@@ -79,7 +80,7 @@
 }
 
 .docs-example-browser {
-  height: 500px;
+  height: 580px;
   min-width: 560px;
   border-block: 1px solid var(--sl-color-gray-5);
   background: #fff;
