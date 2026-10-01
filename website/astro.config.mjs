@@ -8,6 +8,7 @@ export default defineConfig({
   integrations: [
     starlight({
       title: 'Chonky2',
+      head: [{ tag: 'meta', attrs: { name: 'google-site-verification', content: 'X9FVHS1PZJP5H-ROhapdpR0C-Ci3P_fsgBrEh7ruDXA' } }],
       customCss: ['./src/styles/docs.css'],
       sidebar: [
         {
