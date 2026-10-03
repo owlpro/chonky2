@@ -5,6 +5,12 @@ The project follows [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [7.4.3]
+
+### Fixed
+
+- After a long press opens the context menu on a phone, lifting the finger no longer selects the text of the menu item under it: the menu, which lives outside Chonky's root, now has `user-select: none` too.
+
 ## [7.4.2]
 
 ### Fixed

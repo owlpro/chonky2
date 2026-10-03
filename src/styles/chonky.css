@@ -1043,6 +1043,12 @@
     font-size: var(--chonky-font-size);
     outline: 0;
     animation: chonky-menu-in 120ms ease-out;
+    /* In a portal outside the root, so it needs its own: a long press that opens the
+       menu mustn't go on to select the item under the finger */
+    touch-action: manipulation;
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    user-select: none;
 }
 
 .chonky-menuItem {
