@@ -9,6 +9,7 @@ The project follows [Semantic Versioning](https://semver.org/).
 
 - Playground: a Refresh button next to Close in `toolbarEnd`.
 - Playground: a "Long names" folder, whose names are cut in the middle on a phone.
+- Playground: a "Full screen" control that shows Chonky over the whole page like a modal; its ✕ button closes it.
 
 ## [7.4.3]
 

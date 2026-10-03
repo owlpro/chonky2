@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { createRoot } from 'react-dom/client';
 import { DndProvider, useDrop } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
@@ -125,6 +125,8 @@ const Explorer = ({
     darkMode,
     disableAnimations,
     loading,
+    fullScreen,
+    onClose,
     onLog,
 }: {
     mode: Mode;
@@ -132,6 +134,8 @@ const Explorer = ({
     darkMode: boolean;
     disableAnimations: boolean;
     loading: boolean;
+    fullScreen: boolean;
+    onClose: () => void;
     onLog: (line: string) => void;
 }) => {
     const [files, setFiles] = useState(initialFiles);
@@ -235,7 +239,7 @@ const Explorer = ({
     };
 
     return (
-        <div className={`pg-window${darkMode ? ' pg-dark' : ''}`}>
+        <div className={`pg-window${darkMode ? ' pg-dark' : ''}${fullScreen ? ' pg-fullScreen' : ''}`}>
             <div className="pg-browser">
                 <FullFileBrowser
                     files={visibleFiles}
@@ -262,7 +266,10 @@ const Explorer = ({
                                 icon={ChonkyIconName.close}
                                 iconOnly
                                 text="Close"
-                                onClick={() => onLog('close button clicked')}
+                                onClick={() => {
+                                    onLog('close button clicked');
+                                    onClose();
+                                }}
                             />
                         </>
                     }
@@ -304,6 +311,16 @@ const App = () => {
     const [darkMode, setDarkMode] = useState(false);
     const [disableAnimations, setDisableAnimations] = useState(false);
     const [loading, setLoading] = useState(false);
+    // Chonky covers the page like a full-screen modal; its ✕ button goes back
+    const [fullScreen, setFullScreen] = useState(false);
+    const closeFullScreen = useCallback(() => setFullScreen(false), []);
+    useEffect(() => {
+        if (!fullScreen) return;
+        document.body.style.overflow = 'hidden';
+        return () => {
+            document.body.style.overflow = '';
+        };
+    }, [fullScreen]);
     const [log, setLog] = useState<string[]>([]);
     const addLog = useCallback((line: string) => setLog((prev) => [line, ...prev].slice(0, 50)), []);
 
@@ -344,14 +361,18 @@ const App = () => {
                         <input type="checkbox" checked={loading} onChange={(e) => setLoading(e.target.checked)} />{' '}
                         Loading
                     </label>
+                    <label>
+                        <input type="checkbox" checked={fullScreen} onChange={(e) => setFullScreen(e.target.checked)} />{' '}
+                        Full screen (✕ closes it)
+                    </label>
                 </div>
             </header>
 
             {mode === 'internal' ? (
-                <Explorer key="internal" mode="internal" user={user} darkMode={darkMode} disableAnimations={disableAnimations} loading={loading} onLog={addLog} />
+                <Explorer key="internal" mode="internal" user={user} darkMode={darkMode} disableAnimations={disableAnimations} loading={loading} fullScreen={fullScreen} onClose={closeFullScreen} onLog={addLog} />
             ) : (
                 <DndProvider key="external" backend={HTML5Backend}>
-                    <Explorer mode="external" user={user} darkMode={darkMode} disableAnimations={disableAnimations} loading={loading} onLog={addLog} />
+                    <Explorer mode="external" user={user} darkMode={darkMode} disableAnimations={disableAnimations} loading={loading} fullScreen={fullScreen} onClose={closeFullScreen} onLog={addLog} />
                     <ExternalDropZone onLog={addLog} />
                 </DndProvider>
             )}
