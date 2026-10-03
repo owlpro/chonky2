@@ -4,7 +4,7 @@
  * @license MIT
  */
 
-import React, { CSSProperties, useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import React, { CSSProperties, useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { useSelector } from 'react-redux';
 import { VariableSizeGrid } from 'react-window';
 
@@ -43,7 +43,9 @@ export const getGridConfig = (
     height: number,
     fileCount: number,
     viewConfig: FileViewConfigGrid,
-    isMobileBreakpoint: boolean
+    isMobileBreakpoint: boolean,
+    /** The grid's own scrollbar width once it has one, see `GridContainer`. */
+    measuredScrollbarWidth?: number
 ): GridConfig => {
     const gutter = isMobileBreakpoint ? 5 : 8;
     const rowHeight = viewConfig.entryHeight;
@@ -52,14 +54,15 @@ export const getGridConfig = (
         const columnCount = isMobileBreakpoint
             ? 2
             : Math.max(1, Math.floor((availableWidth + gutter) / (viewConfig.entryWidth + gutter)));
-        const columnWidth = Math.max(0, (availableWidth - gutter * (columnCount - 1)) / columnCount);
+        // Whole pixels, so rounding never makes the columns wider than the grid
+        const columnWidth = Math.max(0, Math.floor((availableWidth - gutter * (columnCount - 1)) / columnCount));
         return { columnCount, columnWidth, rowCount: Math.ceil(fileCount / columnCount) };
     };
 
     let { columnCount, columnWidth, rowCount } = layout(width);
     const contentHeight = rowCount * rowHeight + Math.max(0, rowCount - 1) * gutter;
     if (contentHeight > height && !isMobileDevice()) {
-        ({ columnCount, columnWidth, rowCount } = layout(width - getScrollbarWidth()));
+        ({ columnCount, columnWidth, rowCount } = layout(width - (measuredScrollbarWidth ?? getScrollbarWidth())));
     }
 
     return {
@@ -73,7 +76,10 @@ export const getGridConfig = (
 
 let scrollbarWidth: number | undefined;
 
-/** Width of a classic (non-overlay) vertical scrollbar; 0 with overlay scrollbars. */
+/**
+ * Width of a classic (non-overlay) vertical scrollbar; 0 with overlay scrollbars. Only a
+ * first guess: the app's CSS can give the grid a wider one, which the grid then measures.
+ */
 const getScrollbarWidth = () => {
     if (scrollbarWidth === undefined) {
         const probe = document.createElement('div');
@@ -94,17 +100,21 @@ export const GridContainer: React.FC<FileListGridProps> = React.memo(props => {
     const fileCount = useMemo(() => displayFileIds.length, [displayFileIds]);
 
     const gridRef = useRef<VariableSizeGrid>(null);
+    const outerRef = useRef<HTMLDivElement>(null);
     const isMobileBreakpoint = useIsMobileBreakpoint();
+    const [measuredScrollbarWidth, setMeasuredScrollbarWidth] = useState<number | undefined>(undefined);
 
     // Whenever the grid config changes at runtime, we call a method on the
     // `VariableSizeGrid` handle to reset column width/row height cache.
     // !!! Note that we deliberately update the `gridRef` firsts and update the React
     //     state AFTER that. This is needed to avoid file entries jumping up/down.
-    const [gridConfig, setGridConfig] = useState(getGridConfig(width, height, fileCount, viewConfig, isMobileBreakpoint));
+    const [gridConfig, setGridConfig] = useState(() =>
+        getGridConfig(width, height, fileCount, viewConfig, isMobileBreakpoint, measuredScrollbarWidth)
+    );
     const gridConfigRef = useRef(gridConfig);
     useEffect(() => {
         const oldConf = gridConfigRef.current;
-        const newConf = getGridConfig(width, height, fileCount, viewConfig, isMobileBreakpoint);
+        const newConf = getGridConfig(width, height, fileCount, viewConfig, isMobileBreakpoint, measuredScrollbarWidth);
 
         gridConfigRef.current = newConf;
         if (gridRef.current) {
@@ -120,7 +130,16 @@ export const GridContainer: React.FC<FileListGridProps> = React.memo(props => {
         }
 
         setGridConfig(newConf);
-    }, [setGridConfig, gridConfigRef, isMobileBreakpoint, width, height, viewConfig, fileCount]);
+    }, [setGridConfig, gridConfigRef, isMobileBreakpoint, width, height, viewConfig, fileCount, measuredScrollbarWidth]);
+
+    // The scrollbar the grid really has, e.g. a full-width one when the app's CSS turns off
+    // Chonky's thin scrollbars, so the columns never get wider than the room beside it
+    useLayoutEffect(() => {
+        const outer = outerRef.current;
+        if (!outer || outer.scrollHeight <= outer.clientHeight) return;
+        const actual = outer.offsetWidth - outer.clientWidth;
+        if (actual !== (measuredScrollbarWidth ?? getScrollbarWidth())) setMeasuredScrollbarWidth(actual);
+    }, [gridConfig, measuredScrollbarWidth]);
 
     const scrollToIndex = useCallback((index: number) => {
         const columnCount = gridConfigRef.current.columnCount;
@@ -179,6 +198,7 @@ export const GridContainer: React.FC<FileListGridProps> = React.memo(props => {
         return (
             <VariableSizeGrid
                 ref={gridRef as any}
+                outerRef={outerRef}
                 className="chonky-gridContainer"
                 estimatedRowHeight={gridConfig.rowHeight + gridConfig.gutter}
                 rowHeight={sizers.getRowHeight}

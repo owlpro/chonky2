@@ -5,6 +5,12 @@ The project follows [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [7.5.2]
+
+### Fixed
+
+- The grid view could scroll sideways by a few pixels when the app's CSS gives the file list a full-width scrollbar instead of Chonky's thin one: the grid made room for a thin one. It now measures the scrollbar it really has, rounds column widths down to whole pixels, and never scrolls sideways.
+
 ## [7.5.1]
 
 ### Fixed

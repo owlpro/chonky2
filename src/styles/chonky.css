@@ -1485,6 +1485,12 @@
 
 /* Grid view */
 
+/* The columns always fit beside the scrollbar (see getGridConfig); react-window sets
+   `overflow: auto`, so a stray pixel must not add a sideways scrollbar */
+.chonky-gridContainer {
+    overflow-x: hidden !important;
+}
+
 .chonky-gridFileEntry {
     display: flex;
     flex-direction: column;
