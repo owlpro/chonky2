@@ -31,6 +31,7 @@ export const initialFiles: PlaygroundFile[] = [
     { id: 'projects', name: 'Projects', isDir: true, parentId: HOME_ID, modDate: date('2026-09-27T08:00:00') },
     // Names too long for a phone, cut in the middle there
     { id: 'long', name: 'Long names', isDir: true, parentId: HOME_ID, modDate: date('2026-10-02T15:00:00') },
+    { id: 'many', name: 'Many files', isDir: true, parentId: HOME_ID, modDate: date('2026-10-03T09:00:00') },
     { id: 'readme', name: 'README.md', parentId: HOME_ID, size: 2_480, modDate: date('2026-09-20T10:30:00') },
     { id: 'dotfile', name: '.profile', parentId: HOME_ID, size: 807, isHidden: true, modDate: date('2026-01-04T08:00:00') },
 
@@ -71,6 +72,29 @@ export const initialFiles: PlaygroundFile[] = [
     { id: 'index', name: 'index.tsx', parentId: 'chonky', size: 5_600, modDate: date('2026-09-26T22:14:00') },
     { id: 'styles', name: 'styles.css', parentId: 'chonky', size: 18_300, modDate: date('2026-09-27T07:48:00') },
 ];
+
+// 64 files for trying scrolling and selecting many, with a long name now and then
+const manyExtensions = ['jpg', 'pdf', 'docx', 'xlsx', 'mp3', 'zip', 'txt', 'png'];
+const longNames = [
+    'Annual summary of every customer conversation we had this year',
+    'Scanned contract with the new supplier signed on both sides',
+    'Holiday photos from the mountains with the whole family together',
+    'Meeting notes from the planning session about the next release',
+];
+for (let i = 1; i <= 64; i++) {
+    const extension = manyExtensions[i % manyExtensions.length]!;
+    const number = String(i).padStart(3, '0');
+    const name = i % 9 === 0 ? `${longNames[(i / 9) % longNames.length]} ${number}` : `File ${number}`;
+    const isImage = extension === 'jpg' || extension === 'png';
+    initialFiles.push({
+        id: `many-${i}`,
+        name: `${name}.${extension}`,
+        parentId: 'many',
+        size: ((i * 7919) % 5_000) * 1_000 + 512,
+        modDate: new Date(Date.UTC(2026, 8, 1 + (i % 30), 8 + (i % 12), (i * 7) % 60)),
+        ...(isImage ? { thumbnailUrl: makeThumbnail((i * 37) % 360, (i * 53) % 360) } : {}),
+    });
+}
 
 // The sidebar's Folders section
 export const sidebarFolders: { folderId: string; label: string }[] = [

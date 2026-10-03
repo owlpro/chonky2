@@ -5,6 +5,10 @@ The project follows [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+### Development
+
+- Playground: a "Many files" folder with 64 files, a long name every ninth, for trying scrolling and selecting many.
+
 ## [7.6.0]
 
 ### Changed
