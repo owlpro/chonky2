@@ -1,6 +1,8 @@
 <p align="center">
-    <img src="./images/chonky-logo-v7.png" alt="Chonky v7 Logo" width="500" />
-    <br />
+    <a href="https://chonky2.mdpro-smm.workers.dev/">
+        <img src="./images/preview-animation.webp" alt="Chonky2 in action: files fill the grid, Pictures opens, a photo goes into Recent, a folder is dragged onto Favorites" width="800" />
+    </a>
+    <br /><br />
     <a href="https://www.npmjs.com/package/chonky2">
         <img alt="NPM package" src="https://img.shields.io/npm/v/chonky2.svg?style=flat&colorB=ffac5c" />
     </a>
