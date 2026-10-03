@@ -4,7 +4,7 @@ import { Nullable } from '../../types/util.types';
 
 import { ChonkyActions } from '../../action-definitions/index';
 import { reduxActions } from '../../redux/reducers';
-import { selectContextMenuMounted } from '../../redux/selectors';
+import { selectContextMenuMounted, selectDisableSelection, selectSelectionMode } from '../../redux/selectors';
 import { thunkRequestFileAction } from '../../redux/thunks/dispatchers.thunks';
 import { findElementAmongAncestors } from '../../util/helpers';
 import { useInstanceVariable } from '../../util/hooks-helpers';
@@ -30,13 +30,17 @@ const LONG_PRESS_SLOP = 10;
 
 /**
  * Handlers for Chonky's root that open the context menu on a right click or, on touch
- * screens, a long press (iOS never sends `contextmenu`).
+ * screens, a long press (iOS never sends `contextmenu`). While Chonky is `narrow`, a long
+ * press on a file turns on selection mode instead, or adds the file once it is on.
  */
-export const useContextMenuTrigger = () => {
+export const useContextMenuTrigger = (narrow: boolean) => {
     const dispatch = useDispatch<any>();
     const contextMenuMountedRef = useInstanceVariable(
         useSelector(selectContextMenuMounted)
     );
+    const selectionDisabled = useSelector(selectDisableSelection);
+    const selectsOnLongPressRef = useInstanceVariable(narrow && !selectionDisabled);
+    const selectionModeRef = useInstanceVariable(useSelector(selectSelectionMode));
 
     const openContextMenu = useCallback(
         (target: EventTarget | null, clientX: number, clientY: number) => {
@@ -49,6 +53,19 @@ export const useContextMenuTrigger = () => {
             );
         },
         [dispatch]
+    );
+
+    const handleLongPress = useCallback(
+        (target: EventTarget | null, clientX: number, clientY: number) => {
+            const fileId = findClosestChonkyFileId(target);
+            if (fileId && selectsOnLongPressRef.current) {
+                if (selectionModeRef.current) dispatch(reduxActions.toggleSelection({ fileId, exclusive: false }));
+                else dispatch(reduxActions.startSelectionMode(fileId));
+                return;
+            }
+            if (contextMenuMountedRef.current) openContextMenu(target, clientX, clientY);
+        },
+        [contextMenuMountedRef, dispatch, openContextMenu, selectionModeRef, selectsOnLongPressRef]
     );
 
     const pressRef = useRef<Nullable<{ timer: number; x: number; y: number }>>(null);
@@ -66,7 +83,8 @@ export const useContextMenuTrigger = () => {
             cancelPress();
             longPressedRef.current = false;
             const target = event.target as Element;
-            if (event.pointerType !== 'touch' || !event.isPrimary || !contextMenuMountedRef.current) return;
+            if (event.pointerType !== 'touch' || !event.isPrimary) return;
+            if (!contextMenuMountedRef.current && !selectsOnLongPressRef.current) return;
             // Menus are in a portal, so their events come here too. Fields keep the
             // system's own menu, e.g. to paste.
             if (!event.currentTarget.contains(target) || target.closest('input, textarea')) return;
@@ -75,11 +93,11 @@ export const useContextMenuTrigger = () => {
             const timer = window.setTimeout(() => {
                 pressRef.current = null;
                 longPressedRef.current = true;
-                openContextMenu(target, clientX, clientY);
+                handleLongPress(target, clientX, clientY);
             }, LONG_PRESS_DELAY);
             pressRef.current = { timer, x: clientX, y: clientY };
         },
-        [cancelPress, contextMenuMountedRef, openContextMenu]
+        [cancelPress, contextMenuMountedRef, handleLongPress, selectsOnLongPressRef]
     );
 
     const onPointerMove = useCallback(
@@ -106,6 +124,19 @@ export const useContextMenuTrigger = () => {
 
     const onContextMenu = useCallback(
         (event: React.MouseEvent<HTMLDivElement>) => {
+            // Android sends `contextmenu` for a long press as well: handle the press once
+            if (longPressedRef.current) {
+                event.preventDefault();
+                return;
+            }
+            if (pressRef.current) {
+                cancelPress();
+                longPressedRef.current = true;
+                event.preventDefault();
+                handleLongPress(event.target, event.clientX, event.clientY);
+                return;
+            }
+
             // Use default browser context menu when Chonky context menu component
             // is not mounted.
             if (!contextMenuMountedRef.current) return;
@@ -114,16 +145,9 @@ export const useContextMenuTrigger = () => {
             if (event.altKey) return;
 
             event.preventDefault();
-
-            // Android sends `contextmenu` for a long press as well: open the menu once
-            if (longPressedRef.current) return;
-            if (pressRef.current) {
-                cancelPress();
-                longPressedRef.current = true;
-            }
             openContextMenu(event.target, event.clientX, event.clientY);
         },
-        [cancelPress, contextMenuMountedRef, openContextMenu]
+        [cancelPress, contextMenuMountedRef, handleLongPress, openContextMenu]
     );
 
     return {

@@ -58,6 +58,10 @@ export enum ChonkyIconName {
     actionsMenu = 'actionsMenu',
     /** The toolbar's "Options" menu while Chonky is narrow */
     optionsMenu = 'optionsMenu',
+    /** A file's checkbox in selection mode, and the "All" checkbox: on, off, and some files */
+    checked = 'checked',
+    unchecked = 'unchecked',
+    checkedSome = 'checkedSome',
     download = 'download',
     upload = 'upload',
     trash = 'trash',

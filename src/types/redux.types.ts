@@ -57,6 +57,12 @@ export type RootState = {
     // Selection
     selectionMap: FileSelection;
     disableSelection: boolean;
+    /**
+     * A long press on a file turned on selection mode while Chonky is narrow: rows show
+     * checkboxes, a tap selects instead of opening, and the navbar and status bar turn
+     * into the selection bars.
+     */
+    selectionMode: boolean;
 
     // File views
     fileViewConfig: FileViewConfig;

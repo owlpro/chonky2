@@ -65,6 +65,9 @@ import {
     SquareMenu,
     Zap,
     SlidersHorizontal,
+    Circle,
+    CircleCheck,
+    CircleMinus,
 } from "lucide-react";
 
 import { ChonkyIconName, ChonkyIconProps } from "../../types/icons.types";
@@ -132,6 +135,9 @@ export const IconMap: { [iconName in ChonkyIconName]: any } = {
     [ChonkyIconName.toolbarGroup]: SquareMenu,
     [ChonkyIconName.actionsMenu]: Zap,
     [ChonkyIconName.optionsMenu]: SlidersHorizontal,
+    [ChonkyIconName.checked]: CircleCheck,
+    [ChonkyIconName.unchecked]: Circle,
+    [ChonkyIconName.checkedSome]: CircleMinus,
     [ChonkyIconName.download]: Download,
     [ChonkyIconName.upload]: Upload,
     [ChonkyIconName.trash]: Trash2,

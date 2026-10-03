@@ -466,6 +466,11 @@ Each shortcut belongs to an action and only works when that action is registered
 On touch screens a tap opens a file or folder, and a long press opens the context menu for
 it. Buttons and list rows are taller there, and hover effects only show with a mouse.
 
+While Chonky is narrow, a long press on a file starts selection mode instead: rows get a
+checkbox and a tap selects, the navbar becomes an "All" checkbox and a Cancel button, and the
+status bar shows how many files are selected with icon buttons for the context menu's
+actions. It ends after an action, on Cancel, or when nothing is selected anymore.
+
 While Chonky is 560px wide or narrower, the list is the only view, whichever view is chosen,
 and it comes back when Chonky is wider again. Rows show a large thumbnail or icon, the name
 with the date and the size (or item count) under it, and no column headings; sorting is in

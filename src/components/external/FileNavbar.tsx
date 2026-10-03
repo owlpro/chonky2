@@ -13,8 +13,10 @@ import { selectSidebarMounted, selectSidebarOpen } from '../../redux/selectors';
 import { ChonkyIconName } from '../../types/icons.types';
 import { getI18nId, I18nNamespace, useIntl } from '../../util/i18n';
 import { ChonkyIconContext } from '../../util/icon-helper';
+import { useSelectionModeActive } from '../../util/selection-mode';
 import { ChonkyNarrowLayoutContext } from '../../util/styles';
 import { useFolderChainItems } from './FileNavbar-hooks';
+import { SelectionNavbar } from './FileSelectionBars';
 import { FolderChainButton } from './FolderChainButton';
 import { SmartToolbarButton, ToolbarButton } from './ToolbarButton';
 import { ToolbarSearch } from './ToolbarSearch';
@@ -45,13 +47,15 @@ const SidebarToggle: React.FC = () => {
 /**
  * Navigation bar: Back, Forward and Up buttons, then an address bar with the folder
  * chain and the search field. While Chonky is narrow, e.g. on a phone, a menu button
- * that opens the `FileSidebar` takes the place of Forward.
+ * that opens the `FileSidebar` takes the place of Forward. In selection mode it makes
+ * way for `SelectionNavbar`.
  */
 export const FileNavbar: React.FC<FileNavbarProps> = React.memo(() => {
     const folderChainItems = useFolderChainItems();
     const ChonkyIcon = useContext(ChonkyIconContext);
     const narrow = useContext(ChonkyNarrowLayoutContext);
     const sidebarMounted = useSelector(selectSidebarMounted);
+    const selectionModeActive = useSelectionModeActive();
 
     const folderChainComponents = useMemo(() => {
         const components: ReactElement[] = [];
@@ -81,8 +85,9 @@ export const FileNavbar: React.FC<FileNavbarProps> = React.memo(() => {
     useLayoutEffect(() => {
         const breadcrumbs = breadcrumbsRef.current;
         if (breadcrumbs) breadcrumbs.scrollLeft = breadcrumbs.scrollWidth;
-    }, [folderChainItems]);
+    }, [folderChainItems, selectionModeActive]);
 
+    if (selectionModeActive) return <SelectionNavbar />;
     return (
         <div className="chonky-navbar">
             <div className="chonky-navbarButtons">

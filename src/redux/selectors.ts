@@ -122,6 +122,7 @@ export const selectContextMenuMounted = (state: RootState) => state.contextMenuM
 export const selectContextMenuConfig = (state: RootState) => state.contextMenuConfig;
 export const selectSidebarMounted = (state: RootState) => state.sidebarMounted;
 export const selectSidebarOpen = (state: RootState) => state.sidebarOpen;
+export const selectSelectionMode = (state: RootState) => state.selectionMode;
 export const selectContextMenuTriggerFile = (state: RootState) => {
     const config = selectContextMenuConfig(state);
     if (!config || !config.triggerFileId) return null;

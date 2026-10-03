@@ -5,6 +5,17 @@ The project follows [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [7.5.0]
+
+### Added
+
+- Selection mode while Chonky is narrow: a long press on a file selects it and shows a round checkbox on every row, which moves the rows over. A tap then adds a file to the selection or takes it out instead of opening it. The navbar turns into an "All" checkbox, which selects every file in the list or none, and a Cancel button; the status bar into the number of selected files and icon buttons for the context menu's actions on them (Cut, Copy, Download and Delete first, the rest in a "More" menu). Running one, Cancel, opening another folder or taking the last file out of the selection ends selection mode. A long press on empty space still opens the context menu, and wider Chonkys keep the context menu for files too.
+- `ChonkyIconName.checked`, `unchecked` and `checkedSome` for the checkboxes, and the `chonky.toolbar.selectAll`, `chonky.toolbar.cancelSelection` and `chonky.toolbar.selectionModeCount` messages.
+
+### Changed
+
+- While Chonky is narrow, list rows are 2px apart, so the highlights of selected rows don't run into each other.
+
 ## [7.4.5]
 
 ### Fixed

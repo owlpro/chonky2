@@ -13,6 +13,7 @@ import { ChonkyIconName } from '../../types/icons.types';
 import { FileHelper, getFileExtension } from '../../util/file-helper';
 import { ChonkyIconContext, getFileTypeColor, useIconData } from '../../util/icon-helper';
 import { Logger } from '../../util/logger';
+import { useSelectionModeActive } from '../../util/selection-mode';
 import { TextPlaceholder } from '../external/TextPlaceholder';
 import { KeyboardClickEvent, MouseClickEvent } from '../internal/ClickableWrapper';
 import { FileEntryState } from './GridEntryPreview';
@@ -214,9 +215,18 @@ export const useFileClickHandlers = (file: Nullable<FileData>, displayIndex: num
         [dispatch, file, displayIndex]
     );
 
-    // Prepare single/double click handlers
-    const onSingleClick = useCallback((event: MouseClickEvent) => onMouseClick(event, 'single'), [onMouseClick]);
-    const onDoubleClick = useCallback((event: MouseClickEvent) => onMouseClick(event, 'double'), [onMouseClick]);
+    // Prepare single/double click handlers. In selection mode every click or tap adds
+    // the file to the selection or takes it out, like a Ctrl+click.
+    const selectionMode = useSelectionModeActive();
+    const onSingleClick = useCallback(
+        (event: MouseClickEvent) => onMouseClick(selectionMode ? { ...event, ctrlKey: true } : event, 'single'),
+        [onMouseClick, selectionMode]
+    );
+    const onDoubleClick = useCallback(
+        (event: MouseClickEvent) =>
+            selectionMode ? onMouseClick({ ...event, ctrlKey: true }, 'single') : onMouseClick(event, 'double'),
+        [onMouseClick, selectionMode]
+    );
 
     return {
         onSingleClick,

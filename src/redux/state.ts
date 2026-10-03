@@ -29,6 +29,7 @@ export const initialRootState: RootState = {
 
     selectionMap: {},
     disableSelection: false,
+    selectionMode: false,
 
     fileViewConfig: ChonkyActions.EnableGridView.fileViewConfig,
 

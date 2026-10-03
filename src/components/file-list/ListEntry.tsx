@@ -3,6 +3,7 @@ import React from 'react';
 import { FileEntryProps } from '../../types/file-list.types';
 import { useLocalizedFileEntryStrings } from '../../util/i18n';
 import { c } from '../../util/styles';
+import { CheckCircle } from '../external/FileSelectionBars';
 import { TextPlaceholder } from '../external/TextPlaceholder';
 import { useFileEntryHtmlProps, useFileEntryState } from './FileEntry-hooks';
 import { FileIcon } from './FileEntryIcon';
@@ -58,7 +59,8 @@ ListEntry.displayName = 'ListEntry';
 
 /**
  * List row while Chonky is narrow, e.g. on a phone: the thumbnail or icon, then the name
- * with the modification date and the size (or item count) on a second line.
+ * with the modification date and the size (or item count) on a second line. In selection
+ * mode a checkbox comes first.
  */
 export const NarrowListEntry: React.FC<FileEntryProps> = React.memo(({ file, selected, focused, dndState }) => {
     const entryState = useFileEntryState(file, selected, focused);
@@ -72,6 +74,10 @@ export const NarrowListEntry: React.FC<FileEntryProps> = React.memo(({ file, sel
             style={getEntryColorStyle(entryState)}
             {...fileEntryHtmlProps}
         >
+            {/* Shown in selection mode, see `.chonky-selectionMode` */}
+            <span className="chonky-narrowFileEntryCheck">
+                <CheckCircle checked={selected} />
+            </span>
             <div className="chonky-narrowFileEntryPreview">
                 {entryState.thumbnailUrl ? (
                     <FileThumbnail

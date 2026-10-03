@@ -111,8 +111,11 @@ const reducers = {
         const currentFolder = folderChain.length > 0 ? folderChain[folderChain.length - 1] : null;
         if (currentFolder) recordNavigation(state.navigationHistory, currentFolder);
 
-        // A search only applies to the folder it was typed in
-        if ((currentFolder?.id ?? null) !== previousFolderId) state.searchString = '';
+        // A search and selection mode only apply to the folder they started in
+        if ((currentFolder?.id ?? null) !== previousFolderId) {
+            state.searchString = '';
+            state.selectionMode = false;
+        }
 
         // Files created before navigating away are not picked up in the new folder
         if (state.newFileWatch && state.newFileWatch.parentId !== (currentFolder?.id ?? null)) {
@@ -240,8 +243,20 @@ const reducers = {
         if (state.disableSelection) return;
         if (Object.keys(state.selectionMap).length !== 0) state.selectionMap = {};
     },
+    /** Turns selection mode on with just this file selected, see `RootState.selectionMode`. */
+    startSelectionMode(state: RootState, action: PayloadAction<string>) {
+        if (state.disableSelection || !FileHelper.isSelectable(state.fileMap[action.payload] ?? null)) return;
+        state.selectionMode = true;
+        state.selectionMap = { [action.payload]: true };
+    },
+    /** Turns selection mode off and clears the selection. */
+    endSelectionMode(state: RootState) {
+        state.selectionMode = false;
+        if (Object.keys(state.selectionMap).length !== 0) state.selectionMap = {};
+    },
     setSelectionDisabled(state: RootState, action: PayloadAction<boolean>) {
         state.disableSelection = action.payload;
+        state.selectionMode = false;
         if (Object.keys(state.selectionMap).length !== 0) state.selectionMap = {};
     },
     setFileViewConfig(state: RootState, action: PayloadAction<FileViewConfig>) {

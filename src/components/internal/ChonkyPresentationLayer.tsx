@@ -3,7 +3,7 @@
  * @copyright 2020
  * @license MIT
  */
-import React, { ReactNode, useCallback, useContext, useLayoutEffect, useMemo, useRef, useState } from 'react';
+import React, { ReactNode, useCallback, useContext, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 
 import { ChonkyActions } from '../../action-definitions/index';
@@ -12,6 +12,8 @@ import {
     selectClearSelectionOnOutsideClick,
     selectFileActionIds,
     selectIsDnDDisabled,
+    selectSelectionMode,
+    selectSelectionSize,
 } from '../../redux/selectors';
 import { thunkRequestFileAction } from '../../redux/thunks/dispatchers.thunks';
 import { useNativeFileDrop } from '../../util/dnd';
@@ -86,8 +88,6 @@ export const ChonkyPresentationLayer: React.FC<ChonkyPresentationLayerProps> = (
     );
 
     const dndContextAvailable = useDndContextAvailable();
-    const contextMenuTriggers = useContextMenuTrigger();
-
     const [narrow, setNarrow] = useState(false);
     useLayoutEffect(() => {
         const root = rootRef.current;
@@ -99,6 +99,14 @@ export const ChonkyPresentationLayer: React.FC<ChonkyPresentationLayerProps> = (
         observer.observe(root);
         return () => observer.disconnect();
     }, []);
+    const contextMenuTriggers = useContextMenuTrigger(narrow);
+    const selectionMode = useSelector(selectSelectionMode);
+    const selectionModeActive = selectionMode && narrow;
+    // Taking the last file out of the selection ends selection mode
+    const selectionSize = useSelector(selectSelectionSize);
+    useEffect(() => {
+        if (selectionMode && selectionSize === 0) dispatch(reduxActions.endSelectionMode());
+    }, [dispatch, selectionMode, selectionSize]);
 
     const { nativeFileDropIsOver, nativeFileDrop } = useNativeFileDrop();
     nativeFileDrop(rootRef);
@@ -111,6 +119,7 @@ export const ChonkyPresentationLayer: React.FC<ChonkyPresentationLayerProps> = (
                 ref={rootRef}
                 className={c('chonky-chonkyRoot', getThemeClassName(darkMode, !animationsEnabled), {
                     'chonky-nativeFileDropOver': nativeFileDropIsOver,
+                    'chonky-selectionMode': selectionModeActive,
                 })}
                 {...contextMenuTriggers}
                 onMouseDown={handleMouseDown}

@@ -1634,8 +1634,9 @@
         scrollbar-gutter: auto;
     }
 
+    /* A little apart, so the highlights of selected rows don't run into each other */
     .chonky-listRow {
-        padding: 0 8px;
+        padding: 2px 8px;
     }
 }
 
@@ -1690,6 +1691,93 @@
     flex-shrink: 0;
     margin-inline-start: auto;
     font-weight: 600;
+}
+
+/* Selection mode while Chonky is narrow: a long press on a file turns it on (see
+   `RootState.selectionMode`). Rows show a checkbox and move over for it, the navbar
+   turns into "All" and Cancel, and the status bar into the actions for the selection. */
+
+.chonky-checkCircle {
+    display: flex;
+    flex-shrink: 0;
+    align-items: center;
+    justify-content: center;
+    width: 24px;
+    height: 24px;
+    color: var(--chonky-text-secondary);
+    font-size: 21px; /* Lucide icons are 1.15em */
+    transition: color 100ms;
+}
+
+.chonky-checkCircle.chonky-checked {
+    color: var(--chonky-accent);
+}
+
+/* Lucide's CircleCheck and CircleMinus: a filled circle with a white mark */
+.chonky-checkCircle.chonky-checked svg circle {
+    fill: currentColor;
+}
+
+.chonky-checkCircle.chonky-checked svg :not(circle) {
+    stroke: #fff;
+}
+
+/* Rows the list mounts while scrolling start out open, so only turning selection mode
+   on or off animates: a transition, not an animation */
+.chonky-narrowFileEntryCheck {
+    flex-shrink: 0;
+    width: 0;
+    margin-inline-end: -14px; /* the row's gap */
+    overflow: hidden;
+    opacity: 0;
+    visibility: hidden;
+    transition:
+        width 160ms ease-out,
+        margin 160ms ease-out,
+        opacity 160ms ease-out,
+        visibility 160ms;
+}
+
+.chonky-selectionMode .chonky-narrowFileEntryCheck {
+    width: 24px;
+    margin-inline-end: 0;
+    opacity: 1;
+    visibility: visible;
+}
+
+.chonky-selectionNavbar {
+    justify-content: space-between;
+}
+
+.chonky-selectAllButton {
+    gap: 12px;
+    padding: 0 8px;
+}
+
+.chonky-selectionCancelButton {
+    color: var(--chonky-accent);
+    font-weight: 600;
+}
+
+.chonky-statusBar.chonky-selectionBar {
+    gap: 8px;
+    height: auto;
+    min-height: var(--chonky-status-bar-height);
+    padding: 4px 8px 4px 14px;
+    background-color: var(--chonky-chrome-bg);
+}
+
+.chonky-selectionBarCount {
+    flex-shrink: 0;
+    color: var(--chonky-accent);
+    font-weight: 600;
+}
+
+.chonky-selectionBarActions {
+    display: flex;
+    gap: 2px;
+    margin-inline-start: auto;
+    min-width: 0;
 }
 
 /* Drag preview */
