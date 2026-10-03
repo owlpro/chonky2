@@ -5,6 +5,12 @@ The project follows [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [7.4.4]
+
+### Fixed
+
+- The click a browser sends after a long press reached the file under the finger: `ClickAwayListener` replaced the root's `onClickCapture`, which swallows it, with its own. It now calls both.
+
 ### Development
 
 - Playground: a Refresh button next to Close in `toolbarEnd`.
