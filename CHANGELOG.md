@@ -5,6 +5,10 @@ The project follows [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+### Development
+
+- Playground: a Refresh button next to Close in `toolbarEnd`.
+
 ## [7.4.3]
 
 ### Fixed

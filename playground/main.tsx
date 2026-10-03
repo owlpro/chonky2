@@ -251,12 +251,20 @@ const Explorer = ({
                     userStateStorageKey={`chonky-playground:${user}`}
                     onUserStateChange={handleUserStateChange}
                     toolbarEnd={
-                        <ToolbarButton
-                            icon={ChonkyIconName.close}
-                            iconOnly
-                            text="Close"
-                            onClick={() => onLog('close button clicked')}
-                        />
+                        <>
+                            <ToolbarButton
+                                icon={ChonkyIconName.refresh}
+                                iconOnly
+                                text="Refresh"
+                                onClick={() => onLog('refresh button clicked')}
+                            />
+                            <ToolbarButton
+                                icon={ChonkyIconName.close}
+                                iconOnly
+                                text="Close"
+                                onClick={() => onLog('close button clicked')}
+                            />
+                        </>
                     }
                 />
             </div>
