@@ -9,6 +9,7 @@ The project follows [Semantic Versioning](https://semver.org/).
 
 - Playground: a "Many files" folder with 64 files, a long name every ninth, for trying scrolling and selecting many.
 - README: links to the website, its live demo, and the matching documentation page under each guide and reference section.
+- README: a new phone preview with the phone list, selection mode and the sidebar drawer.
 - README: the website's homepage animation (`images/preview-animation.webp`, captured frame by frame from its timeline) opens the page instead of the logo, which is removed.
 
 ## [7.6.0]

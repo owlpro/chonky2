@@ -45,7 +45,7 @@ it is a REST API, S3, Firebase, a CMS media library or data in memory.
 </p>
 
 <p align="center">
-    <img src="./images/preview-mobile.png" alt="Chonky2 on a phone: the list view, and the sidebar open as a drawer" width="800" />
+    <img src="./images/preview-mobile.png" alt="Chonky2 on a phone: the list view, selection mode with three folders checked and the action bar, and the sidebar open as a drawer" width="800" />
 </p>
 
 ## Contents
