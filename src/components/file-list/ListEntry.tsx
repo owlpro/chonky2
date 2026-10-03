@@ -18,8 +18,10 @@ export const ListEntry: React.FC<FileEntryProps> = React.memo(({ file, selected,
     const { fileModDateString, fileModTimeString, fileSizeString, fileTypeString } = useLocalizedFileEntryStrings(file);
     const fileEntryHtmlProps = useFileEntryHtmlProps(file);
 
+    // <bdi> keeps e.g. "3.02 MB" in order inside a right-to-left Chonky. It goes inside
+    // the styled spans, whose logical margins should follow Chonky's direction, not the text's
     const renderProperty = (value: string | null, placeholderLength: [number, number]) =>
-        file ? (value ?? '') : <TextPlaceholder minLength={placeholderLength[0]} maxLength={placeholderLength[1]} />;
+        file ? <bdi>{value ?? ''}</bdi> : <TextPlaceholder minLength={placeholderLength[0]} maxLength={placeholderLength[1]} />;
 
     return (
         <div
@@ -36,8 +38,14 @@ export const ListEntry: React.FC<FileEntryProps> = React.memo(({ file, selected,
             <div className="chonky-listCell chonky-listColumnDate">
                 {file ? (
                     <>
-                        <span className="chonky-listDate">{fileModDateString ?? ''}</span>
-                        {fileModTimeString && <span className="chonky-listTime">{fileModTimeString}</span>}
+                        <span className="chonky-listDate">
+                            <bdi>{fileModDateString ?? ''}</bdi>
+                        </span>
+                        {fileModTimeString && (
+                            <span className="chonky-listTime">
+                                <bdi>{fileModTimeString}</bdi>
+                            </span>
+                        )}
                     </>
                 ) : (
                     <TextPlaceholder minLength={10} maxLength={18} />
@@ -80,8 +88,14 @@ export const NarrowListEntry: React.FC<FileEntryProps> = React.memo(({ file, sel
                 <div className="chonky-narrowFileEntryDetails">
                     {file ? (
                         <>
-                            <span className="chonky-narrowFileEntryDate">{modified}</span>
-                            {fileSizeString && <span className="chonky-narrowFileEntrySize">{fileSizeString}</span>}
+                            <span className="chonky-narrowFileEntryDate">
+                                <bdi>{modified}</bdi>
+                            </span>
+                            {fileSizeString && (
+                                <span className="chonky-narrowFileEntrySize">
+                                    <bdi>{fileSizeString}</bdi>
+                                </span>
+                            )}
                         </>
                     ) : (
                         <TextPlaceholder minLength={10} maxLength={18} />

@@ -1311,6 +1311,8 @@
 
 .chonky-listContainer {
     scrollbar-gutter: stable;
+    /* react-window sets `direction: ltr` on it; rows follow Chonky's direction instead */
+    direction: inherit !important;
 }
 
 .chonky-listRow {

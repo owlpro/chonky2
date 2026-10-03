@@ -5,6 +5,12 @@ The project follows [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [7.4.2]
+
+### Fixed
+
+- With `dir="rtl"` the list view's rows are right-to-left like its headings; react-window set them to `direction: ltr`. Sizes, dates and times stay in order there (`3.02 MB`, not `MB 3.02`).
+
 ## [7.4.1]
 
 ### Fixed
