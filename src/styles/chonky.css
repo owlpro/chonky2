@@ -1631,13 +1631,34 @@
     }
 }
 
+/* Long names lose their middle: the start gives up room and ends in "…", the end
+   (see splitNameEnd in FileEntry-hooks.tsx) stays */
+.chonky-narrowFileEntryName,
+.chonky-narrowFileEntryName .chonky-fileEntryNameText {
+    display: flex;
+    min-width: 0;
+}
+
 .chonky-narrowFileEntryName {
+    font-size: 15px;
+    line-height: 1.25;
+}
+
+.chonky-narrowFileEntryName .chonky-fileEntryNameStart,
+.chonky-narrowFileEntryName .chonky-fileEntryNameEnd {
+    /* Keeps the space where a name is cut */
+    white-space: pre;
+}
+
+.chonky-narrowFileEntryName .chonky-fileEntryNameStart {
     min-width: 0;
     overflow: hidden;
     text-overflow: ellipsis;
-    white-space: nowrap;
-    font-size: 15px;
-    line-height: 1.25;
+}
+
+.chonky-narrowFileEntryName .chonky-fileEntryNameEnd,
+.chonky-narrowFileEntryName .chonky-modifierIcons {
+    flex-shrink: 0;
 }
 
 .chonky-narrowFileEntryDetails {

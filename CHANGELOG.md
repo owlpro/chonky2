@@ -5,6 +5,12 @@ The project follows [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [7.4.1]
+
+### Fixed
+
+- While Chonky is narrow, a long name loses its middle instead of its end, so its start and its end with the extension stay (`HANISTAR X20_V…11092026.rar`). It is cut after a space, dash, dot or underscore near the end when there is one, so joined letters, e.g. Persian, stay joined. Names are in a `dir="auto"` span, so a Latin name in a right-to-left Chonky, and the other way round, keeps its order.
+
 ## [7.4.0]
 
 ### Changed

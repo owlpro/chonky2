@@ -84,11 +84,32 @@ export const useModifierIconComponents = (file: Nullable<FileData>) => {
     return modifierIconComponents;
 };
 
+/** About how many characters stay after the "…" when a long name is cut in the middle. */
+const NAME_END_LENGTH = 8;
+
+/**
+ * Splits a name into a start and an end, so CSS can cut the start with an ellipsis and
+ * keep the end, e.g. "HANISTAR X20_V…15_11092026.rar". Cuts after a space, dash, dot or
+ * underscore when there is one near, so letters that join (e.g. Persian) stay joined.
+ */
+const splitNameEnd = (name: string): [string, string] => {
+    const chars = Array.from(name);
+    if (chars.length <= NAME_END_LENGTH) return ['', name];
+    let at = chars.length - NAME_END_LENGTH;
+    for (let i = at; i >= Math.max(1, at - 6); i--) {
+        if (/[\s\-_.()[\]]/.test(chars[i - 1] ?? '')) {
+            at = i;
+            break;
+        }
+    }
+    return [chars.slice(0, at).join(''), chars.slice(at).join('')];
+};
+
 export const useFileNameComponent = (file: Nullable<FileData>) => {
     return useMemo(() => {
         if (!file) return <TextPlaceholder minLength={15} maxLength={20} />;
         const isDir = FileHelper.isDirectory(file);
-        const safeFile = file as FileData
+        const safeFile = file as FileData;
         let name = safeFile.name;
         let extension: string | null = null;
 
@@ -96,12 +117,17 @@ export const useFileNameComponent = (file: Nullable<FileData>) => {
             extension = getFileExtension(safeFile);
             name = safeFile.name.substring(0, safeFile.name.length - (extension?.length ?? 0));
         }
+        const [nameStart, nameEnd] = splitNameEnd(name);
 
+        // `dir="auto"` keeps a Latin name in order inside a right-to-left Chonky, and back
         return (
-            <>
-                {name}
-                {extension && <span className="chonky-file-entry-description-title-extension">{extension}</span>}
-            </>
+            <span className="chonky-fileEntryNameText" dir="auto">
+                <span className="chonky-fileEntryNameStart">{nameStart}</span>
+                <span className="chonky-fileEntryNameEnd">
+                    {nameEnd}
+                    {extension && <span className="chonky-file-entry-description-title-extension">{extension}</span>}
+                </span>
+            </span>
         );
     }, [file]);
 };
