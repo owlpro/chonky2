@@ -5,6 +5,12 @@ The project follows [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [7.4.5]
+
+### Fixed
+
+- With `dir="rtl"` the status bar's counts stay in order (`7 items`, not `items 7`).
+
 ## [7.4.4]
 
 ### Fixed

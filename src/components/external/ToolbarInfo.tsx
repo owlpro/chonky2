@@ -52,9 +52,10 @@ export const ToolbarInfo: React.FC<ToolbarInfoProps> = React.memo(() => {
 
     return (
         <div className="chonky-statusBarInfo">
-            <span>{fileCountString}</span>
-            {selectedString && <span className="chonky-statusBarSelection">{selectedString}</span>}
-            {hiddenString && <span>{hiddenString}</span>}
+            {/* <bdi> keeps e.g. "7 items" in order inside a right-to-left Chonky */}
+            <bdi>{fileCountString}</bdi>
+            {selectedString && <bdi className="chonky-statusBarSelection">{selectedString}</bdi>}
+            {hiddenString && <bdi>{hiddenString}</bdi>}
         </div>
     );
 });
