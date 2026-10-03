@@ -38,6 +38,25 @@ export const ENCLOSING_ZONE_DELAY = 100;
 const selectCanDropNativeFiles = (state: RootState) =>
     !selectIsDnDDisabled(state) && !!selectFileActionMap(state)[ChonkyActions.DropFiles.id];
 
+/**
+ * Whether the last `pointerdown` on the page was a finger. Chrome on Android turns a long
+ * press into a native drag, which would flash the dragging look before the long press
+ * opens the context menu or selection mode; files only drag with a mouse or a pen.
+ */
+let lastPointerIsTouch = false;
+let pointerTypeTracked = false;
+const trackPointerType = () => {
+    if (pointerTypeTracked || typeof document === 'undefined') return;
+    pointerTypeTracked = true;
+    document.addEventListener(
+        'pointerdown',
+        (event) => {
+            lastPointerIsTouch = event.pointerType === 'touch';
+        },
+        { capture: true, passive: true }
+    );
+};
+
 export const useFileDrag = (file: Nullable<FileData>) => {
     const store = useStore<RootState>();
     const fileRef = useInstanceVariable(file);
@@ -57,8 +76,9 @@ export const useFileDrag = (file: Nullable<FileData>) => {
         };
     }, [store, fileRef]);
 
+    useEffect(trackPointerType, []);
     const canDrag = useCallback(
-        () => !!fileRef.current && FileHelper.isDraggable(fileRef.current),
+        () => !lastPointerIsTouch && !!fileRef.current && FileHelper.isDraggable(fileRef.current),
         [fileRef]
     );
 

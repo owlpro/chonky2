@@ -5,6 +5,12 @@ The project follows [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [7.5.1]
+
+### Fixed
+
+- A long press on a file no longer flashes the dragging look first: Chrome on Android turns a long press into a native drag. Files now only drag when the pointer that started it is a mouse or a pen, not a finger.
+
 ## [7.5.0]
 
 ### Added
