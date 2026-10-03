@@ -11,11 +11,13 @@ import { useStaticValue } from '../../util/hooks-helpers';
 import { ChonkyFormattersContext, ChonkyIntlContext, defaultFormatters } from '../../util/i18n';
 import { createChonkyIntl } from '../../util/intl';
 import { normalizeUserState, readStoredUserState } from '../../util/user-state';
-import { ChonkyIconContext } from '../../util/icon-helper';
+import { ChonkyGroupIconsContext, ChonkyIconContext } from '../../util/icon-helper';
 import { ChonkyDarkModeContext, useChonkyStyles } from '../../util/styles';
 import { ChonkyBusinessLogic } from '../internal/ChonkyBusinessLogic';
 import { ChonkyIconPlaceholder } from '../internal/ChonkyIconPlaceholder';
 import { ChonkyPresentationLayer } from '../internal/ChonkyPresentationLayer';
+
+const noGroupIcons = {};
 
 export const FileBrowser = React.forwardRef<
     FileBrowserHandle,
@@ -38,6 +40,7 @@ export const FileBrowser = React.forwardRef<
         'boolean'
     );
     const i18n = getValueOrFallback(props.i18n, defaultConfig.i18n);
+    const groupIcons = getValueOrFallback(props.groupIcons, defaultConfig.groupIcons) ?? noGroupIcons;
     const formatters = useMemo(
         () => ({
             ...defaultFormatters,
@@ -87,13 +90,15 @@ export const FileBrowser = React.forwardRef<
                                 ChonkyIconPlaceholder
                             }
                         >
-                            {disableDragAndDrop || disableDragAndDropProvider ? (
-                                chonkyComps
-                            ) : (
-                                <DndProvider backend={HTML5Backend}>
-                                    {chonkyComps}
-                                </DndProvider>
-                            )}
+                            <ChonkyGroupIconsContext.Provider value={groupIcons}>
+                                {disableDragAndDrop || disableDragAndDropProvider ? (
+                                    chonkyComps
+                                ) : (
+                                    <DndProvider backend={HTML5Backend}>
+                                        {chonkyComps}
+                                    </DndProvider>
+                                )}
+                            </ChonkyGroupIconsContext.Provider>
                         </ChonkyIconContext.Provider>
                     </ChonkyDarkModeContext.Provider>
                 </ReduxProvider>

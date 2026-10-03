@@ -1,4 +1,4 @@
-import { ElementType, UIEvent } from 'react';
+import { ElementType, ReactElement, UIEvent } from 'react';
 import { Nullable } from './util.types';
 
 import { ChonkyActions } from '../action-definitions/index';
@@ -6,7 +6,7 @@ import { GenericFileActionHandler } from './action-handler.types';
 import { FileAction } from './action.types';
 import { FileArray } from './file.types';
 import { I18nConfig } from './i18n.types';
-import { ChonkyIconProps } from './icons.types';
+import { ChonkyIconName, ChonkyIconProps } from './icons.types';
 import { ThumbnailGenerator } from './thumbnails.types';
 import { ChonkyUserState } from './user-state.types';
 
@@ -52,6 +52,13 @@ export interface FileBrowserHandle {
         payload: Action['__payloadType']
     ): Promise<void>;
 }
+
+/**
+ * Icons for the toolbar's group menus, by group name (`button.group`), e.g.
+ * `{ Share: ChonkyIconName.share }`. Each is a
+ * `ChonkyIconName`, an icon name the `iconComponent` knows, or any element.
+ */
+export type ChonkyGroupIcons = Record<string, ChonkyIconName | string | ReactElement>;
 
 export type ChonkyActionUnion = typeof ChonkyActions[keyof typeof ChonkyActions];
 
@@ -160,6 +167,14 @@ export interface FileBrowserProps {
      * component for all Chonky instances, use the global config.
      */
     iconComponent?: ElementType<ChonkyIconProps>;
+
+    /**
+     * Icons for the toolbar's group menus, by group name. While Chonky is narrow, e.g. on
+     * a phone, the group menus show only their icon, with the group name as the tooltip.
+     * Without an icon here, "Actions" gets `ChonkyIconName.actionsMenu`, "Options"
+     * `ChonkyIconName.optionsMenu` and other groups `ChonkyIconName.toolbarGroup`.
+     */
+    groupIcons?: Nullable<ChonkyGroupIcons>;
 
     /**
      * Shows that the current folder is loading: a progress bar runs along the top of

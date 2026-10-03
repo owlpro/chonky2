@@ -9,10 +9,14 @@ import { createContext, ElementType, useMemo } from 'react';
 import { Nullable } from '../types/util.types';
 
 import { ChonkyIconPlaceholder } from '../components/internal/ChonkyIconPlaceholder';
+import { ChonkyGroupIcons } from '../types/file-browser.types';
 import { FileData } from '../types/file.types';
 import { ChonkyIconName, ChonkyIconProps, FileIconData } from '../types/icons.types';
 
 export const ChonkyIconContext = createContext<ElementType<ChonkyIconProps>>(ChonkyIconPlaceholder);
+
+/** The `groupIcons` of the current Chonky instance, see FileBrowser. */
+export const ChonkyGroupIconsContext = createContext<ChonkyGroupIcons>({});
 
 export const VideoExtensions: string[] = [
     '3g2',

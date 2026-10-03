@@ -306,7 +306,7 @@
     display: flex;
     align-items: center;
     gap: 2px;
-    margin-left: auto;
+    margin-inline-start: auto;
 }
 
 .chonky-toolbarDivider {
@@ -317,10 +317,22 @@
     background-color: var(--chonky-field-border);
 }
 
-/* Less room around the bars while Chonky is narrow, so the toolbar fits on one line */
+/* Less room around the bars while Chonky is narrow, so the toolbar fits on one line.
+   The menus are icons then (see FileToolbar); if the row is still too long, the menu
+   bar gives up room instead of the toolbar wrapping. */
 @container chonky (max-width: 560px) {
     .chonky-toolbar {
+        flex-wrap: nowrap;
         padding: 8px 8px 2px;
+    }
+
+    .chonky-menuBar {
+        min-width: 0;
+        overflow: hidden;
+    }
+
+    .chonky-toolbarActions {
+        flex-shrink: 0;
     }
 
     .chonky-toolbarDivider {
@@ -1546,6 +1558,54 @@
 .chonky-compactFileEntryDetails {
     color: var(--chonky-text-secondary);
     font-size: 12px;
+}
+
+/* List view while Chonky is narrow, e.g. on a phone (NarrowListEntry): a 72px row
+   (NARROW_ROW_HEIGHT in ListContainer.tsx) with a large icon, the name, and the date
+   and size below it. A line between rows starts at the text, not under the icon. */
+
+.chonky-narrowFileEntry {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 0 8px;
+}
+
+.chonky-narrowFileEntryPreview {
+    display: flex;
+    flex-shrink: 0;
+    align-items: center;
+    justify-content: center;
+    width: 48px;
+    height: 48px;
+}
+
+.chonky-narrowThumbnail {
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    border-radius: 8px;
+    font-size: 22px;
+}
+
+.chonky-narrowThumbnail img {
+    object-fit: cover;
+}
+
+.chonky-narrowFileEntryText {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    justify-content: center;
+    gap: 8px;
+    align-self: stretch;
+    min-width: 0;
+    border-bottom: 1px solid var(--chonky-divider);
+}
+
+.chonky-listRow:last-child .chonky-narrowFileEntryText,
+.chonky-selected .chonky-narrowFileEntryText {
+    border-bottom-color: transparent;
 }
 
 /* Drag preview */

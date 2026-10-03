@@ -52,6 +52,12 @@ export enum ChonkyIconName {
     sidebar = 'sidebar',
     /** The toolbar menu with the buttons that don't fit while Chonky is narrow */
     more = 'more',
+    /** A toolbar group menu that has no icon in `groupIcons`, shown while Chonky is narrow */
+    toolbarGroup = 'toolbarGroup',
+    /** The toolbar's "Actions" menu while Chonky is narrow */
+    actionsMenu = 'actionsMenu',
+    /** The toolbar's "Options" menu while Chonky is narrow */
+    optionsMenu = 'optionsMenu',
     download = 'download',
     upload = 'upload',
     trash = 'trash',

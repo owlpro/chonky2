@@ -4,9 +4,16 @@ import { useSelector } from 'react-redux';
 import { selectFileActionMap, selectToolbarItems } from '../../redux/selectors';
 import { ChonkyIconName } from '../../types/icons.types';
 import { getI18nId, I18nNamespace, useIntl } from '../../util/i18n';
+import { ChonkyGroupIconsContext } from '../../util/icon-helper';
 import { ChonkyNarrowLayoutContext } from '../../util/styles';
 import { SmartToolbarButton } from './ToolbarButton';
 import { ToolbarDropdown } from './ToolbarDropdown';
+
+/** Icons of the groups Chonky's own actions use, for apps that don't set `groupIcons` */
+const builtInGroupIcons: Record<string, ChonkyIconName> = {
+    Actions: ChonkyIconName.actionsMenu,
+    Options: ChonkyIconName.optionsMenu,
+};
 
 const ToolbarDivider = () => <div className="chonky-toolbarDivider" role="separator" aria-orientation="vertical" />;
 
@@ -24,13 +31,15 @@ export interface FileToolbarProps {
 /**
  * Top bar: a menu bar with one menu per action group, then buttons for the actions
  * that are not in a group, with the view mode buttons after a divider. While Chonky is
- * narrow, e.g. on a phone, the buttons other than the view modes go into a "More" menu.
+ * narrow, e.g. on a phone, the menus show only their `groupIcons` icon and the buttons
+ * other than the view modes go into a "More" menu, so the toolbar fits on one row.
  */
 export const FileToolbar: React.FC<FileToolbarProps> = React.memo(({ startContent, endContent }) => {
     const intl = useIntl();
     const toolbarItems = useSelector(selectToolbarItems);
     const fileActionMap = useSelector(selectFileActionMap);
     const narrow = useContext(ChonkyNarrowLayoutContext);
+    const groupIcons = useContext(ChonkyGroupIconsContext);
 
     const moreLabel = intl.formatMessage({
         id: getI18nId(I18nNamespace.Toolbar, 'moreActions'),
@@ -49,7 +58,16 @@ export const FileToolbar: React.FC<FileToolbarProps> = React.memo(({ startConten
                 }
             } else {
                 menuComponents.push(
-                    <ToolbarDropdown key={`toolbar-item-${item.name}`} name={item.name} fileActionIds={item.fileActionIds} />
+                    <ToolbarDropdown
+                        key={`toolbar-item-${item.name}`}
+                        name={item.name}
+                        fileActionIds={item.fileActionIds}
+                        icon={
+                            narrow
+                                ? (groupIcons[item.name] ?? builtInGroupIcons[item.name] ?? ChonkyIconName.toolbarGroup)
+                                : undefined
+                        }
+                    />
                 );
             }
         }
@@ -68,7 +86,7 @@ export const FileToolbar: React.FC<FileToolbarProps> = React.memo(({ startConten
             buttonComponents = buttonIds.map((id) => <SmartToolbarButton key={`toolbar-item-${id}`} fileActionId={id} />);
         }
         return [menuComponents, buttonComponents, viewButtonComponents];
-    }, [fileActionMap, toolbarItems, narrow, moreLabel]);
+    }, [fileActionMap, toolbarItems, narrow, groupIcons, moreLabel]);
 
     const hasButtons = buttons.length > 0 || viewButtons.length > 0;
     return (

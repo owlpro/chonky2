@@ -16,6 +16,7 @@ export type ChonkyConfig = Pick<
     | 'defaultFileViewActionId'
     | 'clearSelectionOnOutsideClick'
     | 'iconComponent'
+    | 'groupIcons'
     | 'darkMode'
     | 'disableAnimations'
     | 'i18n'
@@ -34,6 +35,7 @@ export const defaultConfig: ChonkyConfig = {
     defaultFileViewActionId: ChonkyActions.EnableGridView.id,
     clearSelectionOnOutsideClick: true,
     iconComponent: ChonkyIconLucide,
+    groupIcons: {},
     darkMode: false,
     disableAnimations: false,
     i18n: {},

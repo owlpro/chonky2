@@ -62,6 +62,9 @@ import {
     History,
     Menu,
     Ellipsis,
+    SquareMenu,
+    Zap,
+    SlidersHorizontal,
 } from "lucide-react";
 
 import { ChonkyIconName, ChonkyIconProps } from "../../types/icons.types";
@@ -126,6 +129,9 @@ export const IconMap: { [iconName in ChonkyIconName]: any } = {
     [ChonkyIconName.sectionToggle]: ChevronRight,
     [ChonkyIconName.sidebar]: Menu,
     [ChonkyIconName.more]: Ellipsis,
+    [ChonkyIconName.toolbarGroup]: SquareMenu,
+    [ChonkyIconName.actionsMenu]: Zap,
+    [ChonkyIconName.optionsMenu]: SlidersHorizontal,
     [ChonkyIconName.download]: Download,
     [ChonkyIconName.upload]: Upload,
     [ChonkyIconName.trash]: Trash2,

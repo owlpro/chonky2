@@ -5,6 +5,22 @@ The project follows [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [7.3.0]
+
+### Added
+
+- `groupIcons` prop and `setChonkyDefaults` option, typed `ChonkyGroupIcons`: icons for the toolbar's group menus by group name, e.g. `{ Share: ChonkyIconName.share }`. Each is a `ChonkyIconName`, an icon name the `iconComponent` knows, or any element.
+- `ChonkyIconName.actionsMenu` (lightning bolt) and `ChonkyIconName.optionsMenu` (sliders), the icons of the "Actions" and "Options" menus unless `groupIcons` sets others, and `ChonkyIconName.toolbarGroup` for other groups without an icon.
+
+### Changed
+
+- While Chonky is narrow (560px or less), the group menus show only their icon, with the group name as the tooltip and `aria-label`, and the toolbar stays on one row: the menu bar at the start, the buttons at the end. If the row is still too long, the menu bar gives up room instead of the toolbar wrapping. Wider toolbars look as before.
+- Icon-only `ToolbarButton`s get their `text` as `aria-label`.
+
+### Fixed
+
+- With `dir="rtl"` the toolbar buttons sit at the end of the row (`margin-inline-start: auto` instead of `margin-left: auto`), not next to the menus.
+
 ### Development
 
 - `CLAUDE.md`: every commit that changes published code bumps the version and writes its changelog entries under that version.

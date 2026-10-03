@@ -42,7 +42,7 @@ export type { ChonkyActionUnion } from './types/file-browser.types';
 export type { ChangeFileNamePayload, ChangeSearchPayload, CopyFilesToPayload, DropFilesPayload, MoveFilesPayload } from './types/action-payloads.types';
 export { ChonkyIconName } from './types/icons.types';
 export type ChonkyIconProps = import('./types/icons.types').ChonkyIconProps;
-export type { FileBrowserHandle, FileBrowserProps } from './types/file-browser.types';
+export type { ChonkyGroupIcons, FileBrowserHandle, FileBrowserProps } from './types/file-browser.types';
 export type { ChonkyUserState } from './types/user-state.types';
 export { FileViewMode } from './types/file-view.types';
 export type FileViewConfig = import('./types/file-view.types').FileViewConfig;

@@ -16,8 +16,11 @@ import { SmartToolbarDropdownButton } from './ToolbarDropdownButton';
 export type ToolbarDropdownProps = FileActionGroup & {
     /** Shown instead of the group's localized name. */
     label?: string;
-    /** Makes the button show only this icon, with the name as its tooltip. */
-    icon?: ChonkyIconName | string;
+    /**
+     * Makes the button show only this icon, with the name as its tooltip: a
+     * `ChonkyIconName`, an icon name the `iconComponent` knows, or any element.
+     */
+    icon?: ChonkyIconName | string | React.ReactElement;
 };
 
 export const ToolbarDropdown: React.FC<ToolbarDropdownProps> = React.memo(props => {

@@ -420,6 +420,19 @@ looks like Chonky's buttons, and its `icon` can be a `ChonkyIconName` or any ele
 />
 ```
 
+When Chonky is 560px wide or narrower, e.g. on a phone, the toolbar stays on one row: the
+group menus ("Actions", "Options", …) show only an icon, with the group name as the tooltip,
+and the other buttons go into a "More" (⋯) menu. "Actions" shows a lightning bolt and
+"Options" sliders. `groupIcons` sets the icons of your own groups, or replaces those two,
+by group name (`button.group`): a `ChonkyIconName`, an icon name your `iconComponent`
+knows, or any element. A group without one gets `ChonkyIconName.toolbarGroup`.
+
+```tsx
+<FullFileBrowser {...props} groupIcons={{ Share: ChonkyIconName.share }} />
+// or for every Chonky on the page:
+setChonkyDefaults({ groupIcons: { Share: ChonkyIconName.share } });
+```
+
 ### Loading
 
 Pass `loading` while you fetch a folder. A progress bar runs along the top of the file list,
@@ -502,6 +515,7 @@ With your own layout, pass toolbar content to `FileToolbar` as `startContent` an
 | `userState`, `onUserStateChange` | `Partial<ChonkyUserState>`, `(state) => void` | Favorites, recent files and collapsed sidebar sections, kept by your app. See [user state](#favorites-recent-and-user-state). |
 | `userStateStorageKey` | `string` | Keeps the [user state](#favorites-recent-and-user-state) in `localStorage` under this key when `userState` isn't passed. |
 | `toolbarStart`, `toolbarEnd` | `ReactNode` | [Toolbar content](#toolbar-content) (`FullFileBrowser` only). |
+| `groupIcons` | `ChonkyGroupIcons` | Icons of the toolbar's group menus by group name, shown [while Chonky is narrow](#toolbar-content). |
 | `thumbnailGenerator` | `(file) => string \| null \| Promise<…>` | Returns each file's thumbnail URL, instead of `thumbnailUrl`. |
 | `i18n` | `I18nConfig` | [Translations](#translations) and formatters. |
 | `iconComponent` | `ElementType` | Replaces Chonky's [icons](#custom-icons). |
