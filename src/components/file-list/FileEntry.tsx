@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useContext, useState } from 'react';
 import { useSelector } from 'react-redux';
 import { Nullable } from '../../types/util.types';
 
@@ -7,12 +7,13 @@ import { useParamSelector } from '../../redux/store';
 import { DndEntryState, FileEntryProps } from '../../types/file-list.types';
 import { FileViewMode } from '../../types/file-view.types';
 import { FileHelper } from '../../util/file-helper';
+import { ChonkyNarrowLayoutContext } from '../../util/styles';
 import { ClickableWrapper, ClickableWrapperProps } from '../internal/ClickableWrapper';
 import { CompactEntry } from './CompactEntry';
 import { DnDFileEntry } from './DnDFileEntry';
 import { useFileClickHandlers } from './FileEntry-hooks';
 import { GridEntry } from './GridEntry';
-import { ListEntry } from './ListEntry';
+import { ListEntry, NarrowListEntry } from './ListEntry';
 
 export interface SmartFileEntryProps {
     fileId: Nullable<string>;
@@ -31,6 +32,7 @@ export const SmartFileEntry: React.FC<SmartFileEntryProps> = React.memo(({ fileI
     const file = useParamSelector(selectFileData, fileId) ?? null;
     const selected = useParamSelector(selectIsFileSelected, fileId);
     const dndDisabled = useSelector(selectIsDnDDisabled);
+    const narrow = useContext(ChonkyNarrowLayoutContext);
 
     // Clickable wrapper properties
     const fileClickHandlers = useFileClickHandlers(file, displayIndex);
@@ -50,7 +52,7 @@ export const SmartFileEntry: React.FC<SmartFileEntryProps> = React.memo(({ fileI
     };
 
     let EntryComponent: React.FC<FileEntryProps>;
-    if (fileViewMode === FileViewMode.List) EntryComponent = ListEntry;
+    if (fileViewMode === FileViewMode.List) EntryComponent = narrow ? NarrowListEntry : ListEntry;
     else if (fileViewMode === FileViewMode.Compact) EntryComponent = CompactEntry;
     else EntryComponent = GridEntry;
 

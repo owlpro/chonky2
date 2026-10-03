@@ -7,9 +7,11 @@ import { TextPlaceholder } from '../external/TextPlaceholder';
 import { useFileEntryHtmlProps, useFileEntryState } from './FileEntry-hooks';
 import { FileIcon } from './FileEntryIcon';
 import { FileEntryName } from './FileEntryName';
+import { FileThumbnail } from './FileThumbnail';
 import { getEntryColorStyle, getEntryStateClasses } from './GridEntryPreview';
 
 const LIST_ICON_SIZE = 20;
+const NARROW_LIST_ICON_SIZE = 40;
 
 export const ListEntry: React.FC<FileEntryProps> = React.memo(({ file, selected, focused, dndState }) => {
     const entryState = useFileEntryState(file, selected, focused);
@@ -45,3 +47,48 @@ export const ListEntry: React.FC<FileEntryProps> = React.memo(({ file, selected,
     );
 });
 ListEntry.displayName = 'ListEntry';
+
+/**
+ * List row while Chonky is narrow, e.g. on a phone: the thumbnail or icon, then the name
+ * with the modification date and the size (or item count) on a second line.
+ */
+export const NarrowListEntry: React.FC<FileEntryProps> = React.memo(({ file, selected, focused, dndState }) => {
+    const entryState = useFileEntryState(file, selected, focused);
+    const { fileModDateString, fileModTimeString, fileSizeString } = useLocalizedFileEntryStrings(file);
+    const fileEntryHtmlProps = useFileEntryHtmlProps(file);
+    const modified = [fileModDateString, fileModTimeString].filter(Boolean).join(' ');
+
+    return (
+        <div
+            className={c('chonky-narrowFileEntry', getEntryStateClasses(entryState, dndState))}
+            style={getEntryColorStyle(entryState)}
+            {...fileEntryHtmlProps}
+        >
+            <div className="chonky-narrowFileEntryPreview">
+                {entryState.thumbnailUrl ? (
+                    <FileThumbnail
+                        key={entryState.thumbnailUrl}
+                        className="chonky-narrowThumbnail"
+                        thumbnailUrl={entryState.thumbnailUrl}
+                    />
+                ) : (
+                    <FileIcon file={file} entryState={entryState} size={NARROW_LIST_ICON_SIZE} />
+                )}
+            </div>
+            <div className="chonky-narrowFileEntryText">
+                <FileEntryName className="chonky-narrowFileEntryName" file={file} />
+                <div className="chonky-narrowFileEntryDetails">
+                    {file ? (
+                        <>
+                            <span className="chonky-narrowFileEntryDate">{modified}</span>
+                            {fileSizeString && <span className="chonky-narrowFileEntrySize">{fileSizeString}</span>}
+                        </>
+                    ) : (
+                        <TextPlaceholder minLength={10} maxLength={18} />
+                    )}
+                </div>
+            </div>
+        </div>
+    );
+});
+NarrowListEntry.displayName = 'NarrowListEntry';

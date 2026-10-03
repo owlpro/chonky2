@@ -5,6 +5,13 @@ The project follows [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [7.4.0]
+
+### Changed
+
+- While Chonky is narrow, the list is the only view: the view buttons are left out, and the chosen view comes back when Chonky is wider. Its rows are 72px tall like a phone's file manager: a 48px thumbnail or icon, the name, and the date and size (or item count) on a second line, with a line between rows from the text on. There are no column headings; sorting is in the Options menu.
+- While Chonky is narrow, the file list reaches the edges of Chonky and its scrollbar lies over the rows at the edge, instead of in a gutter of its own.
+
 ## [7.3.0]
 
 ### Added

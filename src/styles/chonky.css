@@ -1223,7 +1223,8 @@
 
 .chonky-listFileEntry,
 .chonky-gridFileEntry,
-.chonky-compactFileEntry {
+.chonky-compactFileEntry,
+.chonky-narrowFileEntry {
     position: relative;
     height: 100%;
     border-radius: var(--chonky-radius-item);
@@ -1234,28 +1235,32 @@
 @media (hover: hover) {
     .chonky-listFileEntry:hover,
     .chonky-gridFileEntry:hover,
-    .chonky-compactFileEntry:hover {
+    .chonky-compactFileEntry:hover,
+    .chonky-narrowFileEntry:hover {
         background-color: var(--chonky-hover);
     }
 }
 
 .chonky-selected.chonky-listFileEntry,
 .chonky-selected.chonky-gridFileEntry,
-.chonky-selected.chonky-compactFileEntry {
+.chonky-selected.chonky-compactFileEntry,
+.chonky-selected.chonky-narrowFileEntry {
     background-color: var(--chonky-selected-bg);
 }
 
 @media (hover: hover) {
     .chonky-selected.chonky-listFileEntry:hover,
     .chonky-selected.chonky-gridFileEntry:hover,
-    .chonky-selected.chonky-compactFileEntry:hover {
+    .chonky-selected.chonky-compactFileEntry:hover,
+    .chonky-selected.chonky-narrowFileEntry:hover {
         background-color: var(--chonky-selected-hover-bg);
     }
 }
 
 .chonky-fileEntryClickableWrapper:focus-visible > .chonky-listFileEntry,
 .chonky-fileEntryClickableWrapper:focus-visible > .chonky-gridFileEntry,
-.chonky-fileEntryClickableWrapper:focus-visible > .chonky-compactFileEntry {
+.chonky-fileEntryClickableWrapper:focus-visible > .chonky-compactFileEntry,
+.chonky-fileEntryClickableWrapper:focus-visible > .chonky-narrowFileEntry {
     box-shadow: inset 0 0 0 2px var(--chonky-focus-ring);
 }
 
@@ -1266,14 +1271,16 @@
 
 .chonky-dnd-over-can.chonky-listFileEntry,
 .chonky-dnd-over-can.chonky-gridFileEntry,
-.chonky-dnd-over-can.chonky-compactFileEntry {
+.chonky-dnd-over-can.chonky-compactFileEntry,
+.chonky-dnd-over-can.chonky-narrowFileEntry {
     background-color: var(--chonky-drop-bg);
     box-shadow: inset 0 0 0 1px var(--chonky-drop-border);
 }
 
 .chonky-dnd-over-cannot.chonky-listFileEntry,
 .chonky-dnd-over-cannot.chonky-gridFileEntry,
-.chonky-dnd-over-cannot.chonky-compactFileEntry {
+.chonky-dnd-over-cannot.chonky-compactFileEntry,
+.chonky-dnd-over-cannot.chonky-narrowFileEntry {
     background-color: var(--chonky-no-drop-bg);
     box-shadow: inset 0 0 0 1px var(--chonky-no-drop-border);
 }
@@ -1606,6 +1613,54 @@
 .chonky-listRow:last-child .chonky-narrowFileEntryText,
 .chonky-selected .chonky-narrowFileEntryText {
     border-bottom-color: transparent;
+}
+
+/* The list reaches the edges, so its scrollbar sits at the edge of Chonky and lays
+   over the rows instead of taking a column of its own */
+@container chonky (max-width: 560px) {
+    .chonky-fileListWrapper {
+        padding: 4px 0 0;
+    }
+
+    .chonky-listContainer {
+        scrollbar-gutter: auto;
+    }
+
+    .chonky-listRow {
+        padding: 0 8px;
+    }
+}
+
+.chonky-narrowFileEntryName {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-size: 15px;
+    line-height: 1.25;
+}
+
+.chonky-narrowFileEntryDetails {
+    display: flex;
+    align-items: baseline;
+    gap: 12px;
+    color: var(--chonky-text-secondary);
+    font-size: 13px;
+    font-variant-numeric: tabular-nums;
+    line-height: 1.2;
+    white-space: nowrap;
+}
+
+.chonky-narrowFileEntryDate {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.chonky-narrowFileEntrySize {
+    flex-shrink: 0;
+    margin-inline-start: auto;
+    font-weight: 600;
 }
 
 /* Drag preview */

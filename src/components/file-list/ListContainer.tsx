@@ -23,7 +23,7 @@ import { SortOrder } from '../../types/sort.types';
 import { useInstanceVariable } from '../../util/hooks-helpers';
 import { getI18nId, I18nNamespace, useIntl } from '../../util/i18n';
 import { ChonkyIconContext } from '../../util/icon-helper';
-import { c, useIsCoarsePointer } from '../../util/styles';
+import { c, ChonkyNarrowLayoutContext, useIsCoarsePointer } from '../../util/styles';
 import { SmartFileEntry } from './FileEntry';
 import { useRevealFiles } from './FileList-hooks';
 
@@ -36,6 +36,8 @@ export interface FileListListProps {
 const LIST_HEADER_HEIGHT = 32;
 /** The least row height for fingers, e.g. on a phone. */
 const TOUCH_ROW_HEIGHT = 44;
+/** Rows while Chonky is narrow, see `NarrowListEntry`. Keep in sync with chonky.css. */
+const NARROW_ROW_HEIGHT = 72;
 
 const listColumns = [
     { className: 'chonky-listCellName', stringId: 'nameColumn', label: 'Name', sortActionId: ChonkyActions.SortFilesByName.id },
@@ -104,7 +106,12 @@ export const ListContainer: React.FC<FileListListProps> = React.memo((props) => 
 
     const viewConfig = useSelector(selectFileViewConfig);
     const coarsePointer = useIsCoarsePointer();
-    const rowHeight = coarsePointer ? Math.max(viewConfig.entryHeight, TOUCH_ROW_HEIGHT) : viewConfig.entryHeight;
+    // While narrow there are no column headings; sorting is in the Options menu
+    const narrow = useContext(ChonkyNarrowLayoutContext);
+    const headerHeight = narrow ? 0 : LIST_HEADER_HEIGHT;
+    let rowHeight = viewConfig.entryHeight;
+    if (narrow) rowHeight = NARROW_ROW_HEIGHT;
+    else if (coarsePointer) rowHeight = Math.max(viewConfig.entryHeight, TOUCH_ROW_HEIGHT);
 
     const listRef = useRef<FixedSizeList>(null);
 
@@ -137,7 +144,7 @@ export const ListContainer: React.FC<FileListListProps> = React.memo((props) => 
                 ref={listRef as any}
                 className="chonky-listContainer"
                 itemSize={rowHeight}
-                height={Math.max(0, height - LIST_HEADER_HEIGHT)}
+                height={Math.max(0, height - headerHeight)}
                 itemCount={displayFileIds.length}
                 width={width}
                 itemKey={getItemKey}
@@ -145,11 +152,11 @@ export const ListContainer: React.FC<FileListListProps> = React.memo((props) => 
                 {rowRenderer}
             </FixedSizeList>
         );
-    }, [rowHeight, height, displayFileIds, width, getItemKey]);
+    }, [rowHeight, height, headerHeight, displayFileIds, width, getItemKey]);
 
     return (
         <div className="chonky-listView" style={{ width }}>
-            <ListHeader />
+            {!narrow && <ListHeader />}
             {listComponent}
         </div>
     );

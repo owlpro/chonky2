@@ -422,7 +422,8 @@ looks like Chonky's buttons, and its `icon` can be a `ChonkyIconName` or any ele
 
 When Chonky is 560px wide or narrower, e.g. on a phone, the toolbar stays on one row: the
 group menus ("Actions", "Options", …) show only an icon, with the group name as the tooltip,
-and the other buttons go into a "More" (⋯) menu. "Actions" shows a lightning bolt and
+the other buttons go into a "More" (⋯) menu, and the view buttons are left out because the
+list is the only view there. "Actions" shows a lightning bolt and
 "Options" sliders. `groupIcons` sets the icons of your own groups, or replaces those two,
 by group name (`button.group`): a `ChonkyIconName`, an icon name your `iconComponent`
 knows, or any element. A group without one gets `ChonkyIconName.toolbarGroup`.
@@ -465,8 +466,10 @@ Each shortcut belongs to an action and only works when that action is registered
 On touch screens a tap opens a file or folder, and a long press opens the context menu for
 it. Buttons and list rows are taller there, and hover effects only show with a mouse.
 
-While Chonky is 560px wide or narrower, the toolbar buttons other than the view modes go into
-a "More" (⋯) menu. At 480px or narrower the search field is an icon that covers the address
+While Chonky is 560px wide or narrower, the list is the only view, whichever view is chosen,
+and it comes back when Chonky is wider again. Rows show a large thumbnail or icon, the name
+with the date and the size (or item count) under it, and no column headings; sorting is in
+the Options menu. The toolbar buttons other than the view modes go into a "More" (⋯) menu. At 480px or narrower the search field is an icon that covers the address
 bar while it has focus or text. The list drops its Type column when it is 680px wide or
 narrower and its Date column at 480px, so names keep their room.
 

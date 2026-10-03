@@ -1,4 +1,4 @@
-import React, { UIEvent, useCallback, useRef } from 'react';
+import React, { UIEvent, useCallback, useContext, useRef } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 
 import { reduxActions } from '../../redux/reducers';
@@ -12,7 +12,7 @@ import {
 import { FileViewMode } from '../../types/file-view.types';
 import { ENCLOSING_ZONE_DELAY, useFileDrop } from '../../util/dnd';
 import { useDelayedTrue, useElementSize } from '../../util/hooks-helpers';
-import { c, getDndOverClasses } from '../../util/styles';
+import { c, ChonkyNarrowLayoutContext, getDndOverClasses } from '../../util/styles';
 import { findClosestChonkyFileId } from '../external/FileContextMenu-hooks';
 import { FileListEmpty } from './FileListEmpty';
 import { GridContainer } from './GridContainer';
@@ -25,6 +25,7 @@ export interface FileListProps {
 export const FileList: React.FC<FileListProps> = React.memo((props: FileListProps) => {
     const displayFileIds = useSelector(selectors.getDisplayFileIds);
     const viewConfig = useSelector(selectFileViewConfig);
+    const narrow = useContext(ChonkyNarrowLayoutContext);
 
     const currentFolder = useSelector(selectCurrentFolder);
     const loading = useSelector(selectLoading);
@@ -56,7 +57,8 @@ export const FileList: React.FC<FileListProps> = React.memo((props: FileListProp
     if (width > 0 && height > 0) {
         if (displayFileIds.length === 0) {
             list = <FileListEmpty width={width} height={height} loading={loading} />;
-        } else if (viewConfig.mode === FileViewMode.List) {
+        } else if (narrow || viewConfig.mode === FileViewMode.List) {
+            // While Chonky is narrow, e.g. on a phone, the list is the only view
             list = <ListContainer width={width} height={height} />;
         } else {
             list = <GridContainer width={width} height={height} />;

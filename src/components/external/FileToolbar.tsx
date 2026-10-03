@@ -31,8 +31,9 @@ export interface FileToolbarProps {
 /**
  * Top bar: a menu bar with one menu per action group, then buttons for the actions
  * that are not in a group, with the view mode buttons after a divider. While Chonky is
- * narrow, e.g. on a phone, the menus show only their `groupIcons` icon and the buttons
- * other than the view modes go into a "More" menu, so the toolbar fits on one row.
+ * narrow, e.g. on a phone, the menus show only their `groupIcons` icon, the view mode
+ * buttons are left out (the list is the only view then) and the other buttons go into
+ * a "More" menu, so the toolbar fits on one row.
  */
 export const FileToolbar: React.FC<FileToolbarProps> = React.memo(({ startContent, endContent }) => {
     const intl = useIntl();
@@ -52,6 +53,8 @@ export const FileToolbar: React.FC<FileToolbarProps> = React.memo(({ startConten
         for (const item of toolbarItems) {
             if (typeof item === 'string') {
                 if (fileActionMap[item]?.fileViewConfig) {
+                    // While narrow the list is the only view, see FileList
+                    if (narrow) continue;
                     viewButtonComponents.push(<SmartToolbarButton key={`toolbar-item-${item}`} fileActionId={item} />);
                 } else {
                     buttonIds.push(item);
