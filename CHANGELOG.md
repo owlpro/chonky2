@@ -8,6 +8,7 @@ The project follows [Semantic Versioning](https://semver.org/).
 ### Development
 
 - Playground: a Refresh button next to Close in `toolbarEnd`.
+- Playground: a "Long names" folder, whose names are cut in the middle on a phone.
 
 ## [7.4.3]
 

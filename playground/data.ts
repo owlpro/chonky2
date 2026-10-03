@@ -29,6 +29,8 @@ export const initialFiles: PlaygroundFile[] = [
     { id: 'pictures', name: 'Pictures', isDir: true, parentId: HOME_ID, modDate: date('2026-09-18T15:30:00') },
     { id: 'videos', name: 'Videos', isDir: true, parentId: HOME_ID, modDate: date('2026-08-30T20:15:00') },
     { id: 'projects', name: 'Projects', isDir: true, parentId: HOME_ID, modDate: date('2026-09-27T08:00:00') },
+    // Names too long for a phone, cut in the middle there
+    { id: 'long', name: 'Long names', isDir: true, parentId: HOME_ID, modDate: date('2026-10-02T15:00:00') },
     { id: 'readme', name: 'README.md', parentId: HOME_ID, size: 2_480, modDate: date('2026-09-20T10:30:00') },
     { id: 'dotfile', name: '.profile', parentId: HOME_ID, size: 807, isHidden: true, modDate: date('2026-01-04T08:00:00') },
 
@@ -55,6 +57,14 @@ export const initialFiles: PlaygroundFile[] = [
     { id: 'city', name: 'City at night.png', parentId: 'pictures', size: 3_900_000, modDate: date('2026-09-18T15:30:00'), thumbnailUrl: makeThumbnail(250, 230) },
 
     { id: 'trip', name: 'Road trip.mp4', parentId: 'videos', size: 734_000_000, modDate: date('2026-08-30T20:15:00') },
+
+    { id: 'long-dir', name: 'Archived client projects from the 2024 and 2025 seasons', isDir: true, parentId: 'long', modDate: date('2026-09-30T12:00:00') },
+    { id: 'long-rar', name: 'HANISTAR X20_V1.0.3_firmware_update_15_11092026.rar', parentId: 'long', size: 3_020_000, modDate: date('2026-10-02T15:00:00') },
+    { id: 'long-mkv', name: 'Lost.S02E14.One.of.Them.720p.BluRay.x264.FilmKio.mkv', parentId: 'long', size: 1_330_000_000, modDate: date('2026-08-25T14:47:00') },
+    { id: 'long-jpg', name: 'original_photos_album_collage_summer_vacation-1.jpg', parentId: 'long', size: 1_350_000, modDate: date('2026-09-15T22:28:00'), thumbnailUrl: makeThumbnail(30, 100) },
+    { id: 'long-pdf', name: 'Quarterly financial report for the board meeting (final draft).pdf', parentId: 'long', size: 1_845_000, modDate: date('2026-09-04T09:10:00') },
+    { id: 'long-fa', name: 'گزارش نهایی پروژه طراحی رابط کاربری نسخه دوم.docx', parentId: 'long', size: 96_400, modDate: date('2026-09-28T17:35:00') },
+    { id: 'long-word', name: 'Supercalifragilisticexpialidocious_and_more_letters.txt', parentId: 'long', size: 4_200, modDate: date('2026-07-01T08:00:00') },
 
     { id: 'chonky', name: 'chonky2', isDir: true, parentId: 'projects', modDate: date('2026-09-27T08:00:00') },
     { id: 'pkg', name: 'package.json', parentId: 'chonky', size: 2_100, modDate: date('2026-09-27T08:00:00') },
