@@ -1646,8 +1646,10 @@
     }
 }
 
-/* Long names lose their middle: the start gives up room and ends in "…", the end
-   (see splitNameEnd in FileEntry-hooks.tsx) stays */
+/* Long names lose their middle, in the list view and in narrow rows: the start gives up
+   room and ends in "…", the end (see splitNameEnd in FileEntry-hooks.tsx) stays */
+.chonky-listFileEntryName,
+.chonky-listFileEntryName .chonky-fileEntryNameText,
 .chonky-narrowFileEntryName,
 .chonky-narrowFileEntryName .chonky-fileEntryNameText {
     display: flex;
@@ -1659,18 +1661,32 @@
     line-height: 1.25;
 }
 
+.chonky-listFileEntryName .chonky-fileEntryNameStart,
+.chonky-listFileEntryName .chonky-fileEntryNameEnd,
 .chonky-narrowFileEntryName .chonky-fileEntryNameStart,
 .chonky-narrowFileEntryName .chonky-fileEntryNameEnd {
     /* Keeps the space where a name is cut */
     white-space: pre;
 }
 
+/* The list centers names on their icon by the cap height, see `.chonky-listFileEntryName` */
+.chonky-listFileEntryName .chonky-fileEntryNameStart,
+.chonky-listFileEntryName .chonky-fileEntryNameEnd {
+    line-height: 1;
+    text-box: trim-both cap alphabetic;
+}
+
+.chonky-listFileEntryName .chonky-fileEntryNameStart,
 .chonky-narrowFileEntryName .chonky-fileEntryNameStart {
     min-width: 0;
-    overflow: hidden;
+    /* Clipped only sideways, so descenders stay visible */
+    overflow-x: clip;
+    overflow-y: visible;
     text-overflow: ellipsis;
 }
 
+.chonky-listFileEntryName .chonky-fileEntryNameEnd,
+.chonky-listFileEntryName .chonky-modifierIcons,
 .chonky-narrowFileEntryName .chonky-fileEntryNameEnd,
 .chonky-narrowFileEntryName .chonky-modifierIcons {
     flex-shrink: 0;

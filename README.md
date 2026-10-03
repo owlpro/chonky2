@@ -474,8 +474,9 @@ actions. It ends after an action, on Cancel, or when nothing is selected anymore
 While Chonky is 560px wide or narrower, the list is the only view, whichever view is chosen,
 and it comes back when Chonky is wider again. Rows show a large thumbnail or icon, the name
 with the date and the size (or item count) under it, and no column headings; sorting is in
-the Options menu. A long name loses its middle, so its start and end (with the extension)
-stay, e.g. `HANISTAR X20_V…11092026.rar`. The toolbar buttons other than the view modes go
+the Options menu. In this list and in the list view of a wider Chonky, a long name loses its
+middle, so its start and end (with the extension) stay, e.g. `HANISTAR X20_V…11092026.rar`.
+The toolbar buttons other than the view modes go
 into a "More" (⋯) menu. At 480px or narrower the search field is an icon that covers the address
 bar while it has focus or text. The list drops its Type column when it is 680px wide or
 narrower and its Date column at 480px, so names keep their room.

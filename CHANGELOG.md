@@ -5,6 +5,12 @@ The project follows [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [7.6.0]
+
+### Changed
+
+- The list view cuts long names in the middle too, like the phone list since 7.4.1: the start and the end with the extension stay (`HANISTAR X20_V1.0.3_firmware_up… 11092026.rar`), in both directions.
+
 ## [7.5.2]
 
 ### Fixed

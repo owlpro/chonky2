@@ -1,6 +1,6 @@
 {
     "name": "chonky2",
-    "version": "7.5.2",
+    "version": "7.6.0",
     "type": "module",
     "main": "dist/index.cjs",
     "module": "dist/index.es.js",
