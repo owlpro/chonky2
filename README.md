@@ -29,6 +29,12 @@ opens, moves, renames, uploads or deletes something. That makes it fit any stora
 it is a REST API, S3, Firebase, a CMS media library or data in memory.
 
 <p align="center">
+    <a href="https://chonky2.mdpro-smm.workers.dev/#demo"><strong>Live demo</strong></a> ·
+    <a href="https://chonky2.mdpro-smm.workers.dev/docs/"><strong>Documentation</strong></a> ·
+    <a href="https://www.npmjs.com/package/chonky2">npm</a>
+</p>
+
+<p align="center">
     <img src="./images/preview-light.png" alt="Chonky2 in light mode: a sidebar with Favorites, Recent and Folders, and the Home folder in list view" width="800" />
 </p>
 
@@ -139,6 +145,8 @@ current folder, Back and Forward history) works on its own.
 
 ### Installation
 
+On the website: [Installation](https://chonky2.mdpro-smm.workers.dev/docs/installation/).
+
 ```bash
 npm install chonky2
 # or
@@ -157,6 +165,8 @@ There is nothing else to set up: icons and styles are part of the package and ar
 when Chonky renders.
 
 ### Quick start
+
+On the website: [Your first explorer](https://chonky2.mdpro-smm.workers.dev/docs/first-explorer/) and [Connect a backend](https://chonky2.mdpro-smm.workers.dev/docs/connect-backend/).
 
 This example keeps two folders in memory. Opening a folder, the breadcrumbs, Up, Back and
 Forward all arrive as `OpenFiles`, so one handler covers navigation.
@@ -209,6 +219,8 @@ while they load.
 ## Guides
 
 ### Actions
+
+On the website: [File actions](https://chonky2.mdpro-smm.workers.dev/docs/file-actions/).
 
 Everything the user does is an *action*, delivered to `onFileAction` with its `id`, a
 `payload` and the `state` (such as the selected files). Built-in actions such as selection,
@@ -281,6 +293,8 @@ and scrolled into view.
 
 ### Copy, cut and paste
 
+On the website: [Copy, paste, and drag and drop](https://chonky2.mdpro-smm.workers.dev/docs/file-actions/#copy-paste-and-drag-and-drop).
+
 `CopyFiles` (Ctrl+C) and `CutFiles` (Ctrl+X) put the selection on Chonky's clipboard; cut
 files are shown faded. `PasteFiles` (Ctrl+V) pastes into the current folder, or into the
 folder its context menu was opened on. Copies arrive as `CopyFilesTo` and cut files as
@@ -312,6 +326,8 @@ const MyFolderItem = ({ folder }: { folder: FileData }) => {
 
 ### Search
 
+On the website: [Search and reveal files](https://chonky2.mdpro-smm.workers.dev/docs/search/).
+
 The search field filters the current folder: a file is shown when every word typed is part
 of its `name` or its `searchText`. The search is cleared when the folder changes, and files it
 hides are deselected. To find files outside the current folder, handle `ChangeSearch`, open
@@ -331,6 +347,8 @@ const handleAction: FileActionHandler = async (data) => {
 ```
 
 ### Sidebar
+
+On the website: [Sidebar and saved state](https://chonky2.mdpro-smm.workers.dev/docs/sidebar-state/).
 
 The `sidebar` prop puts a navigation pane left of the file list. Build it from
 `FileSidebar`, `FileSidebarSection` and `FileSidebarItem`:
@@ -405,6 +423,8 @@ shows up in `files` or `folderChain` with a new name, but a deleted folder stays
 user removes it (or your app drops it from `userState`).
 
 ### Toolbar content
+
+On the website: [Add toolbar content](https://chonky2.mdpro-smm.workers.dev/docs/custom-layout/#add-toolbar-content).
 
 `toolbarStart` (before the menus) and `toolbarEnd` (after the view buttons, behind a divider)
 take your own elements, such as a close button when Chonky is in a dialog. `ToolbarButton`
@@ -483,6 +503,8 @@ narrower and its Date column at 480px, so names keep their room.
 
 ### Building your own layout
 
+On the website: [Build your own layout](https://chonky2.mdpro-smm.workers.dev/docs/custom-layout/).
+
 `FullFileBrowser` is a shortcut for the parts below. Use them directly to leave some out or
 to arrange them yourself:
 
@@ -507,6 +529,8 @@ With your own layout, pass toolbar content to `FileToolbar` as `startContent` an
 ## Reference
 
 ### Props
+
+On the website: [Browser props](https://chonky2.mdpro-smm.workers.dev/docs/api-reference/#browser-props) and [Core props](https://chonky2.mdpro-smm.workers.dev/docs/core-props/).
 
 `FullFileBrowser` and `FileBrowser` take these props. Only `files` is required.
 
@@ -541,6 +565,8 @@ Defaults for every Chonky on the page can be set once with `setChonkyDefaults({ 
 
 ### File fields
 
+On the website: [FileData](https://chonky2.mdpro-smm.workers.dev/docs/api-reference/#filedata).
+
 Each file is a plain object. Only `id` and `name` are required:
 
 ```ts
@@ -564,6 +590,8 @@ to load. Other fields, such as your own data, are kept and come back in action p
 
 ### Ref methods
 
+On the website: [Ref methods](https://chonky2.mdpro-smm.workers.dev/docs/api-reference/#ref-methods).
+
 Pass a `ref` to `FullFileBrowser` or `FileBrowser` to get a `FileBrowserHandle`:
 
 | Method | Description |
@@ -574,6 +602,8 @@ Pass a `ref` to `FullFileBrowser` or `FileBrowser` to get a `FileBrowserHandle`:
 | `requestFileAction(action, payload)` | Runs an action as if the user had triggered it. |
 
 ### Theming
+
+On the website: [Customize the explorer](https://chonky2.mdpro-smm.workers.dev/docs/customize/).
 
 Pass `darkMode` for the built-in dark theme. To change colours, fonts or sizes, override the
 CSS variables on `.chonky-theme` from your own stylesheet:
@@ -618,6 +648,8 @@ your own icon set everywhere, pass `iconComponent`, a component that receives
 
 ### Translations
 
+On the website: [Translate labels](https://chonky2.mdpro-smm.workers.dev/docs/customize/#translate-labels).
+
 Pass a locale and translated messages through `i18n`. Messages use ICU syntax (`{arg}`,
 `plural`, `select`, `selectordinal`, `#`); numbers, dates and plural rules come from the
 browser's `Intl` APIs.
@@ -655,6 +687,9 @@ To change how dates, sizes or file types are written, pass `i18n.formatters` wit
 ---
 
 ## Playground
+
+To see Chonky without installing anything, open the
+[live demo](https://chonky2.mdpro-smm.workers.dev/#demo) on the website.
 
 The repository has a playground: a full explorer window with sample folders and pictures,
 where every feature works and every event Chonky sends is logged. It is the quickest way to
@@ -758,6 +793,8 @@ Every change to published code gets an entry in [CHANGELOG.md](./CHANGELOG.md) u
 
 ## Changelog, license and links
 
+- Website, with the documentation and a live demo: https://chonky2.mdpro-smm.workers.dev/
+- Documentation: https://chonky2.mdpro-smm.workers.dev/docs/
 - Changelog: [CHANGELOG.md](./CHANGELOG.md)
 - npm: https://www.npmjs.com/package/chonky2
 - GitHub: https://github.com/owlpro/chonky2
